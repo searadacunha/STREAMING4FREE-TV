@@ -58,7 +58,10 @@ elif cmd == "push":
 elif cmd == "pull":
     if not tv(args[1]).exists():
         fail(f"adb: error: remote object '{args[1]}' does not exist")
-    shutil.copy(tv(args[1]), args[2])
+    if tv(args[1]).is_dir():
+        shutil.copytree(tv(args[1]), args[2])
+    else:
+        shutil.copy(tv(args[1]), args[2])
 elif cmd == "install":
     (root / "no-kodi").unlink(missing_ok=True)
     print("Success")
@@ -76,6 +79,19 @@ elif cmd == "shell":
         tv(words[2]).mkdir(parents=True, exist_ok=True)
     elif words[:2] == ["mv", "-f"]:
         os.replace(tv(words[2]), tv(words[3]))
+    elif words[:2] == ["ls", "-1"]:
+        print("\n".join(sorted(p.name for p in tv(words[2]).iterdir())))
+    elif words[0] == "cp":
+        if not tv(words[2]).exists():  # like Kodi's app folder: files can be replaced, not created
+            fail(f"cp: {words[2]}: Permission denied")
+        shutil.copy(tv(words[1]), tv(words[2]))
+    elif line == "cat /proc/meminfo":
+        print("MemTotal:        1807396 kB\nMemFree:           84552 kB\nMemAvailable:     670120 kB")
+    elif words[:2] == ["df", "-k"]:
+        print("Filesystem 1K-blocks Used Available Use% Mounted on\n"
+              "/dev/fuse 8283280 5487240 2796040 67% /storage/emulated")
+    elif words[:2] == ["dumpsys", "meminfo"]:
+        print("           TOTAL PSS:   174123            TOTAL RSS:   250000")
     elif words[:2] == ["rm", "-f"]:
         tv(words[2]).unlink(missing_ok=True)
     elif words[0] == "getprop":
@@ -87,7 +103,7 @@ elif cmd == "shell":
             print("    versionName=21.3")
         elif installed and "READ_EXTERNAL_STORAGE" in line:
             print("      android.permission.READ_EXTERNAL_STORAGE: granted=true")
-    elif words[0] in ("pidof", "am", "monkey"):
+    elif words[0] in ("pidof", "am", "monkey", "input"):
         pass
     else:
         fail(f"fake adb: unsupported shell command: {line}")

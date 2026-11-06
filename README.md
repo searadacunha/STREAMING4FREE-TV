@@ -277,6 +277,35 @@ restarts it even during playback, `--restart never` leaves it alone.
 
 To undo the last deployment: `iptv4free rollback` (`--list` shows the backups).
 
+### 4. Optional: MegaNexus interface
+
+[MegaNexus](https://github.com/MegaNexusMediaPlayer/MegaNexus) is a third-party Kodi
+interface (skin, home screen, Channels, YouTube and Music apps) for Kodi 21 and 22. It is
+not part of IPTV4FREE and is never redistributed by it (its license forbids that): Kodi
+installs it from the official MegaNexus repository.
+
+Its **Channels** screen reads Kodi's own TV channels, so the lineups IPTV4FREE deploys to
+IPTV Simple Client appear there with their numbers and guide, without importing them a
+second time. Leave MegaNexus' own "IPTV setup" (M3U / Xtream lists) empty, or every channel
+would be loaded twice. `iptv4free deploy` stays the only update path.
+
+```bash
+iptv4free meganexus doctor     # read-only: CPU build, RAM, Kodi, add-ons, skin, channels
+iptv4free meganexus setup      # backs up Kodi's settings, checks the official zip, prints the steps
+iptv4free meganexus rollback   # restores Kodi's settings and turns MegaNexus off
+```
+
+`setup` saves Kodi's settings (everything in `userdata` but the thumbnail cache) and the
+deployed playlists to `~/.local/state/iptv4free/meganexus/backups/`, and checks that the
+repository zip Kodi will download matches the SHA-256 GitHub publishes for the latest
+release. The installation itself is done with the remote, following the printed steps.
+
+`rollback` refuses while Kodi is playing. It quits Kodi, writes back every settings file
+that changed since the backup (ADB may replace files in Kodi's folder, not create them),
+starts Kodi and disables the MegaNexus add-ons. If Kodi is frozen, `--force` stops it
+first. Files Kodi created after the backup, such as the MegaNexus entry in `sources.xml`,
+stay.
+
 ## Channel management
 
 The example configuration defines three lineups:
@@ -345,6 +374,10 @@ measured threshold.
 | Headers with spaces | IPTV Simple Client cuts `#EXTVLCOPT` values at the first space. Use `#KODIPROP:http-user-agent=...` in your own playlists to send a full value. |
 | Kodi shows no channels | Run `iptv4free doctor`: it checks the storage permission, the files on the TV and IPTV Simple Client. |
 | The TV froze after an update | Restart the TV. Use `deploy --dry-run` before large updates and keep `max_changes` low. `iptv4free rollback` restores the previous playlists. |
+| MegaNexus: "Unknown sources" stays off | Kodi ignores this setting when it comes through JSON-RPC: switch it on in Settings > System > Add-ons and answer Yes. |
+| MegaNexus: the zip copied to the TV is not listed | Android 11 and later hide other apps' non-media files from Kodi. Install from the official source URL (`meganexus setup` prints the steps). |
+| MegaNexus: Kodi went back to its old skin | The "Keep this skin?" question expires after about 10 seconds. Open MegaNexus again and answer Yes. |
+| MegaNexus: Kodi is frozen | `iptv4free meganexus rollback --force` (refused while something plays). |
 
 Logs: `~/.local/state/iptv4free/iptv4free.log`; `-v` prints debug output.
 

@@ -116,6 +116,9 @@ class FakeKodi:
         self.calls: list[str] = []
         self.playing = False
         self.addon_enabled = True
+        self.addons: dict[str, dict] = {}  # other installed add-ons: id -> {"version", "enabled"}
+        self.settings = {"lookandfeel.skin": "skin.estuary"}
+        self.hang: set[str] = set()  # methods that never answer in time (frozen Kodi)
         self.sock = socket.socket()
         self.sock.bind(("127.0.0.1", 0))
         self.sock.listen()
@@ -131,12 +134,27 @@ class FakeKodi:
             with conn:
                 req = json.loads(conn.recv(65536))
                 self.calls.append(req["method"])
+                params = req.get("params", {})
+                if req["method"] in self.hang:
+                    time.sleep(1)
+                    continue
+                addon = params.get("addonid")
+                if addon and addon != "pvr.iptvsimple" and addon not in self.addons:
+                    reply = {"jsonrpc": "2.0", "id": req["id"],
+                             "error": {"code": -32602, "message": "Invalid params."}}
+                    conn.sendall(json.dumps(reply).encode())
+                    continue
+                if req["method"] == "Addons.SetAddonEnabled":
+                    self.addons[addon]["enabled"] = params["enabled"]
                 result = {
                     "JSONRPC.Ping": "pong",
                     "Player.GetActivePlayers": [{"playerid": 1}] if self.playing else [],
                     "Application.Quit": "OK",
-                    "Addons.GetAddonDetails": {"addon": {"enabled": self.addon_enabled,
-                                                         "version": "21.11.0"}},
+                    "Addons.GetAddonDetails": {"addon": self.addons[addon] if addon in self.addons
+                                               else {"enabled": self.addon_enabled,
+                                                     "version": "21.11.0"}},
+                    "Addons.SetAddonEnabled": "OK",
+                    "Settings.GetSettingValue": {"value": self.settings.get(params.get("setting"))},
                     "PVR.GetChannelGroups": {"channelgroups": [{"channelgroupid": 1}]},
                     "PVR.GetChannels": {"limits": {"total": 4}},
                 }.get(req["method"])
