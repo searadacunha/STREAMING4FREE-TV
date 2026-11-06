@@ -143,3 +143,15 @@ def test_rollback_of_a_frozen_kodi_needs_force(env, release, monkeypatch):
     assert any("will be stopped (--force)" in x for x in lines)
     assert gui.read_text() == SKIN.format("skin.estuary")
     assert not any(a["enabled"] for a in k.addons.values())
+
+
+def test_running_kodi_that_ignores_the_ping_is_never_killed_without_force(env, release, monkeypatch):
+    config, adb, root, lines, k, _ = env
+    assert meganexus.setup(config, adb, out=lines.append) == 0
+    (root / USERDATA / "guisettings.xml").write_text(SKIN.format("skin.meganexus"))
+    (root / "kodi-pid").touch()
+    monkeypatch.setattr(meganexus, "connect_rpc", lambda adb, config: None)
+    assert meganexus.rollback(config, adb, out=lines.append) == meganexus.EXIT_REFUSED
+    assert "skin.meganexus" in (root / USERDATA / "guisettings.xml").read_text()
+    assert meganexus.doctor(config, adb, out=lines.append) == 1
+    assert "[FAIL] Kodi runs but does not answer" in lines[-1]

@@ -131,37 +131,41 @@ class FakeKodi:
                 conn, _ = self.sock.accept()
             except OSError:
                 return
-            with conn:
-                req = json.loads(conn.recv(65536))
-                self.calls.append(req["method"])
-                params = req.get("params", {})
-                if req["method"] in self.hang:
-                    time.sleep(1)
-                    continue
-                addon = params.get("addonid")
-                if addon and addon != "pvr.iptvsimple" and addon not in self.addons:
-                    reply = {"jsonrpc": "2.0", "id": req["id"],
-                             "error": {"code": -32602, "message": "Invalid params."}}
-                    conn.sendall(json.dumps(reply).encode())
-                    continue
-                if req["method"] == "Addons.SetAddonEnabled":
-                    self.addons[addon]["enabled"] = params["enabled"]
-                result = {
-                    "JSONRPC.Ping": "pong",
-                    "Player.GetActivePlayers": [{"playerid": 1}] if self.playing else [],
-                    "Application.Quit": "OK",
-                    "Addons.GetAddonDetails": {"addon": self.addons[addon] if addon in self.addons
-                                               else {"enabled": self.addon_enabled,
-                                                     "version": "21.11.0"}},
-                    "Addons.SetAddonEnabled": "OK",
-                    "Settings.GetSettingValue": {"value": self.settings.get(params.get("setting"))},
-                    "PVR.GetChannelGroups": {"channelgroups": [{"channelgroupid": 1}]},
-                    "PVR.GetChannels": {"limits": {"total": 4}},
-                }.get(req["method"])
-                note = {"jsonrpc": "2.0", "method": "GUI.OnScreensaverDeactivated", "params": {}}
-                reply = {"jsonrpc": "2.0", "id": req["id"], "result": result}
-                # notification and reply in one packet: the client must split them
-                conn.sendall((json.dumps(note) + json.dumps(reply)).encode())
+            # one thread per connection, so a request that hangs does not block the next
+            threading.Thread(target=self._answer, args=(conn,), daemon=True).start()
+
+    def _answer(self, conn):
+        with conn:
+            req = json.loads(conn.recv(65536))
+            self.calls.append(req["method"])
+            params = req.get("params", {})
+            if req["method"] in self.hang:
+                time.sleep(1)
+                return
+            addon = params.get("addonid")
+            if addon and addon != "pvr.iptvsimple" and addon not in self.addons:
+                reply = {"jsonrpc": "2.0", "id": req["id"],
+                         "error": {"code": -32602, "message": "Invalid params."}}
+                conn.sendall(json.dumps(reply).encode())
+                return
+            if req["method"] == "Addons.SetAddonEnabled":
+                self.addons[addon]["enabled"] = params["enabled"]
+            result = {
+                "JSONRPC.Ping": "pong",
+                "Player.GetActivePlayers": [{"playerid": 1}] if self.playing else [],
+                "Application.Quit": "OK",
+                "Addons.GetAddonDetails": {"addon": self.addons[addon] if addon in self.addons
+                                           else {"enabled": self.addon_enabled,
+                                                 "version": "21.11.0"}},
+                "Addons.SetAddonEnabled": "OK",
+                "Settings.GetSettingValue": {"value": self.settings.get(params.get("setting"))},
+                "PVR.GetChannelGroups": {"channelgroups": [{"channelgroupid": 1}]},
+                "PVR.GetChannels": {"limits": {"total": 4}},
+            }.get(req["method"])
+            note = {"jsonrpc": "2.0", "method": "GUI.OnScreensaverDeactivated", "params": {}}
+            reply = {"jsonrpc": "2.0", "id": req["id"], "result": result}
+            # notification and reply in one packet: the client must split them
+            conn.sendall((json.dumps(note) + json.dumps(reply)).encode())
 
     def close(self):
         self.sock.close()

@@ -158,10 +158,11 @@ def instructions(zip_name: str) -> str:
         f"  3. Add-ons > Install from zip file > MegaNexus > {zip_name}",
         "  4. Add-ons > Install from repository > MegaNexus Repository > Video add-ons >",
         "     MegaNexus Hub > Install. Interface, skin and screensaver follow by themselves.",
-        "  5. Add-ons > Program add-ons > MegaNexus. When Kodi asks 'Keep this skin?', answer",
-        "     Yes within about 10 seconds, or Kodi switches back.",
+        "  5. When Kodi asks 'Keep this skin?', answer Yes within about 10 seconds; if it",
+        "     expired, open MegaNexus again from Add-ons and answer Yes.",
         "  6. Welcome screen: 'Start simple' needs no account.",
-        "  7. Run `iptv4free meganexus doctor`.",
+        "  7. Leave Channels > IPTV setup empty: Channels already shows Kodi's channels.",
+        "  8. Run `iptv4free meganexus doctor`, then restart Kodi once and check it opens.",
         "To undo it: `iptv4free meganexus rollback` (add --force if Kodi is frozen).",
     ])
 
@@ -233,7 +234,11 @@ def doctor(config: Config, adb: Adb, out=print) -> int:
         r.fail(str(e))
         return 1
     if rpc is None:
-        r.warn("Kodi is not running: start it to check the MegaNexus add-ons")
+        if _kodi_running(adb, config):
+            r.fail("Kodi runs but does not answer (frozen?). If nothing is playing: "
+                   "`iptv4free meganexus rollback --force`")
+        else:
+            r.warn("Kodi is not running: start it to check the MegaNexus add-ons")
         return 1 if r.failed else 0
     try:
         addons = installed_addons(rpc)
@@ -290,6 +295,10 @@ def _overwrite(config: Config, adb: Adb, local: Path, remote: str) -> None:
         raise MegaNexusError(f"{remote}: restored copy does not match the backup")
 
 
+def _kodi_running(adb: Adb, config: Config) -> bool:
+    return bool(adb.shell(f"pidof {_q(config.kodi_package)}", check=False).strip())
+
+
 def _wait_rpc(adb: Adb, config: Config, seconds: float) -> KodiRpc | None:
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
@@ -317,18 +326,20 @@ def rollback(config: Config, adb: Adb, name: str | None = None, *, dry_run: bool
     for remote in gone:
         out(f"  not on the TV any more, left as is: {remote}")
     rpc = connect_rpc(adb, config)
+    frozen = rpc is None and _kodi_running(adb, config)  # the app runs, JSON-RPC is silent
     if rpc is not None:
         try:
             if rpc.call("Player.GetActivePlayers"):
                 out("REFUSED: Kodi is playing. Stop playback, then run the rollback again.")
                 return EXIT_REFUSED
         except OSError:  # answers the ping, not the player: Kodi is stuck
-            if not force:
-                out("REFUSED: Kodi does not answer. If it is frozen and nothing is playing, "
-                    "run the rollback again with --force to restart it.")
-                return EXIT_REFUSED
-            out("Kodi does not answer: it will be stopped (--force).")
-            rpc = None
+            frozen, rpc = True, None
+    if frozen:
+        if not force:
+            out("REFUSED: Kodi does not answer. If it is frozen and nothing is playing, "
+                "run the rollback again with --force to restart it.")
+            return EXIT_REFUSED
+        out("Kodi does not answer: it will be stopped (--force).")
     if dry_run:
         out("Dry run: nothing was changed on the TV.")
         return 0
@@ -339,7 +350,7 @@ def rollback(config: Config, adb: Adb, name: str | None = None, *, dry_run: bool
             except (OSError, KodiError):
                 pass
             for _ in range(20):
-                if not adb.shell(f"pidof {_q(config.kodi_package)}", check=False).strip():
+                if not _kodi_running(adb, config):
                     break
                 time.sleep(1)
         adb.shell(f"am force-stop {_q(config.kodi_package)}", check=False)

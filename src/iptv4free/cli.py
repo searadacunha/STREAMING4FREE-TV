@@ -173,8 +173,8 @@ def parser() -> argparse.ArgumentParser:
     msub = m.add_subparsers(dest="action", required=True)
     msub.add_parser("doctor", help="read-only checks for MegaNexus").set_defaults(
         func=cmd_meganexus_doctor)
-    msub.add_parser("setup", help="back up Kodi, copy the official MegaNexus repository "
-                    "zip to the TV, print the install steps").set_defaults(func=cmd_meganexus_setup)
+    msub.add_parser("setup", help="back up Kodi, check the official MegaNexus repository "
+                    "zip, print the install steps").set_defaults(func=cmd_meganexus_setup)
     mr = msub.add_parser("rollback", help="restore Kodi's settings from a backup and turn "
                          "MegaNexus off")
     mr.add_argument("--backup", help="backup name (default: latest)")

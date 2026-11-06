@@ -5,6 +5,7 @@ Behaviour switches (files in the root directory):
   hang      -> every command sleeps (to test timeouts)
   corrupt   -> pushed files are altered (to test checksum verification)
   no-kodi   -> Kodi is not installed
+  kodi-pid  -> Kodi's process runs (pidof answers)
 Every invocation is appended to commands.log.
 """
 import hashlib
@@ -103,7 +104,10 @@ elif cmd == "shell":
             print("    versionName=21.3")
         elif installed and "READ_EXTERNAL_STORAGE" in line:
             print("      android.permission.READ_EXTERNAL_STORAGE: granted=true")
-    elif words[0] in ("pidof", "am", "monkey", "input"):
+    elif words[0] == "pidof":
+        if (root / "kodi-pid").exists():
+            print("4242")
+    elif words[0] in ("am", "monkey", "input"):
         pass
     else:
         fail(f"fake adb: unsupported shell command: {line}")

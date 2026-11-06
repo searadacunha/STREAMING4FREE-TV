@@ -286,8 +286,9 @@ installs it from the official MegaNexus repository.
 
 Its **Channels** screen reads Kodi's own TV channels, so the lineups IPTV4FREE deploys to
 IPTV Simple Client appear there with their numbers and guide, without importing them a
-second time. Leave MegaNexus' own "IPTV setup" (M3U / Xtream lists) empty, or every channel
-would be loaded twice. `iptv4free deploy` stays the only update path.
+second time. Leave the Channels screen's own "IPTV setup" empty: adding the same playlists
+there would load the channels a second time. `iptv4free deploy` stays the only update path,
+so there is no separate sync command.
 
 ```bash
 iptv4free meganexus doctor     # read-only: CPU build, RAM, Kodi, add-ons, skin, channels
@@ -383,6 +384,15 @@ Logs: `~/.local/state/iptv4free/iptv4free.log`; `-v` prints debug output.
 
 ## Limitations
 
+- MegaNexus was tested on one TV (Android 12, 32-bit ARM, 1.8 GB of RAM, Kodi 21.3,
+  MegaNexus 9.1.0, 7,883 channels). Verified there: installation from the official source,
+  the Home screen with posters and descriptions, remote navigation (about 0.5 to 1 s per
+  key), the Channels screen listing all 7,883 channels with their numbers and guide,
+  playback of two channels from it, and `meganexus doctor`, `setup` and
+  `rollback --force`. Also seen there: after a restart, Kodi froze twice on MegaNexus'
+  "Who's watching?" screen (fixed only by the rollback; whether switching that screen off
+  in HUB Settings > Profiles avoids it is not verified), and the TV left the Wi-Fi for
+  8 minutes while MegaNexus was running (cause unknown).
 - Kodi's add-on configuration (installing IPTV Simple Client, one instance per lineup) is a
   one-time manual step: Kodi keeps it in app-private storage that ADB cannot write.
 - Verified on one TV model (Android 12, 32-bit ARM, Kodi 21.3, IPTV Simple Client 21.11.0):
