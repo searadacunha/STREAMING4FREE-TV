@@ -45,6 +45,14 @@ that apply where they live.
 
 The test suite uses only synthetic playlists and guides served from a local test server.
 
-## Original IPTV4FREE Kodi TV interface
+## IPTV4FREE Kodi TV interface
 
-The optional `kodi-addon/script.iptv4free` UI is original code and original graphic textures under this project's MIT license. It is a standalone Kodi program add-on: no MegaNexus implementation or media assets are bundled or adapted. The separate optional REA tool (https://github.com/morluto/rea) is for user-authorized local device inspection only; it is not packaged or a runtime dependency.
+`kodi-addon/script.iptv4free` is original code under this project's MIT license. It ships no
+fonts (Kodi uses the active skin's fonts) and no MegaNexus code or images. Its textures are the
+official IPTV4FREE logo (project owner's brand artwork, `assets/branding/IPTV4FREE-original.png`)
+and two generated textures (a white pixel and a blue background).
+
+- Pillow (MIT-CMU license) is used at build and test time only, to make the 512 × 512 icon; it
+  is not shipped in the add-on.
+- REA (https://github.com/morluto/rea) is an optional inspection tool for a TV you own; it is
+  not packaged and is not a dependency.

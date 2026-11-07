@@ -28,6 +28,7 @@ programme guides itself. The computer is only needed to refresh the lineups.
 - [Troubleshooting](#troubleshooting)
 - [Limitations](#limitations)
 - [Extending](#extending)
+- [TV interface (Kodi add-on)](#tv-interface-kodi-add-on)
 - [License](#license)
 
 ## Overview
@@ -433,19 +434,43 @@ Logs: `~/.local/state/iptv4free/iptv4free.log`; `-v` prints debug output.
 - **Code**: start from `pipeline.run_build` (output) or `deploy.apply` (deployment). Run
   `pytest` before submitting changes; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## TV interface (Kodi add-on)
+
+`kodi-addon/script.iptv4free/` is IPTV4FREE's own full-screen interface for Kodi, with the
+official IPTV4FREE logo, in electric blue, white and black. It reads the channels Kodi already
+has from IPTV Simple Client: groups by country and category, channel logos, now and next with
+progress, each channel's full programme, Kodi's TV guide, favourites, search, and a live
+preview of the channel playing. Everything works with the remote; Back from the video returns
+to IPTV4FREE. It changes nothing in Kodi, IPTV Simple Client or MegaNexus.
+
+![IPTV4FREE in Kodi 21.3](docs/images/iptv4free-kodi21-accueil.jpg)
+
+*Real Kodi 21.3 screen on a Mac, with a test playlist of fictional channels.*
+
+**Download:** [script.iptv4free-0.2.0.zip](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.2.0.zip)
+(`python3 scripts/build_addon.py` rebuilds the same file, byte for byte).
+
+Install on the TV:
+
+1. Put the ZIP in `dist/` (it is already there in a clone) and run `python3 scripts/serve_addon.py`.
+   It prints the address to use, such as `http://192.168.1.30:8780/`. Do not use
+   `python3 -m http.server`: Kodi reads ZIP files with byte ranges, which that server ignores,
+   and Kodi 21.3 crashes while installing.
+2. In Kodi: **Settings → File manager → Add source**, enter that address, name it `IPTV4FREE`.
+3. **Settings → System → Add-ons → Unknown sources**: on.
+4. **Add-ons → Install from zip file → IPTV4FREE → script.iptv4free-0.2.0.zip**, then stop the
+   server (Ctrl+C).
+5. Open **Add-ons → Program add-ons → IPTV4FREE**.
+
+To remove it: **My add-ons → Program add-ons → IPTV4FREE → Uninstall**. Playlists and settings
+stay as they are.
+
+Remote keys, low-RAM design, the logo files, the study of a full `skin.iptv4free` theme and
+what was and was not tested: [docs/IPTV4FREE-TV-UI.md](docs/IPTV4FREE-TV-UI.md). It was tested
+in Kodi 21.3 on a Mac, not yet on the TV itself.
+
 ## License
 
 IPTV4FREE is released under the [MIT License](LICENSE). Kodi, its add-ons and the Android
 platform tools are separate projects under their own licenses; they are not distributed with
 IPTV4FREE. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-
-
-## IPTV4FREE TV interface (optional, prototype)
-
-A separate, original full-screen TV interface for **Kodi** is available under `kodi-addon/script.iptv4free/`: live channels, programme titles, groups, favorites, search, and guide shortcuts. It works via Kodi PVR rather than replacing or redistributing MegaNexus. **Download the installable ZIP directly on GitHub:** [script.iptv4free-0.1.0.zip](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.1.0.zip). Alternatively rebuild it with `python3 scripts/build_addon.py`. See [interface setup and REA inspection](docs/IPTV4FREE-TV-UI.md). The first version has not yet been tested on the physical TV.
-
-### IPTV4FREE logo and app icon
-
-The **user-supplied electric-blue/white globe-and-orbit IPTV4FREE logo** is the required brand artwork. To complete its integration, upload the *unaltered PNG* to [`assets/branding/IPTV4FREE-original.png`](assets/branding/README.md) on the `feat/iptv4free-tv-ui` branch. The original image attachment from ChatGPT was not accessible as binary data in this environment; **the artwork is not yet in this repository**. Until it is uploaded, the TV interface retains its text logo.
-
-Once uploaded, `python3 scripts/build_addon.py` produces both the exact on-screen logo copy and a transparent square 512×512 add-on icon without changing the artwork. The Kodi ZIP, when rebuilt, registers that icon through the `addon.xml` metadata and includes the logo in the TV UI. Building the branded ZIP requires `pip install pillow` on the development machine; Kodi has no Pillow runtime dependency. GitHub Actions also rebuilds the ZIP when the source logo is added. [Complete branding and installation instructions](docs/IPTV4FREE-TV-UI.md).

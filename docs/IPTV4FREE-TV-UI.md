@@ -1,51 +1,113 @@
-# IPTV4FREE — interface TV pour Kodi (prototype 0.1)
+# IPTV4FREE — interface TV pour Kodi (module 0.2.0)
 
-Interface originale plein écran 16:9, lisible à la télécommande, conçue pour les chaînes déjà présentes dans **Kodi PVR IPTV Simple Client**. Elle ne modifie **aucun** fichier ni composant de MegaNexus : elle s'ouvre comme un module indépendant nommé **IPTV4FREE**. Elle ne fournit aucune chaîne ni aucun flux.
+Interface plein écran 1920 × 1080 (16:9), pilotée à la télécommande, pour les chaînes déjà configurées dans **Kodi PVR IPTV Simple Client**. Elle porte le logo officiel IPTV4FREE et les couleurs bleu électrique, blanc et noir. Elle ne fournit aucune chaîne ni aucun flux, et ne modifie ni Kodi, ni IPTV Simple, ni MegaNexus.
 
-Fonctions : chaînes en direct, groupes, programme en cours, recherche, favoris locaux, guide Kodi, démarrage d'une chaîne, retour vers Kodi, rechargement des chaînes. Affichage limité à 300 chaînes par groupe pour protéger la mémoire des TV modestes. Couleurs graphite et turquoise, illustrations originales.
+![Accueil IPTV4FREE dans Kodi 21.3](images/iptv4free-kodi21-accueil.jpg)
+
+*Capture réelle de Kodi 21.3 (Omega) sur Mac, avec une playlist de test aux chaînes fictives : la chaîne en cours de lecture apparaît en direct dans le panneau de droite.*
+
+## Ce que fait l'interface
+
+| Zone | Contenu |
+|---|---|
+| Colonne de gauche | Logo officiel, puis EN DIRECT, GUIDE TV, FAVORIS, RECHERCHE, GROUPES, PARAMÈTRES, QUITTER |
+| Groupes | Les groupes réels d'IPTV Simple, affichés par pays et catégorie (`France · Info` devient FRANCE / Info) ; « Toutes les chaînes » en tête |
+| Chaînes | Numéro, logo, nom, programme en cours, barre de progression, repère FAVORI, repère blanc sur la chaîne en lecture |
+| Panneau de droite | Aperçu vidéo de la chaîne en lecture (ou logo de la chaîne), programme en cours avec horaires et progression, programme suivant, programme complet de la chaîne |
+
+**Télécommande**
+
+| Touche | Effet |
+|---|---|
+| Flèches | Se déplacer ; ← et → passent d'une colonne à l'autre |
+| OK sur une chaîne | Regarder (plein écran). OK sur la chaîne déjà en lecture : retour au plein écran, sans relancer le flux |
+| → sur une chaîne | Programme complet de la chaîne ; OK sur une émission affiche son résumé |
+| MENU ou appui long sur OK | Regarder, ajouter ou retirer des favoris, programme de la chaîne |
+| RETOUR | Du programme vers les chaînes, des chaînes vers le menu, du menu vers Kodi |
+| RETOUR pendant la vidéo | Revient dans IPTV4FREE, la chaîne continue dans l'aperçu |
+
+GUIDE TV ouvre la grille complète de Kodi (tous les programmes, toutes les chaînes) ; RETOUR revient dans IPTV4FREE, sur le même bouton. PARAMÈTRES ouvre les réglages TV de Kodi.
+
+**Pour une TV à 2 Go de RAM** : chaînes chargées par pages de 300 (la suite se charge en arrivant en bas de la liste), appels JSON-RPC de 100 chaînes, programme complet chargé seulement à la demande, logos des chaînes chargés en arrière-plan, recherche et favoris limités à 60 résultats. Mesuré sur Mac : ouvrir l'interface avec 341 chaînes ajoute environ 4 Mo à Kodi.
+
+**Favoris** : enregistrés par nom de chaîne dans `userdata/addon_data/script.iptv4free/favorites.json`. Ils survivent à une mise à jour des playlists, qui change les identifiants internes de Kodi (vérifié).
+
+**Une seule copie** : si IPTV4FREE est resté ouvert derrière l'accueil de Kodi (touche HOME), le relancer ramène la fenêtre existante au lieu d'en ouvrir une deuxième.
 
 ## Installer sur la télévision
 
-1. Vérifier que les chaînes sont déjà visibles dans Kodi / IPTV Simple Client (`iptv4free doctor` sur l'ordinateur).
-2. Télécharger directement le [ZIP IPTV4FREE depuis GitHub](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.1.0.zip) ou, sur Mac/Linux, construire le même module à la racine du dépôt avec `python3 scripts/build_addon.py` (sortie : `dist/script.iptv4free-0.1.0.zip`).
-3. Partager temporairement ce dossier sur le Wi-Fi local : `python3 -m http.server --directory dist 8765`. Dans Kodi, **Settings → File manager → Add source** puis URL `http://ADRESSE_IP_DU_MAC:8765`.
-4. Dans Kodi : **Settings → System → Add-ons → Unknown sources**, activer pour cette installation si nécessaire, puis **Add-ons → Install from zip file → source IPTV4FREE → script.iptv4free-0.1.0.zip**.
-5. Ouvrir **Kodi → Add-ons → Program add-ons → IPTV4FREE**. Le module est indépendant du thème installé. Certaines interfaces (dont MegaNexus selon la version) peuvent ne pas afficher les Program add-ons directement : dans ce cas, utiliser les menus Kodi natifs pour ouvrir le module; ne pas altérer MegaNexus.
+Prérequis : les chaînes sont déjà visibles dans Kodi (IPTV Simple Client). Sur l'ordinateur : `iptv4free doctor`.
 
-Le bouton Retour quitte IPTV4FREE et retrouve Kodi et le thème précédemment utilisé. Pour supprimer l'interface : **My add-ons → Program add-ons → IPTV4FREE → Uninstall**. Les playlists IPTV Simple Client restent intactes.
+1. Le ZIP est dans `dist/` du dépôt (branche `feat/iptv4free-tv-ui`), lien direct : [script.iptv4free-0.2.0.zip](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.2.0.zip). Depuis un clone, il est déjà en place ; un fichier téléchargé à part se range dans `dist/`. On peut aussi le reconstruire : `python3 scripts/build_addon.py` donne le même fichier, octet pour octet.
+2. Le servir sur le Wi-Fi : `python3 scripts/serve_addon.py`. Le script affiche l'adresse à saisir dans Kodi, par exemple `http://192.168.1.30:8780/`.
+   - **Ne pas utiliser `python3 -m http.server`** : Kodi lit les ZIP par plages d'octets (*ranges*), que ce serveur ignore. Kodi 21.3 n'arrive alors pas à lire le ZIP et **plante** pendant l'installation (constaté le 07/11/2026). `serve_addon.py` répond à ces plages.
+3. Dans Kodi : **Paramètres → Gestionnaire de fichiers → Ajouter une source**, saisir l'adresse affichée, nommer la source `IPTV4FREE`.
+4. **Paramètres → Système → Extensions → Sources inconnues** : activer, si ce n'est pas déjà fait.
+5. **Extensions → Installer depuis un fichier ZIP → IPTV4FREE → script.iptv4free-0.2.0.zip**, puis arrêter `serve_addon.py` (Ctrl+C).
+6. Ouvrir **Extensions → Extensions de programmes → IPTV4FREE**. Le module apparaît aussi dans les extensions vidéo.
 
-## Inspecter la TV avec REA (facultatif)
+**Désinstaller** : Extensions → Mes extensions → Extensions de programmes → IPTV4FREE → Désinstaller. Les playlists, IPTV Simple, MegaNexus et les réglages de Kodi ne sont pas touchés.
 
-Le dépôt officiel **REA** est https://github.com/morluto/rea. C'est un outil de diagnostic Android / rétro-ingénierie, **pas un thème Kodi**. D'après ses commandes de diagnostic ADB, après avoir autorisé l'accès ADB sur *ta propre TV* :
+## Logo officiel
+
+`assets/branding/IPTV4FREE-original.png` est le PNG fourni par Benjamin, conservé tel quel (1536 × 1024, RGBA, SHA-256 `895a691c86d56185416257ce026c540e49b49aaedf438c98c5242dcee60485bf`). `scripts/prepare_branding.py` en produit :
+
+- `resources/skins/Default/media/iptv4free-logo.png` : copie octet pour octet, affichée dans la colonne de gauche et pendant le chargement ;
+- `icon.png` : carré transparent 512 × 512 déclaré dans `addon.xml`. Seules les marges invisibles du PNG (alpha ≤ 1/255) sont retirées, puis le logo est réduit proportionnellement et centré, sans recoloration ni découpe de pixels visibles.
+
+![Fiche de l'extension dans Kodi 21.3](images/iptv4free-kodi21-fiche.jpg)
+
+Après remplacement du logo : `python3 -m pip install pillow`, `python3 scripts/prepare_branding.py`, puis `python3 scripts/build_addon.py`. Pillow ne sert qu'à la construction ; Kodi n'en a pas besoin.
+
+## Thème Kodi complet (`skin.iptv4free`) : étude
+
+Un thème Kodi remplace **toutes** les fenêtres de Kodi : accueil, réglages, lecteur et OSD, guide, enregistrements, clavier, dialogues. Estuary en compte plus de 150 fichiers XML, et une fenêtre absente du thème devient inutilisable. Les options :
+
+- **partir d'Estuary** (GPL-2.0, Team Kodi) et le renommer : faisable, mais le thème passe sous GPL-2.0 et doit suivre chaque version de Kodi ;
+- **sur la TV**, activer un thème remplace MegaNexus, qui est lui-même un thème (`skin.meganexus`) : l'accueil MegaNexus disparaîtrait. Les changements de thème ont déjà provoqué des gels au démarrage sur cette TV (journal du 06/11).
+
+Décision pour 0.2.0 : rester un **module de programmes** autonome. Il fonctionne sous n'importe quel thème, ne touche ni à Kodi ni à MegaNexus, et s'affiche en plein écran avec sa propre identité. Un thème complet reste possible plus tard, sur une TV de test et avec l'accord de Benjamin.
+
+Conséquence technique : Kodi n'utilise que les polices du thème actif. Le module emploie les noms de polices d'Estuary (`font12`, `font13`, `font30_title`…). Sous un autre thème, Kodi se rabat sur `font13` si un nom manque. Le rendu sous MegaNexus n'a pas été vérifié (sa licence interdit de lire son code).
+
+## Inspecter la TV avec REA et ADB (facultatif, lecture seule)
+
+[REA](https://github.com/morluto/rea) est un outil d'inspection Android et de rétro-ingénierie, pas un thème Kodi. Sur **votre** TV, avec ADB autorisé :
 
 ```sh
-npx rea-agents setup
 rea inspect-adb-client
 rea list-adb-devices
 rea inspect-adb-device SERIAL_TV
 rea inspect-adb-display SERIAL_TV
 rea inspect-adb-package SERIAL_TV org.xbmc.kodi
-rea capture-adb-screen SERIAL_TV --output-directory ./rea-avant
+rea capture-adb-screen SERIAL_TV --output-directory ./captures-avant
 ```
 
-Lire ensuite l'état ADB et tester l'interface, capture d'écran avant/après et retours télécommande. REA exige une connexion réelle autorisée; **aucun examen direct de la TV n'a été possible** pendant le développement de ce prototype. Ne pas extraire, adapter, recopier ni redistribuer le code ou les illustrations de MegaNexus, dont la licence est restrictive.
+`screencap` ne capture pas la couche vidéo de la TV : pour prouver qu'une chaîne joue, lire `Player.Time` par JSON-RPC ou le journal MediaCodec (`logcat`). Ne pas extraire, adapter ni redistribuer le code ou les images de MegaNexus.
 
 ## Architecture
 
-`kodi-addon/script.iptv4free/` : add-on Kodi `xbmc.python.script`, interface `WindowXMLDialog`, ressources PNG originales et commandes JSON-RPC locales (`PVR.GetChannelGroups`, `PVR.GetChannels`, `Player.Open`). Les favoris sont enregistrés dans le répertoire *profile* de ce seul add-on.
+- `kodi-addon/script.iptv4free/` : module `xbmc.python.script`.
+  - `default.py` : fenêtre `WindowXML` plein écran. Comme c'est une vraie fenêtre Kodi, RETOUR depuis la vidéo ou le guide revient dedans.
+  - `resources/lib/core.py` : appels JSON-RPC locaux (`PVR.GetChannelGroups`, `PVR.GetChannels`, `PVR.GetChannelDetails`, `PVR.GetBroadcasts`, `Player.Open`), sans dépendance à Kodi, donc testables.
+  - `resources/skins/Default/1080i/IPTV4FREE.xml` : l'écran.
+- `scripts/prepare_branding.py`, `scripts/build_addon.py` (ZIP reproductible), `scripts/serve_addon.py` (serveur Wi-Fi avec plages d'octets).
+- `tests/test_tv_ui.py` : données PVR synthétiques, `default.py` exécuté contre des faux modules Kodi, logo, icône, XML, ZIP, serveur.
 
-`scripts/build_addon.py` : empaquetage ZIP avec les deux textures graphiques.
-`tests/test_tv_ui.py` : tests de la couche PVR sur des données entièrement synthétiques et contrôle de présence XML/assets.
+## Ce qui a été vérifié, et ce qui ne l'a pas été
 
-**Limites :** prototype non validé en conditions réelles sur TV Android / Kodi 21-22, navigation et compatibilité MegaNexus à vérifier appareil allumé. Ce n'est pas un remplacement global de tous les écrans de Kodi.
+Vérifié le 07/11/2026 dans **Kodi 21.3 sur Mac**, avec PVR IPTV Simple Client 21.11.0, 341 chaînes de test, un guide XMLTV et des flux HLS locaux :
 
+- installation par « Installer depuis un fichier ZIP », depuis une source locale puis par le réseau avec `serve_addon.py` ;
+- icône dans la fiche de l'extension, logo à l'écran ;
+- navigation et focus à la télécommande, groupes, programme de la chaîne et résumé, favoris (menu contextuel, vue Favoris, survie à une réimportation), recherche avec accents ;
+- chargement par pages (300 puis 341) ;
+- lecture, RETOUR avec aperçu, passage d'une chaîne à l'autre, chaîne en panne (« Lecture impossible ») ;
+- GUIDE TV et PARAMÈTRES avec retour au même bouton, état sans PVR, une seule copie.
 
-## Logo officiel IPTV4FREE : installation et conservation
-
-Le fichier PNG original envoyé dans la conversation est **blanc et bleu électrique**, avec le globe, l'orbite et les étoiles. Il doit rester identique, sans recoloration, redessin, génération IA ou déformation. Cet environnement n'a pas pu accéder aux octets binaires de la pièce jointe : le PNG **n'a pas encore été publié sur GitHub**.
-
-**Une opération manuelle est nécessaire :** ouvrir la branche `feat/iptv4free-tv-ui`, puis le dossier `assets/branding/` sur GitHub, choisir **Add file → Upload files**, et déposer le PNG d'origine sous le nom exact `IPTV4FREE-original.png`. Ne pas mettre l'image dans `main` tant que la PR n'est pas validée.
-
-Après cet upload, le workflow GitHub reconstruit automatiquement l'archive. Localement : `python3 -m pip install pillow`, puis `python3 scripts/build_addon.py`. Le script de packaging conserve une copie inchangée du PNG dans le dossier media de Kodi et produit un `icon.png` carré transparent de 512×512 par simple redimensionnement proportionnel et ajout de marges. `addon.xml` associe cette icône aux extensions Kodi. L'interface utilise l'image fournie comme en-tête, avec un titre texte de secours en l'absence du PNG.
-
-Le ZIP `dist/script.iptv4free-0.1.0.zip` ne sera réellement **à jour avec le logo** qu'après la compilation réussie suivant l'upload. Ne pas confondre le fichier ZIP déjà publié auparavant et la nouvelle version marquée.
+**Pas vérifié sur la télévision** (TCL, Android 12, armeabi-v7a, 1,8 Go) : elle était éteinte et injoignable pendant le développement. Restent donc à essayer sur la TV :
+- le rendu sous le thème MegaNexus ;
+- la fluidité avec 7 883 chaînes ;
+- l'appui long sur OK de la télécommande TCL ;
+- l'aperçu vidéo avec le décodeur MediaCodec ;
+- l'écran de chargement avec le logo, trop bref pour être capturé sur Mac.
