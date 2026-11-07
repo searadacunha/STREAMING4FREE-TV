@@ -438,3 +438,8 @@ Logs: `~/.local/state/iptv4free/iptv4free.log`; `-v` prints debug output.
 IPTV4FREE is released under the [MIT License](LICENSE). Kodi, its add-ons and the Android
 platform tools are separate projects under their own licenses; they are not distributed with
 IPTV4FREE. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+
+## IPTV4FREE TV interface (optional, prototype)
+
+A separate, original full-screen TV interface for **Kodi** is available under `kodi-addon/script.iptv4free/`: live channels, programme titles, groups, favorites, search, and guide shortcuts. It works via Kodi PVR rather than replacing or redistributing MegaNexus. Build the installable Kodi ZIP with `python3 scripts/build_addon.py`. See [interface setup and REA inspection](docs/IPTV4FREE-TV-UI.md). The first version has not yet been tested on the physical TV.

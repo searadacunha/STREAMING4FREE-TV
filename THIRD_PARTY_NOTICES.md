@@ -44,3 +44,7 @@ responsible for the sources they configure and for complying with the laws and r
 that apply where they live.
 
 The test suite uses only synthetic playlists and guides served from a local test server.
+
+## Original IPTV4FREE Kodi TV interface
+
+The optional `kodi-addon/script.iptv4free` UI is original code and original graphic textures under this project's MIT license. It is a standalone Kodi program add-on: no MegaNexus implementation or media assets are bundled or adapted. The separate optional REA tool (https://github.com/morluto/rea) is for user-authorized local device inspection only; it is not packaged or a runtime dependency.
