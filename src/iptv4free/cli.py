@@ -7,7 +7,7 @@ import os
 import sys
 from pathlib import Path
 
-from . import __version__, deploy, doctor, kodi, pipeline
+from . import __version__, deploy, doctor, kodi, meganexus, pipeline
 from .adb import Adb, AdbError
 from .config import RESTART_POLICIES, Config, ConfigError, load_config
 
@@ -105,6 +105,23 @@ def cmd_doctor(config: Config, args) -> int:
     return doctor.run(config, _adb(config))
 
 
+def cmd_meganexus_doctor(config: Config, args) -> int:
+    return meganexus.doctor(config, _adb(config))
+
+
+def cmd_meganexus_setup(config: Config, args) -> int:
+    return meganexus.setup(config, _adb(config))
+
+
+def cmd_meganexus_rollback(config: Config, args) -> int:
+    if args.list:
+        for b in meganexus.backups(config):
+            print(b.name)
+        return 0
+    return meganexus.rollback(config, _adb(config), args.backup, dry_run=args.dry_run,
+                              force=args.force)
+
+
 def cmd_update(config: Config, args) -> int:
     cmd_scan(config, args)
     cmd_build(config, args)
@@ -151,6 +168,21 @@ def parser() -> argparse.ArgumentParser:
     u = sub.add_parser("update", help="scan, build and deploy")
     deploy_flags(u)
     u.set_defaults(func=cmd_update)
+
+    m = sub.add_parser("meganexus", help="MegaNexus interface for Kodi: doctor, setup, rollback")
+    msub = m.add_subparsers(dest="action", required=True)
+    msub.add_parser("doctor", help="read-only checks for MegaNexus").set_defaults(
+        func=cmd_meganexus_doctor)
+    msub.add_parser("setup", help="back up Kodi, check the official MegaNexus repository "
+                    "zip, print the install steps").set_defaults(func=cmd_meganexus_setup)
+    mr = msub.add_parser("rollback", help="restore Kodi's settings from a backup and turn "
+                         "MegaNexus off")
+    mr.add_argument("--backup", help="backup name (default: latest)")
+    mr.add_argument("--list", action="store_true", help="list backups")
+    mr.add_argument("--dry-run", action="store_true", help="show the plan, change nothing")
+    mr.add_argument("--force", action="store_true",
+                    help="restart Kodi even if it does not answer (frozen)")
+    mr.set_defaults(func=cmd_meganexus_rollback)
     return p
 
 
@@ -166,7 +198,8 @@ def main(argv: list[str] | None = None) -> int:
     _logging(config, args.verbose)
     try:
         return args.func(config, args)
-    except (AdbError, kodi.KodiError, pipeline.PipelineError, deploy.DeployError, OSError) as e:
+    except (AdbError, kodi.KodiError, pipeline.PipelineError, deploy.DeployError,
+            meganexus.MegaNexusError, OSError) as e:
         log.debug("command failed", exc_info=True)
         print(f"error: {e}", file=sys.stderr)
         return 1

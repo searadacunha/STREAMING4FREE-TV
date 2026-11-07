@@ -23,7 +23,11 @@ The test suite needs no TV and no Internet access: it uses a local HTTP server, 
   override, atomic uploads, a backup before every change.
 - Never commit real playlists, stream URLs with tokens, TV addresses, logs or `iptv4free.toml`.
 - Do not add third-party code or binaries to the repository. Kodi and its add-ons are
-  installed from their official distribution channels.
+  installed from their official distribution channels. MegaNexus' license forbids
+  redistributing or adapting its code: `meganexus.py` relies only on its documentation and on
+  Kodi's public interfaces.
+- `meganexus.py` must keep its guarantees: a backup before any change, no rollback while Kodi
+  plays, no forced stop of a Kodi that still runs without `--force`.
 - Write commit messages that say what changed and why.
 
 ## Reporting a bug

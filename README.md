@@ -77,6 +77,10 @@ IPTV4FREE does not host or provide any stream. It works with the playlists you c
   and the deployed files, without changing anything.
 - **Kodi installation.** `iptv4free setup --install-kodi` installs the official Kodi APK
   for the TV's CPU architecture after checking its published SHA-256.
+- **MegaNexus interface (optional).** `iptv4free meganexus doctor | setup | rollback`
+  checks the TV for the MegaNexus Kodi interface, backs up Kodi's settings, checks the
+  official installer and restores Kodi if needed. MegaNexus' Channels screen shows the
+  deployed lineups with no second import.
 - **No runtime dependencies.** Python 3.11+ standard library only.
 
 ## Architecture
@@ -95,6 +99,7 @@ flowchart LR
     subgraph Android TV
         F --> K[Kodi<br/>IPTV Simple Client<br/>one instance per lineup]
         E2[(XMLTV guides)] --> K
+        K -. optional .-> M[MegaNexus<br/>Channels screen]
     end
 ```
 
@@ -110,6 +115,7 @@ previous one stored, so a failed step never leaves the TV half-updated.
 | Android TV or Google TV | With developer options and ADB debugging enabled. Reference device: an Android 12 TV (32-bit ARM), see [Limitations](#limitations). |
 | Kodi 21 | Installed by `iptv4free setup --install-kodi` or from the Play Store. |
 | IPTV Simple Client | Kodi add-on, installed once from the official Kodi repository (see [Deployment](#deployment)). |
+| MegaNexus (optional) | Kodi 21 or 22 on a 32-bit or 64-bit ARM TV; see [Deployment](#4-optional-meganexus-interface). |
 | Network | The computer and the TV on the same local network. The computer needs Internet access to scan; the TV needs it to play. |
 
 ## Quick start
@@ -129,6 +135,7 @@ iptv4free build                          # writes build/<lineup>.m3u
 iptv4free deploy --dry-run               # shows what would change on the TV
 iptv4free deploy --allow-large-update    # first deployment: imports all channels
 iptv4free doctor                         # checks everything end to end
+iptv4free meganexus setup                # optional MegaNexus interface, see Deployment
 ```
 
 Later updates: `iptv4free update`. It refuses large changes unless you add
@@ -277,6 +284,36 @@ restarts it even during playback, `--restart never` leaves it alone.
 
 To undo the last deployment: `iptv4free rollback` (`--list` shows the backups).
 
+### 4. Optional: MegaNexus interface
+
+[MegaNexus](https://github.com/MegaNexusMediaPlayer/MegaNexus) is a third-party Kodi
+interface (skin, home screen, Channels, YouTube and Music apps) for Kodi 21 and 22. It is
+not part of IPTV4FREE and is never redistributed by it (its license forbids that): Kodi
+installs it from the official MegaNexus repository.
+
+Its **Channels** screen reads Kodi's own TV channels, so the lineups IPTV4FREE deploys to
+IPTV Simple Client appear there with their numbers and guide, without importing them a
+second time. Leave the Channels screen's own "IPTV setup" empty: adding the same playlists
+there would load the channels a second time. `iptv4free deploy` stays the only update path,
+so there is no separate sync command.
+
+```bash
+iptv4free meganexus doctor     # read-only: CPU build, RAM, Kodi, add-ons, skin, channels
+iptv4free meganexus setup      # backs up Kodi's settings, checks the official zip, prints the steps
+iptv4free meganexus rollback   # restores Kodi's settings and turns MegaNexus off
+```
+
+`setup` saves Kodi's settings (everything in `userdata` but the thumbnail cache) and the
+deployed playlists to `~/.local/state/iptv4free/meganexus/backups/`, and checks that the
+repository zip Kodi will download matches the SHA-256 GitHub publishes for the latest
+release. The installation itself is done with the remote, following the printed steps.
+
+`rollback` refuses while Kodi is playing. It quits Kodi, writes back every settings file
+that changed since the backup (ADB may replace files in Kodi's folder, not create them),
+starts Kodi and disables the MegaNexus add-ons. If Kodi is frozen, `--force` stops it
+first. Files Kodi created after the backup, such as the MegaNexus entry in `sources.xml`,
+stay.
+
 ## Channel management
 
 The example configuration defines three lineups:
@@ -345,11 +382,30 @@ measured threshold.
 | Headers with spaces | IPTV Simple Client cuts `#EXTVLCOPT` values at the first space. Use `#KODIPROP:http-user-agent=...` in your own playlists to send a full value. |
 | Kodi shows no channels | Run `iptv4free doctor`: it checks the storage permission, the files on the TV and IPTV Simple Client. |
 | The TV froze after an update | Restart the TV. Use `deploy --dry-run` before large updates and keep `max_changes` low. `iptv4free rollback` restores the previous playlists. |
+| MegaNexus: "Unknown sources" stays off | Kodi ignores this setting when it comes through JSON-RPC: switch it on in Settings > System > Add-ons and answer Yes. |
+| MegaNexus: the zip copied to the TV is not listed | Android 11 and later hide other apps' non-media files from Kodi. Install from the official source URL (`meganexus setup` prints the steps). |
+| MegaNexus: Kodi went back to its old skin | The "Keep this skin?" question expires after about 10 seconds. Open MegaNexus again and answer Yes. |
+| MegaNexus: Kodi is frozen | `iptv4free meganexus rollback --force` (refused while something plays). |
 
 Logs: `~/.local/state/iptv4free/iptv4free.log`; `-v` prints debug output.
 
 ## Limitations
 
+- MegaNexus was tested on one TV (Android 12, 32-bit ARM, 1.8 GB of RAM, Kodi 21.3,
+  MegaNexus 9.1.0, 7,883 channels). Verified there: installation from the official source,
+  the HUB, Home with posters and descriptions, Search, the YouTube app (playback) and the
+  Music app (opens), remote navigation (0.4 to 1.2 s per key), the Channels screen with all
+  7,883 channels, the IPTV4FREE groups and the guide, playback of channels from France,
+  Portugal and World groups from it, `meganexus doctor`, `setup`, `rollback --force`, and
+  Kodi restarts (cold start, forced stop, IPTV4FREE's restart) opening on the HUB. Inside a
+  group, Channels numbers channels by position; "All channels" shows the lineup numbers.
+- Problems seen on that TV: Kodi froze twice at startup on MegaNexus' "Who's watching?"
+  screen, after a crash and after a forced stop (cause unknown); three later starts
+  worked, the last two with that screen switched off. Kodi once stayed stuck after
+  "Unloaded skin" when quitting (IPTV4FREE's restart stops it after 20 s; settings were
+  already saved). Kodi crashed once in `inputstream.adaptive` while switching from an HLS
+  channel. The TV left the Wi-Fi for 8 minutes once while MegaNexus was running (cause
+  unknown).
 - Kodi's add-on configuration (installing IPTV Simple Client, one instance per lineup) is a
   one-time manual step: Kodi keeps it in app-private storage that ADB cannot write.
 - Verified on one TV model (Android 12, 32-bit ARM, Kodi 21.3, IPTV Simple Client 21.11.0):
