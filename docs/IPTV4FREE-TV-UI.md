@@ -38,3 +38,14 @@ Lire ensuite l'état ADB et tester l'interface, capture d'écran avant/après et
 `tests/test_tv_ui.py` : tests de la couche PVR sur des données entièrement synthétiques et contrôle de présence XML/assets.
 
 **Limites :** prototype non validé en conditions réelles sur TV Android / Kodi 21-22, navigation et compatibilité MegaNexus à vérifier appareil allumé. Ce n'est pas un remplacement global de tous les écrans de Kodi.
+
+
+## Logo officiel IPTV4FREE : installation et conservation
+
+Le fichier PNG original envoyé dans la conversation est **blanc et bleu électrique**, avec le globe, l'orbite et les étoiles. Il doit rester identique, sans recoloration, redessin, génération IA ou déformation. Cet environnement n'a pas pu accéder aux octets binaires de la pièce jointe : le PNG **n'a pas encore été publié sur GitHub**.
+
+**Une opération manuelle est nécessaire :** ouvrir la branche `feat/iptv4free-tv-ui`, puis le dossier `assets/branding/` sur GitHub, choisir **Add file → Upload files**, et déposer le PNG d'origine sous le nom exact `IPTV4FREE-original.png`. Ne pas mettre l'image dans `main` tant que la PR n'est pas validée.
+
+Après cet upload, le workflow GitHub reconstruit automatiquement l'archive. Localement : `python3 -m pip install pillow`, puis `python3 scripts/build_addon.py`. Le script de packaging conserve une copie inchangée du PNG dans le dossier media de Kodi et produit un `icon.png` carré transparent de 512×512 par simple redimensionnement proportionnel et ajout de marges. `addon.xml` associe cette icône aux extensions Kodi. L'interface utilise l'image fournie comme en-tête, avec un titre texte de secours en l'absence du PNG.
+
+Le ZIP `dist/script.iptv4free-0.1.0.zip` ne sera réellement **à jour avec le logo** qu'après la compilation réussie suivant l'upload. Ne pas confondre le fichier ZIP déjà publié auparavant et la nouvelle version marquée.

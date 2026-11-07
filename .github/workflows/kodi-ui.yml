@@ -4,11 +4,15 @@ on:
   push:
     paths:
       - "kodi-addon/**"
+      - "assets/branding/**"
+      - "scripts/prepare_branding.py"
       - "scripts/build_addon.py"
       - ".github/workflows/kodi-ui.yml"
   pull_request:
     paths:
       - "kodi-addon/**"
+      - "assets/branding/**"
+      - "scripts/prepare_branding.py"
       - "scripts/build_addon.py"
       - ".github/workflows/kodi-ui.yml"
 
@@ -25,7 +29,7 @@ jobs:
           python-version: "3.11"
       - name: Validate and package original Kodi add-on
         run: |
-          python -m pip install pytest
+          python -m pip install pytest pillow
           python -m pytest -q tests/test_tv_ui.py
           python scripts/build_addon.py
           python - <<'PY'

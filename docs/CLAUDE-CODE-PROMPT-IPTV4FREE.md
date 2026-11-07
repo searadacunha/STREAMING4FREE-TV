@@ -1,54 +1,54 @@
-# PROMPT CLAUDE CODE — IPTV4FREE / KODI / REA
+# CLAUDE CODE — FINALISER IPTV4FREE AVEC LE LOGO OFFICIEL
 
-Tu es ingénieur senior spécialisé en Kodi, Android TV, UI TV et intégration ADB. Tu disposes de l'accès local au projet, à GitHub et, si elle est connectée et autorisée, à ma télévision Android. Agis, implémente, teste et publie : je veux un résultat utilisable, pas une simple proposition.
+**Mission** : terminer et livrer une interface Kodi/Android TV réellement utilisable appelée **IPTV4FREE**, en adoptant **exactement le logo fourni par l'utilisateur** (texte blanc métallisé « IPTV4 FREE », globe bleu électrique, anneau orbital et étoiles). Le visuel de référence a été transmis dans la conversation ChatGPT du 7 novembre 2026. Le logo est définitif : sa géométrie, ses inscriptions, ses effets, ses dégradés et ses couleurs ne doivent pas être modifiés.
 
-## Références à étudier obligatoirement
+Dépôt : https://github.com/searadacunha/IPTV4FREE
+Branche existante : feat/iptv4free-tv-ui
+PR existante : https://github.com/searadacunha/IPTV4FREE/pull/3
+Source REA : https://github.com/morluto/rea
 
-1. Mon dépôt : https://github.com/searadacunha/IPTV4FREE
-2. Ma PR existante : https://github.com/searadacunha/IPTV4FREE/pull/3
-3. Branche de travail : `feat/iptv4free-tv-ui`
-4. REA : https://github.com/morluto/rea (outil d'analyse Android, pas une interface graphique).
-5. Kodi : architecture officielle skins/add-ons, interfaces JSON-RPC et PVR IPTV Simple Client.
-6. MegaNexus est installé chez moi par-dessus Kodi : documente sa présence et sa compatibilité sans copier, extraire, adapter ou redistribuer son code, sa marque ou ses illustrations. Sa licence est restrictive.
+## 1. Première priorité : enregistrer le VRAI logo dans GitHub
 
-Lis tous les fichiers utiles : README, `src/iptv4free/{kodi,meganexus,cli,adb}.py`, `kodi-addon/script.iptv4free/`, `docs/IPTV4FREE-TV-UI.md`, le workflow `.github/workflows/kodi-ui.yml`, les tests et la configuration. Lis les commits/retours CI de la PR #3 avant de modifier quoi que ce soit. **Ne réécris pas le README de zéro.**
+Contrôle immédiatement le fichier \`assets/branding/IPTV4FREE-original.png\` sur la branche existante.
 
-## Objectif produit — IPTV4FREE
+- Si présent : vérifie qu'il s'agit bien du PNG original de l'utilisateur, conserve-le intact, calcule son SHA-256 et renseigne ses dimensions, puis prépare les déclinaisons techniques.
+- Si absent : cherche **uniquement** le fichier original dans les pièces jointes accessibles/locales (image déjà fournie par l'utilisateur) ou dans son téléchargement sur le Mac. Ne fabrique pas d'image approximative. Si le fichier n'est pas accessible, signale explicitement la seule action manuelle nécessaire : déposer le PNG par GitHub → branche \`feat/iptv4free-tv-ui\` → dossier \`assets/branding/\` → **Add file → Upload files** → nom \`IPTV4FREE-original.png\`. Continue le développement sans prétendre que le logo est intégré avant l'upload.
+- Exécute \`python3 -m pip install pillow\` pour les outils de *build seulement* ; vérifie \`scripts/prepare_branding.py\`. Le script doit conserver l'image originale byte-for-byte pour l'affichage Kodi et produire une icône carrée transparente 512×512 par mise à l'échelle proportionnelle et marges. Zéro recoloration, nouvelle typographie, découpe des lettres ou déformation.
+- Utilise l'image dans \`kodi-addon/script.iptv4free/resources/skins/Default/media/iptv4free-logo.png\`, et l'icône \`kodi-addon/script.iptv4free/icon.png\` dans \`addon.xml\` via \`<assets><icon>icon.png</icon></assets>\`. Vérifie le rendu dans l'interface et la fiche de l'extension Kodi.
+- Conserve un titre texte de secours si le PNG n'a pas encore été uploadé, afin de ne pas casser le prototype. Ne prétends pas que ce module Kodi dispose d'une icône de *launcher Android* indépendante : cela demanderait une application/entrée Android TV distincte.
+- Couleurs de l'application : bleu électrique/royal, blanc, noir et gris anthracite. Le turquoise de l'ancien prototype doit disparaître si non justifié. Le fond ne doit jamais compromettre la lisibilité du logo.
 
-Je veux une véritable expérience de télévision, visuellement soignée et unifiée, appelée **IPTV4FREE**, qui repose sur Kodi pour la lecture et sur les chaînes déjà gérées par mon pipeline M3U/EPG. Le prototype actuel est un add-on de programmes : considère-le comme une base de travail, pas comme le résultat final.
+## 2. Audit du dépôt et architecture
 
-Crée une interface **16:9 1920×1080**, sobre, moderne, rapide, avec :
-- identité IPTV4FREE unique, fond graphite presque noir, accents turquoise subtils, typographie lisible depuis un canapé, textures originales et légères ;
-- accueil immersif, raccourci « En direct », groupes Portugal / France / Monde lorsque ces données existent réellement, favoris, recherche, guide TV, paramètres et retour ;
-- rail de chaînes avec noms, numéros, logos disponibles, programme actuel et si possible suivant, progression de programme et état du direct ;
-- télécommande Android TV entièrement fonctionnelle : directions, OK, Retour, pression longue si utile, focus toujours visible et prévisible, aucun blocage de navigation ;
-- lancement de la chaîne sélectionnée, retour depuis la vidéo, conservation des favoris et des numéros, navigation stable même si la liste se rafraîchit ;
-- écrans d'erreur/chargement/absence d'EPG présentables et non bloquants, sans données fictives.
+Lis le README, \`docs/IPTV4FREE-TV-UI.md\`, le présent prompt, \`src/iptv4free/\`, le code du module Kodi, le workflow de création ZIP et la PR #3 avec ses résultats CI. Vérifie les APIs Kodi officielles avant de modifier les fichiers XML/Python. Garde toutes les fonctionnalités existantes : scan des M3U, filtrage, dédoublonnage, EPG/XMLTV, sauvegardes, déploiement ADB, \`doctor\`, rollback et intégration optionnelle MegaNexus.
 
-Choisis l'architecture réelle la plus robuste : amélioration du `script.iptv4free` autonome, puis **skin Kodi original `skin.iptv4free`** si les APIs et le temps de validation le permettent. Une véritable personnalisation de l'écran d'accueil est prioritaire ; n'annonce pas qu'un simple module de programmes remplace tous les écrans Kodi. Si un raccourci Android TV distinct est faisable sans fragiliser Kodi, ajoute-le séparément, mais ne modifie pas l'APK officiel de Kodi.
+MegaNexus a une licence restrictive : ne pas copier, modifier, traduire, réutiliser son code propriétaire ou ses graphismes, ni republier une version dérivée de MegaNexus. Réalise une interface **originale** par les APIs publiques Kodi/JSON-RPC et PVR IPTV Simple Client. Un skin original \`skin.iptv4free\` peut compléter le module si les vérifications le justifient, en respectant les licences d'éventuelles bases open source, mais ne dis pas qu'un simple Program Add-on remplace toute l'interface Kodi.
 
-## Inspection REA et sécurité
+## 3. Résultat visuel et expérience TV
 
-Sur mon Mac, trouve le checkout local et la configuration réelle de l'application. Utilise REA uniquement si disponible/utile, en commençant par les commandes de découverte `rea inspect-adb-client`, `rea list-adb-devices`, `rea inspect-adb-device SERIAL`, `rea inspect-adb-display SERIAL`, `rea inspect-adb-package SERIAL org.xbmc.kodi` et `rea capture-adb-screen`, conformément à la documentation officielle. N'invente pas un état de TV, un serial, une IP ni une capture.
+Créer une expérience native **1920×1080 16:9**, moderne, sombre et bleue, cohérente autour du **logo exact** :
+- Accueil avec logo dans un en-tête lisible, navigation latérale réduite et sélection clairement visible.
+- Sections : En direct, Guide TV, Favoris, Recherche, Groupes, Paramètres, Retour Kodi. Les groupes de pays doivent provenir de PVR, pas d'une liste fictive.
+- Liste des chaînes avec numéro, nom, logo quand disponible, émission actuelle et suivante si disponible, heure de début/fin et progression si les données EPG le permettent.
+- Navigation 100 % télécommande Android TV : flèches, OK, Retour, transitions de focus déterministes, état de chargement, absence de chaînes/EPG, utilisation sans souris.
+- Lecture avec Kodi Player.Open, retour à la liste sans pertes de favoris ni blocage ; favoris et filtres robustes ; pas de relance/fermeture intempestive de Kodi.
+- Optimiser pour une TV modeste (environ 2 Go de RAM), chargement progressif, pagination, textures réduites mais nettes, fluidité.
 
-Si ma télévision est joignable avec ADB autorisé : fais une inspection en lecture seule, sauvegarde les paramètres et écrans avant toute installation, identifie la version de Kodi, la résolution, la RAM, les add-ons en place et l'état de PVR. Ne stoppe ni ne désinstalle Kodi pendant une lecture ; n'écrase pas MegaNexus et ne touche pas aux comptes ou médias. Si l'accès ADB est absent, poursuis l'implémentation et les tests hors ligne sans déclarer avoir validé la TV.
+## 4. Inspection facultative mais utile avec REA
 
-## Contraintes techniques
+REA est un inspecteur d'APK/Android, pas un générateur d'interface. Si ADB et la TV sont joignables avec autorisation, commencer en lecture seule :
+\`rea inspect-adb-client\`, \`rea list-adb-devices\`, \`rea inspect-adb-device SERIAL\`, \`rea inspect-adb-display SERIAL\`, \`rea inspect-adb-package SERIAL org.xbmc.kodi\`, \`rea capture-adb-screen SERIAL --output-directory ./captures-avant\`.
 
-- Réutiliser les playlists, groupes, IDs, EPG et favoris de l'architecture existante dans la mesure où les APIs le permettent. Ne pas ajouter de sources IPTV factices ou contourner des accès.
-- Exploiter les APIs publiques de Kodi/JSON-RPC/PVR plutôt que des fichiers internes MegaNexus. Pas de code ni d'assets MegaNexus repris.
-- Optimiser pour les TV Android modestes (~2 Go de RAM) : chargements bornés, pagination, cache raisonnable, images peu lourdes, pas d'animations coûteuses.
-- Séparer logiquement UI, accès PVR, persistance des favoris et installation. Ajouter tests unitaires sur réponses synthétiques, tests navigation/focus si environnement de simulation possible, tests ZIP/XML/manifest, compatibilité versions Kodi, et prévention des régressions du pipeline `iptv4free`.
-- Si un skin Kodi GPL sert de base, respecter strictement ses licences et attributions et ne pas le confondre avec MegaNexus.
-- Installer uniquement avec un plan explicite de sauvegarde, vérification, test et retour arrière. L'utilisateur doit pouvoir désinstaller IPTV4FREE tout en retrouvant Kodi et MegaNexus inchangés.
+D'après ces résultats réels seulement, vérifier version Android/Kodi, résolution, architecture CPU, RAM, présence MegaNexus et PVR, navigation et rendu du nouveau logo. Sauvegarder la configuration Kodi avant installation. Ne rien écraser pendant la lecture. Si aucune TV n'est accessible, tester sur mocks ou émulateur et **indiquer clairement l'absence de validation réelle sur TV**.
 
-## Livraison obligatoire sur GitHub
+## 5. Tests et publication GitHub
 
-Travaille dans **la branche et la PR #3 existantes**. Ne change pas `main` et n'ouvre pas un doublon de PR. Une fois les tests validés :
-1. produire le ZIP Kodi installable avec `python3 scripts/build_addon.py` (ou adapter le script s'il faut plusieurs packages) ;
-2. publier le ZIP directement dans le dépôt `dist/` sur la branche ou dans une GitHub Release publique, avec un lien direct persistant, **pas seulement un artefact GitHub Actions à durée limitée** ;
-3. vérifier par l'API GitHub que le fichier existe réellement à l'URL fournie, que son contenu ZIP est valide et qu'il contient tous ses assets ;
-4. mettre à jour le README avec une section concise « Installation depuis GitHub », le lien du ZIP, le chemin Kodi « Add-ons → Install from zip file », le mode de désinstallation et la manière de revenir au thème précédent ;
-5. documenter les tests réellement exécutés, les limitations, les licences, et les captures d'écran réelles uniquement si une capture a été faite.
+- Mettre à jour les tests Kodi/PVR/UI, avec données synthétiques, XML bien formés, chemins/focus cohérents, bitmap source et icon en 512×512, conservation du logo original, ZIP complet et enregistrement de l'icône dans \`addon.xml\`.
+- \`python3 -m pip install -e ".[dev]"\`, \`python3 -m pip install pillow\`, \`pytest -q\`, \`python3 scripts/build_addon.py\`. Contrôler le ZIP généré et son contenu. Corriger les erreurs sans masquer les exceptions.
+- Conserver la PR **#3** et la branche existante. Ne pas fusionner directement sur \`main\`, ne pas ouvrir de PR doublon, ne pas écraser d'éventuels commits concurrents. Publier le ZIP final dans \`dist/\` ou dans une Release vérifiée et donner le lien direct GitHub.
+- Le ZIP précédemment publié sous le nom \`script.iptv4free-0.1.0.zip\` était un prototype **sans le logo fourni**. Ne le présenter comme « logo intégré » qu'après un nouveau build et contrôle du SHA, de la présence de \`icon.png\` et de la texture \`iptv4free-logo.png\` dans l'archive.
+- Mettre à jour le README **sans en supprimer le style**, inclure une capture écran réelle seulement si elle existe, un lien de téléchargement ZIP GitHub, installation Kodi étape par étape et retour arrière.
 
-Ne déclare pas « terminé » tant que le ZIP n'est pas accessible depuis GitHub. À la fin, réponds avec : URL du fichier ZIP ; URL de PR ; modifications précises ; résultats des tests ; installation sur ma TV étape par étape ; état des essais réels ; points restant à corriger. Sois rigoureux, ne fabrique aucune réussite.
+## 6. Fin de mission : preuves exigées
+
+Réponds avec : (1) lien GitHub du logo original et son SHA-256, (2) présence du logo dans la fiche d'extension Kodi et à l'écran, (3) lien direct vers ZIP final validé, (4) PR #3 et commits, (5) résultats exacts des tests, (6) compatibilité vérifiée ou non sur la TV, (7) instructions d'installation/désinstallation. Si le PNG d'origine n'est pas accessible, annonce précisément le blocage ; ne remplace pas le logo par une création IA et ne prétends jamais qu'un ZIP non marqué porte le logo.

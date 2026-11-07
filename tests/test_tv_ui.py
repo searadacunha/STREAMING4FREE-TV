@@ -65,3 +65,24 @@ def test_kodi_manifest_and_ui_files():
     assert {100, 101, 102, 103, 104, 105, 107, 108, 109, 500}.issubset(ids)
     for image in ("pixel.png", "backdrop.png"):
         assert (ADDON / "resources/skins/Default/media" / image).stat().st_size > 0
+
+
+
+def test_uploaded_branding_source_generates_kodi_icon(tmp_path):
+    from PIL import Image
+    from scripts.prepare_branding import prepare_logo
+    source = tmp_path / "original.png"
+    image = Image.new("RGBA", (120, 80), (0, 0, 0, 0))
+    for x in range(20, 100):
+        for y in range(15, 65):
+            image.putpixel((x, y), (30, 50, 245, 255))
+    image.save(source)
+    header = tmp_path / "media" / "iptv4free-logo.png"
+    icon = tmp_path / "addon" / "icon.png"
+    assert prepare_logo(source=source, header=header, icon=icon)
+    assert header.read_bytes() == source.read_bytes()  # exact logo, unchanged
+    with Image.open(icon) as final:
+        assert final.size == (512, 512)
+        assert final.mode == "RGBA"
+        assert final.getpixel((0, 0))[3] == 0
+    assert not prepare_logo(source=tmp_path / "missing.png", header=header, icon=icon)

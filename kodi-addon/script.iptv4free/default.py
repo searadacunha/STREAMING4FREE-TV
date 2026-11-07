@@ -30,6 +30,9 @@ class TVHome(xbmcgui.WindowXMLDialog):
         self.fav_path = os.path.join(self.profile, "favorites.json")
 
     def onInit(self):
+        # Keep the original text header until the supplied logo is packaged.
+        has_logo = os.path.isfile(os.path.join(ROOT, "resources", "skins", "Default", "media", "iptv4free-logo.png"))
+        self.setProperty("HasBrandLogo", "true" if has_logo else "false")
         self._load_favorites()
         self._refresh()
         self.setFocusId(CHANNELS if self.filtered else GROUPS)

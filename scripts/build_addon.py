@@ -2,12 +2,15 @@
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
+from prepare_branding import prepare_logo
+
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "kodi-addon" / "script.iptv4free"
 OUT = ROOT / "dist" / "script.iptv4free-0.1.0.zip"
 
 if not (SRC / "addon.xml").is_file():
     raise SystemExit("Missing Kodi addon.xml")
+prepare_logo()
 OUT.parent.mkdir(parents=True, exist_ok=True)
 with ZipFile(OUT, "w", compression=ZIP_DEFLATED, compresslevel=9) as archive:
     for path in sorted(SRC.rglob("*")):
