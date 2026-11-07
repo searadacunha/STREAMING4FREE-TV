@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<fonts><fontset id="Default" unicode="true">
- <font><name>Brand</name><filename>arial.ttf</filename><size>57</size><style>bold</style></font>
- <font><name>Hero</name><filename>arial.ttf</filename><size>46</size><style>bold</style></font>
- <font><name>Title</name><filename>arial.ttf</filename><size>32</size><style>bold</style></font>
- <font><name>Body</name><filename>arial.ttf</filename><size>27</size></font>
- <font><name>Small</name><filename>arial.ttf</filename><size>21</size></font>
- <font><name>Micro</name><filename>arial.ttf</filename><size>17</size><style>bold</style></font>
-</fontset></fonts>

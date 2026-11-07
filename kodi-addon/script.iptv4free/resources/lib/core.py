@@ -1,7 +1,14 @@
 """Pure helpers for the IPTV4FREE Kodi home; no Kodi imports (unit-testable)."""
 from __future__ import annotations
 
+import calendar
 import json
+import time
+
+PAGE = 100  # channels fetched per JSON-RPC call, keeps memory flat on 2 GB TVs
+FULL = ["thumbnail", "channelnumber", "broadcastnow", "broadcastnext", "hidden"]
+LIGHT = ["thumbnail", "channelnumber", "hidden"]
+ALL_LABELS = {"all channels", "toutes les chaînes", "todos os canais", "todos los canales"}
 
 
 class RpcError(RuntimeError):
@@ -26,46 +33,141 @@ def channel_groups(transport) -> list[dict]:
             if isinstance(g, dict) and isinstance(g.get("channelgroupid"), int)]
 
 
+def is_all_group(group: dict) -> bool:
+    return str(group.get("label", "")).casefold() in ALL_LABELS
+
+
 def default_group(groups: list[dict]) -> dict | None:
     if not groups:
         return None
-    return next((g for g in groups if g.get("label", "").casefold() in
-                 {"all channels", "toutes les chaînes", "todos os canais"}), groups[0])
+    return next((g for g in groups if is_all_group(g)), groups[0])
 
 
-def channels_for_group(transport, group_id: int, max_results: int = 300, batch: int = 100) -> list[dict]:
-    """Bounded pagination keeps memory use reasonable on low-RAM Android TVs."""
-    result = []
-    for start in range(0, max_results, batch):
+def split_group(label: str) -> tuple[str, str]:
+    """'France · Info' -> ('FRANCE', 'Info'): IPTV4FREE names groups '<country> · <category>'."""
+    country, sep, category = str(label).partition(" · ")
+    return (country.strip().upper(), category.strip()) if sep else ("", country.strip())
+
+
+def group_names(group: dict) -> tuple[str, str]:
+    """(country, label) shown for a group; Kodi's internal all-channels group is named in French."""
+    return ("", "Toutes les chaînes") if is_all_group(group) else split_group(group.get("label", ""))
+
+
+def utc_to_epoch(value) -> float | None:
+    """Kodi PVR JSON-RPC dates are UTC 'YYYY-MM-DD HH:MM:SS'."""
+    try:
+        return float(calendar.timegm(time.strptime(str(value), "%Y-%m-%d %H:%M:%S")))
+    except (TypeError, ValueError):
+        return None
+
+
+def clock(epoch: float | None) -> str:
+    return time.strftime("%H:%M", time.localtime(epoch)) if epoch is not None else ""
+
+
+def time_range(start, end) -> str:
+    a, b = clock(utc_to_epoch(start)), clock(utc_to_epoch(end))
+    return f"{a} – {b}" if a and b else ""
+
+
+def progress(start, end, now: float) -> int:
+    a, b = utc_to_epoch(start), utc_to_epoch(end)
+    if a is None or b is None or b <= a:
+        return 0
+    return max(0, min(100, int(100 * (now - a) / (b - a))))
+
+
+def _broadcast(value) -> dict:
+    return value if isinstance(value, dict) else {}
+
+
+def normalize(ch: dict, now: float | None = None) -> dict | None:
+    """One PVR channel -> flat dict for list items, or None if hidden/invalid."""
+    if ch.get("hidden") or not isinstance(ch.get("channelid"), int):
+        return None
+    now = time.time() if now is None else now
+    number = ch.get("channelnumber", "")
+    if isinstance(number, dict):
+        number = number.get("channelnumber", "")
+    cur, nxt = _broadcast(ch.get("broadcastnow")), _broadcast(ch.get("broadcastnext"))
+    return {
+        "id": ch["channelid"],
+        "name": str(ch.get("label") or ch.get("channel") or "Chaîne").strip(),
+        "number": str(number or ""),
+        "thumb": ch.get("thumbnail") or "",
+        "now": str(cur.get("title") or ""),
+        "now_time": time_range(cur.get("starttime"), cur.get("endtime")),
+        "progress": progress(cur.get("starttime"), cur.get("endtime"), now) if cur else 0,
+        "next": str(nxt.get("title") or ""),
+        "next_time": time_range(nxt.get("starttime"), nxt.get("endtime")),
+    }
+
+
+def channels_page(transport, group_id: int, start: int = 0, count: int = 300,
+                  properties=FULL) -> tuple[list[dict], int, int]:
+    """Channels [start, start+count) of a group, PAGE per call -> (channels, next_start, total).
+
+    next_start counts raw PVR rows (hidden ones included), so paging never re-reads a row."""
+    result, total, pos = [], start, start
+    while pos < start + count:
         data = rpc_call(transport, "PVR.GetChannels", {
-            "channelgroupid": group_id,
-            "properties": ["thumbnail", "channelnumber", "broadcastnow", "hidden"],
-            "limits": {"start": start, "end": min(start + batch, max_results)},
+            "channelgroupid": group_id, "properties": list(properties),
+            "limits": {"start": pos, "end": min(pos + PAGE, start + count)},
         })
-        page = data.get("channels", [])
-        for ch in page:
-            if ch.get("hidden") or not isinstance(ch.get("channelid"), int):
-                continue
-            broadcast = ch.get("broadcastnow") or {}
-            if not isinstance(broadcast, dict):
-                broadcast = {}
-            number = ch.get("channelnumber", "")
-            if isinstance(number, dict):
-                number = number.get("channelnumber", "")
-            result.append({
-                "id": ch["channelid"],
-                "name": str(ch.get("label") or ch.get("channel") or "Chaîne").strip(),
-                "number": str(number),
-                "thumb": ch.get("thumbnail") or "",
-                "now": str(broadcast.get("title") or "Programme indisponible"),
-            })
-        if len(page) < batch or len(result) >= max_results:
+        page = data.get("channels") or []
+        total = int((data.get("limits") or {}).get("total", pos + len(page)))
+        result.extend(c for c in map(normalize, page) if c)
+        pos += len(page)
+        if not page or pos >= total:
             break
-    return result
+    return result, pos, total
+
+
+def channel_index(transport, group_id: int, cap: int = 20000) -> list[dict]:
+    """Every channel of a group with light fields only (search, favourites)."""
+    return channels_page(transport, group_id, 0, cap, properties=LIGHT)[0]
+
+
+def with_programmes(transport, channels: list[dict]) -> list[dict]:
+    """Fill now/next for a short list (search results, favourites) one call per channel."""
+    out = []
+    for ch in channels:
+        try:
+            data = rpc_call(transport, "PVR.GetChannelDetails",
+                            {"channelid": ch["id"], "properties": FULL})
+            out.append(normalize(data.get("channeldetails") or {}) or ch)
+        except RpcError:
+            out.append(ch)
+    return out
 
 
 def filter_channels(channels: list[dict], *, search: str = "", favorites=(), only_favorites=False) -> list[dict]:
     needle = search.casefold().strip()
-    favorite_ids = {int(i) for i in favorites if str(i).isdigit()}
-    return [ch for ch in channels if (not only_favorites or ch["id"] in favorite_ids)
-            and (not needle or needle in (ch["name"] + " " + ch["now"]).casefold())]
+    names = {str(n).casefold() for n in favorites}
+    return [ch for ch in channels if (not only_favorites or ch["name"].casefold() in names)
+            and (not needle or needle in ch["name"].casefold())]
+
+
+def schedule(transport, channel_id: int, now: float | None = None, limit: int = 12) -> list[dict]:
+    """Current and upcoming programmes of one channel (the per-channel TV guide)."""
+    now = time.time() if now is None else now
+    data = rpc_call(transport, "PVR.GetBroadcasts", {
+        "channelid": channel_id, "properties": ["title", "starttime", "endtime", "plot", "genre"]})
+    rows = []
+    for b in data.get("broadcasts") or []:
+        end = utc_to_epoch(b.get("endtime"))
+        if end is None or end <= now:
+            continue
+        start = utc_to_epoch(b.get("starttime"))
+        genre = b.get("genre")
+        rows.append({
+            "start": start or 0,
+            "time": time_range(b.get("starttime"), b.get("endtime")),
+            "title": str(b.get("title") or b.get("label") or "Programme"),
+            "plot": str(b.get("plot") or ""),
+            "genre": " / ".join(genre) if isinstance(genre, list) else str(genre or ""),
+            "live": start is not None and start <= now,
+        })
+    rows.sort(key=lambda r: r["start"])
+    return rows[:limit]
