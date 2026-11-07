@@ -1,8 +1,11 @@
-"""Prepare exact user-supplied IPTV4FREE logo for Kodi UI and application icon.
+"""Prepare the official IPTV4FREE logo for the Kodi add-on (build time only, needs Pillow).
 
-The original uploaded PNG must be committed to assets/branding/IPTV4FREE-original.png
-before generating branded files. No original pixels are changed for the on-screen logo.
-Pillow is used only when building the icon, not inside Kodi at runtime.
+- resources/skins/Default/media/iptv4free-logo.png: byte-for-byte copy of the original PNG.
+- icon.png: 512x512 transparent square. Only invisible margins (alpha <= 1/255) are trimmed, then the
+  logo is scaled proportionally and centred: no recolouring, cropping of visible pixels or distortion.
+- resources/skins/Default/media/iptv4free-backdrop.png: original black/blue background texture.
+
+Run after replacing assets/branding/IPTV4FREE-original.png, then commit the generated files.
 """
 from __future__ import annotations
 
@@ -12,37 +15,67 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "assets" / "branding" / "IPTV4FREE-original.png"
 ADDON = ROOT / "kodi-addon" / "script.iptv4free"
-HEADER = ADDON / "resources" / "skins" / "Default" / "media" / "iptv4free-logo.png"
+MEDIA = ADDON / "resources" / "skins" / "Default" / "media"
+HEADER = MEDIA / "iptv4free-logo.png"
 ICON = ADDON / "icon.png"
+BACKDROP = MEDIA / "iptv4free-backdrop.png"
+ICON_SIZE, ICON_BOX = 512, 488  # 12 px transparent safety margin on each side
 
 
-def prepare_logo(*, source: Path = SOURCE, header: Path = HEADER, icon: Path = ICON) -> bool:
-    """Return False if no source uploaded. When present, package exact PNG + icon."""
-    if not source.is_file():
-        print(f"Brand image not uploaded yet: {source} (keeping text header)")
-        return False
+def _pil():
     try:
         from PIL import Image
     except ImportError as exc:
-        raise SystemExit("Install build-time dependency: python3 -m pip install pillow") from exc
+        raise SystemExit("Install the build-time dependency: python3 -m pip install pillow") from exc
+    return Image
 
+
+def make_icon(source: Path, icon: Path) -> None:
+    Image = _pil()
     with Image.open(source) as original:
         if original.format != "PNG":
-            raise SystemExit(f"Expected unmodified PNG: {source}")
-        original.load()
-        scaled = original.convert("RGBA")
-        scaled.thumbnail((488, 488), Image.Resampling.LANCZOS)
-        canvas = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
-        canvas.alpha_composite(scaled, ((512 - scaled.width) // 2, (512 - scaled.height) // 2))
-
-    header.parent.mkdir(parents=True, exist_ok=True)
+            raise SystemExit(f"Expected the unmodified PNG logo: {source}")
+        logo = original.convert("RGBA")
+    # Smallest box holding every visible pixel; alpha 1/255 is stray noise reaching the corners.
+    box = logo.getchannel("A").point(lambda v: 255 if v > 1 else 0).getbbox()
+    if box:
+        logo = logo.crop(box)
+    scale = min(ICON_BOX / logo.width, ICON_BOX / logo.height)
+    logo = logo.resize((max(1, round(logo.width * scale)), max(1, round(logo.height * scale))),
+                       Image.Resampling.LANCZOS)
+    canvas = Image.new("RGBA", (ICON_SIZE, ICON_SIZE), (0, 0, 0, 0))
+    canvas.alpha_composite(logo, ((ICON_SIZE - logo.width) // 2, (ICON_SIZE - logo.height) // 2))
     icon.parent.mkdir(parents=True, exist_ok=True)
-    if source.resolve() != header.resolve():
-        shutil.copyfile(source, header)  # byte-for-byte exact on-screen artwork
     canvas.save(icon, format="PNG", optimize=True)
+
+
+def make_backdrop(path: Path) -> None:
+    """Small radial glow (electric blue into black); Kodi stretches it to 1920x1080 smoothly."""
+    Image = _pil()
+    w, h = 192, 108
+    img = Image.new("RGB", (w, h))
+    for y in range(h):
+        for x in range(w):
+            d = min(1.0, (((x - w * 0.78) / w) ** 2 + ((y + h * 0.1) / h) ** 2) ** 0.5 * 1.25)
+            k = (1 - d) ** 2
+            img.putpixel((x, y), (round(2 + 6 * k), round(3 + 14 * k), round(8 + 70 * k)))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(path, format="PNG", optimize=True)
+
+
+def prepare_logo(*, source: Path = SOURCE, header: Path = HEADER, icon: Path = ICON) -> bool:
+    """Return False when the official logo has not been added yet (text header stays)."""
+    if not source.is_file():
+        print(f"Official logo missing: {source} (keeping the text header)")
+        return False
+    make_icon(source, icon)
+    header.parent.mkdir(parents=True, exist_ok=True)
+    if source.resolve() != header.resolve():
+        shutil.copyfile(source, header)  # exact on-screen artwork
     print(f"Prepared IPTV4FREE logo: {header}; Kodi icon: {icon}")
     return True
 
 
 if __name__ == "__main__":
     prepare_logo()
+    make_backdrop(BACKDROP)
