@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon id="script.iptv4free" name="IPTV4FREE" version="0.1.0" provider-name="searadacunha">
+ <requires><import addon="xbmc.python" version="3.0.0" /></requires>
+ <extension point="xbmc.python.script" library="default.py" />
+ <extension point="xbmc.addon.metadata">
+  <summary lang="en_GB">Remote-friendly live TV home for Kodi.</summary>
+  <description lang="en_GB">Original IPTV4FREE home for channels already configured with Kodi PVR IPTV Simple Client. Search, favourites, groups, EPG and direct playback. No streams are provided.</description>
+  <description lang="fr_FR">Interface IPTV4FREE originale pour les chaînes Kodi PVR déjà configurées.</description>
+  <license>MIT</license><platform>all</platform><source>https://github.com/searadacunha/IPTV4FREE</source>
+ </extension>
+</addon>
