@@ -161,8 +161,11 @@ def instructions(zip_name: str) -> str:
         "  5. When Kodi asks 'Keep this skin?', answer Yes within about 10 seconds; if it",
         "     expired, open MegaNexus again from Add-ons and answer Yes.",
         "  6. Welcome screen: 'Start simple' needs no account.",
-        "  7. Leave Channels > IPTV setup empty: Channels already shows Kodi's channels.",
-        "  8. Run `iptv4free meganexus doctor`, then restart Kodi once and check it opens.",
+        "  7. HUB Settings > Profiles > Who's watching when Kodi starts: Off (Kodi froze on",
+        "     that screen on a 2 GB TV). To open Kodi on the MegaNexus HUB: Kodi Settings >",
+        "     Interface > Skin > Startup window: Home.",
+        "  8. Leave Channels > IPTV setup empty: Channels already shows Kodi's channels.",
+        "  9. Run `iptv4free meganexus doctor`, then restart Kodi once and check it opens.",
         "To undo it: `iptv4free meganexus rollback` (add --force if Kodi is frozen).",
     ])
 
@@ -216,8 +219,8 @@ def doctor(config: Config, adb: Adb, out=print) -> int:
         total, avail = int(mem.get("MemTotal", 0)), int(mem.get("MemAvailable", 0))
         ram = f"RAM {total / 1e6:.1f} GB, {avail // 1024} MB available"
         if total < SMALL_RAM_KB:
-            r.warn(f"{ram}: in MegaNexus set HUB Settings > Performance & image cache > "
-                   "Memory for posters and catalogs to 128 MB")
+            r.warn(f"{ram}: if MegaNexus is slow, set HUB Settings > Performance & image "
+                   "cache > Memory for posters and catalogs to 128 MB")
         else:
             r.ok(ram)
         df = adb.shell("df -k /sdcard").strip().splitlines()[-1].split()

@@ -386,13 +386,19 @@ Logs: `~/.local/state/iptv4free/iptv4free.log`; `-v` prints debug output.
 
 - MegaNexus was tested on one TV (Android 12, 32-bit ARM, 1.8 GB of RAM, Kodi 21.3,
   MegaNexus 9.1.0, 7,883 channels). Verified there: installation from the official source,
-  the Home screen with posters and descriptions, remote navigation (about 0.5 to 1 s per
-  key), the Channels screen listing all 7,883 channels with their numbers and guide,
-  playback of two channels from it, and `meganexus doctor`, `setup` and
-  `rollback --force`. Also seen there: after a restart, Kodi froze twice on MegaNexus'
-  "Who's watching?" screen (fixed only by the rollback; whether switching that screen off
-  in HUB Settings > Profiles avoids it is not verified), and the TV left the Wi-Fi for
-  8 minutes while MegaNexus was running (cause unknown).
+  the HUB, Home with posters and descriptions, Search, the YouTube app (playback) and the
+  Music app (opens), remote navigation (0.4 to 1.2 s per key), the Channels screen with all
+  7,883 channels, the IPTV4FREE groups and the guide, playback of channels from France,
+  Portugal and World groups from it, `meganexus doctor`, `setup`, `rollback --force`, and
+  Kodi restarts (cold start, forced stop, IPTV4FREE's restart) opening on the HUB. Inside a
+  group, Channels numbers channels by position; "All channels" shows the lineup numbers.
+- Problems seen on that TV: Kodi froze twice at startup on MegaNexus' "Who's watching?"
+  screen, after a crash and after a forced stop (cause unknown); three later starts
+  worked, the last two with that screen switched off. Kodi once stayed stuck after
+  "Unloaded skin" when quitting (IPTV4FREE's restart stops it after 20 s; settings were
+  already saved). Kodi crashed once in `inputstream.adaptive` while switching from an HLS
+  channel. The TV left the Wi-Fi for 8 minutes once while MegaNexus was running (cause
+  unknown).
 - Kodi's add-on configuration (installing IPTV Simple Client, one instance per lineup) is a
   one-time manual step: Kodi keeps it in app-private storage that ADB cannot write.
 - Verified on one TV model (Android 12, 32-bit ARM, Kodi 21.3, IPTV Simple Client 21.11.0):
