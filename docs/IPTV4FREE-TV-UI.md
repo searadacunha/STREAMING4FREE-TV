@@ -7,7 +7,7 @@ Fonctions : chaînes en direct, groupes, programme en cours, recherche, favoris 
 ## Installer sur la télévision
 
 1. Vérifier que les chaînes sont déjà visibles dans Kodi / IPTV Simple Client (`iptv4free doctor` sur l'ordinateur).
-2. Sur Mac ou Linux, à la racine du dépôt : `python3 scripts/build_addon.py`. Le zip est produit dans `dist/script.iptv4free-0.1.0.zip`.
+2. Télécharger directement le [ZIP IPTV4FREE depuis GitHub](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.1.0.zip) ou, sur Mac/Linux, construire le même module à la racine du dépôt avec `python3 scripts/build_addon.py` (sortie : `dist/script.iptv4free-0.1.0.zip`).
 3. Partager temporairement ce dossier sur le Wi-Fi local : `python3 -m http.server --directory dist 8765`. Dans Kodi, **Settings → File manager → Add source** puis URL `http://ADRESSE_IP_DU_MAC:8765`.
 4. Dans Kodi : **Settings → System → Add-ons → Unknown sources**, activer pour cette installation si nécessaire, puis **Add-ons → Install from zip file → source IPTV4FREE → script.iptv4free-0.1.0.zip**.
 5. Ouvrir **Kodi → Add-ons → Program add-ons → IPTV4FREE**. Le module est indépendant du thème installé. Certaines interfaces (dont MegaNexus selon la version) peuvent ne pas afficher les Program add-ons directement : dans ce cas, utiliser les menus Kodi natifs pour ouvrir le module; ne pas altérer MegaNexus.
