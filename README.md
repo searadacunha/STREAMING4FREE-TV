@@ -77,6 +77,10 @@ IPTV4FREE does not host or provide any stream. It works with the playlists you c
   and the deployed files, without changing anything.
 - **Kodi installation.** `iptv4free setup --install-kodi` installs the official Kodi APK
   for the TV's CPU architecture after checking its published SHA-256.
+- **MegaNexus interface (optional).** `iptv4free meganexus doctor | setup | rollback`
+  checks the TV for the MegaNexus Kodi interface, backs up Kodi's settings, checks the
+  official installer and restores Kodi if needed. MegaNexus' Channels screen shows the
+  deployed lineups with no second import.
 - **No runtime dependencies.** Python 3.11+ standard library only.
 
 ## Architecture
@@ -95,6 +99,7 @@ flowchart LR
     subgraph Android TV
         F --> K[Kodi<br/>IPTV Simple Client<br/>one instance per lineup]
         E2[(XMLTV guides)] --> K
+        K -. optional .-> M[MegaNexus<br/>Channels screen]
     end
 ```
 
@@ -110,6 +115,7 @@ previous one stored, so a failed step never leaves the TV half-updated.
 | Android TV or Google TV | With developer options and ADB debugging enabled. Reference device: an Android 12 TV (32-bit ARM), see [Limitations](#limitations). |
 | Kodi 21 | Installed by `iptv4free setup --install-kodi` or from the Play Store. |
 | IPTV Simple Client | Kodi add-on, installed once from the official Kodi repository (see [Deployment](#deployment)). |
+| MegaNexus (optional) | Kodi 21 or 22 on a 32-bit or 64-bit ARM TV; see [Deployment](#4-optional-meganexus-interface). |
 | Network | The computer and the TV on the same local network. The computer needs Internet access to scan; the TV needs it to play. |
 
 ## Quick start
@@ -129,6 +135,7 @@ iptv4free build                          # writes build/<lineup>.m3u
 iptv4free deploy --dry-run               # shows what would change on the TV
 iptv4free deploy --allow-large-update    # first deployment: imports all channels
 iptv4free doctor                         # checks everything end to end
+iptv4free meganexus setup                # optional MegaNexus interface, see Deployment
 ```
 
 Later updates: `iptv4free update`. It refuses large changes unless you add

@@ -12,12 +12,15 @@ and remain under their own licenses and terms.
 | Kodi | Media center on the TV | GPL-2.0-or-later | `iptv4free setup --install-kodi` downloads the official APK from `mirrors.kodi.tv` and verifies its published SHA-256, or the user installs it from the Google Play Store |
 | PVR IPTV Simple Client (`pvr.iptvsimple`) | Kodi add-on that reads the generated playlists | GPL-2.0-or-later | Installed by the user from the official Kodi add-on repository |
 | inputstream.adaptive, inputstream.ffmpegdirect, inputstream.rtmp | Kodi add-ons installed as dependencies of IPTV Simple Client | GPL-2.0-or-later | Official Kodi add-on repository |
+| MegaNexus (`repository.meganexus`, `plugin.video.meganexus`, `script.meganexus`, `skin.meganexus`, `screensaver.meganexus`, `vfs.meganexus`) | Optional Kodi interface | MegaNexus License (free for personal use, no redistribution); the skin GPL-2.0 with CC BY-SA 4.0 artwork, `vfs.meganexus` GPL-3.0-or-later | The user installs MegaNexus Hub in Kodi from the official MegaNexus repository; the Hub installs the other parts itself. `iptv4free meganexus setup` only downloads the repository zip to the user's computer to check it against the SHA-256 GitHub publishes |
+| YouTube (`plugin.video.youtube`) | Kodi add-on used by MegaNexus' YouTube app | GPL-2.0-only | Installed by Kodi from the official Kodi add-on repository when the app is first opened |
 | Android SDK Platform-Tools (`adb`) | Communication with the TV | Apache-2.0 | Installed by the user (for example `brew install android-platform-tools`) |
 | Python standard library | Runtime | PSF License | Python installation |
 
-IPTV4FREE interacts with Kodi only through its public interfaces (playlist files read by
-IPTV Simple Client and the Kodi JSON-RPC API). It does not include, modify or link to Kodi
-or add-on code.
+IPTV4FREE interacts with Kodi through its public interfaces (playlist files read by IPTV
+Simple Client and the Kodi JSON-RPC API), and `iptv4free meganexus rollback` writes back
+Kodi's own settings files from a backup the user made. It does not include, modify or link
+to Kodi or add-on code.
 
 ## Development dependencies
 

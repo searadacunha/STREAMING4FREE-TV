@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "iptv4free"
-version = "0.1.0"
+version = "0.2.0"
 description = "Free IPTV automation for Android TV, built around Kodi: playlist validation, channel organization, EPG mapping and safe deployment."
 readme = "README.md"
 license = { text = "MIT" }
