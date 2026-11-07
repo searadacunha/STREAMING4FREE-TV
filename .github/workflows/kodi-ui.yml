@@ -1,0 +1,45 @@
+name: Kodi TV add-on ZIP
+
+on:
+  push:
+    paths:
+      - "kodi-addon/**"
+      - "scripts/build_addon.py"
+      - ".github/workflows/kodi-ui.yml"
+  pull_request:
+    paths:
+      - "kodi-addon/**"
+      - "scripts/build_addon.py"
+      - ".github/workflows/kodi-ui.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate and package original Kodi add-on
+        run: |
+          python -m pip install pytest
+          python -m pytest -q tests/test_tv_ui.py
+          python scripts/build_addon.py
+          python - <<'PY'
+          from zipfile import ZipFile
+          from pathlib import Path
+          p = Path("dist/script.iptv4free-0.1.0.zip")
+          with ZipFile(p) as z:
+              assert z.testzip() is None
+              names = set(z.namelist())
+              assert "script.iptv4free/addon.xml" in names
+              assert "script.iptv4free/resources/skins/Default/1080i/IPTV4FREE.xml" in names
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IPTV4FREE-Kodi-Addon
+          path: dist/script.iptv4free-0.1.0.zip
+          retention-days: 14
