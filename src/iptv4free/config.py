@@ -51,6 +51,7 @@ class Config:
     jsonrpc_port: int = 9090
     forward_port: int = 19090
     adb_timeout: float = 30.0
+    relay: bool = False  # route measured channels through the add-on's relay (add-on 0.4.0+ on the TV)
     # [paths]
     state_dir: Path = Path("~/.local/state/iptv4free").expanduser()
     output_dir: Path = Path("build")
@@ -156,6 +157,7 @@ def load_config(path: str | os.PathLike) -> Config:
         jsonrpc_port=_get(tv, "jsonrpc_port", int, 9090),
         forward_port=_get(tv, "forward_port", int, 19090),
         adb_timeout=_get(tv, "adb_timeout", float, 30.0),
+        relay=_get(tv, "relay", bool, False),
         state_dir=local_path(_get(paths, "state_dir", str, "~/.local/state/iptv4free")),
         output_dir=local_path(_get(paths, "output_dir", str, "build")),
         scan_timeout=_get(scan, "timeout", float, 8.0),

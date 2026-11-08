@@ -11,6 +11,9 @@ kodi_package = "org.xbmc.kodi"
 jsonrpc_port = 9090                       # Kodi JSON-RPC (TCP) on the TV
 forward_port = 19090                      # local port used for `adb forward`
 adb_timeout = 30                          # seconds per adb command
+# Route the channels that `iptv4free health` measured better through the IPTV4FREE add-on's
+# local relay (127.0.0.1:52180 on the TV). Needs add-on 0.4.0 or later installed on the TV.
+relay = false
 
 [paths]
 state_dir = "~/.local/state/iptv4free"    # scan history, snapshots, backups, logs

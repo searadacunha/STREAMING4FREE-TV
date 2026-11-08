@@ -51,15 +51,19 @@ def _bucket(entry: Entry, config: Config) -> str:
 def build_lineup(lineup: Lineup, entries: list[Entry], config: Config,
                  alive: Callable[[Entry], bool], used_urls: set[str],
                  epg_index: epg.EpgIndex | None, numbers: NumberBook,
-                 next_first_number: int | None = None) -> tuple[list[Entry], LineupReport]:
+                 next_first_number: int | None = None,
+                 verdict: Callable[[Entry], str | None] = lambda e: None,
+                 ) -> tuple[list[Entry], LineupReport]:
     """Filter, deduplicate, group, order and number one lineup.
 
-    The output depends only on the set of input entries, not on their order: duplicates
-    keep the highest resolution (ties: smallest URL) and rows are sorted on stable keys.
+    The output depends only on the set of input entries, not on their order. Duplicates
+    keep the most reliable stream, then the highest resolution, then the smallest URL:
+    a stream loses on reliability only if a sustained check (`verdict`, see health.py)
+    measured it unstable, so an unmeasured or stable FHD stream is never traded for HD.
     `used_urls` carries URLs taken by earlier lineups, which have priority.
     """
     rep = LineupReport(source_entries=len(entries))
-    best: dict[tuple[str, str], tuple[int, Entry]] = {}
+    best: dict[tuple[str, str], tuple[tuple, Entry]] = {}
     consumed: set[str] = set()  # duplicates dropped here must not resurface in a later lineup
     for src in entries:
         if not alive(src):
@@ -75,14 +79,13 @@ def build_lineup(lineup: Lineup, entries: list[Entry], config: Config,
         consumed.add(src.url)
         name = clean_name(src.name)
         key = (epg.match_key(name), src.attrs.get("tvg-id", "").split("@")[0].lower())
-        res = resolution(src.name)
+        rank = (verdict(src) in ("unstable", "dead"), -resolution(src.name), src.url)  # lower wins
         if key in best:
             rep.duplicates += 1
-            kept_res, kept = best[key]
-            if res < kept_res or (res == kept_res and src.url >= kept.url):
+            if rank >= best[key][0]:
                 continue
-        best[key] = (res, Entry(name=name, url=src.url, attrs=dict(src.attrs),
-                                options=list(src.options)))
+        best[key] = (rank, Entry(name=name, url=src.url, attrs=dict(src.attrs),
+                                 options=list(src.options)))
 
     fav_keys = [epg.match_key(f) for f in lineup.favorites]
     group_order = [*config.category_groups, config.other_label]

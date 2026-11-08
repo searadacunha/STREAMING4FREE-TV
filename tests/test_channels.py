@@ -49,6 +49,28 @@ def test_duplicates_keep_best_resolution_and_cross_lineup_priority(tmp_path):
     assert {"http://a/1080", "http://b/0"} <= used
 
 
+def test_duplicates_prefer_measured_reliability_then_resolution(tmp_path):
+    lu = Lineup("fr", "France", ("s",))
+    entries = [
+        e("Alpha (1080p)", "http://a/fhd-flaky", "Alpha.fr"),
+        e("Alpha (720p)", "http://a/hd-stable", "Alpha.fr"),
+        e("Beta (1080p)", "http://b/fhd-unmeasured", "Beta.fr"),
+        e("Beta (720p)", "http://b/hd-stable", "Beta.fr"),
+        e("Gamma (1080p)", "http://g/fhd-stable", "Gamma.fr"),
+        e("Gamma (720p)", "http://g/hd-stable", "Gamma.fr"),
+    ]
+    verdicts = {"http://a/fhd-flaky": "unstable", "http://a/hd-stable": "stable",
+                "http://b/hd-stable": "stable", "http://g/fhd-stable": "stable",
+                "http://g/hd-stable": "stable"}
+    book = NumberBook(tmp_path / "numbers.json")
+    for order in (entries, entries[::-1]):
+        out, _ = build_lineup(lu, order, cfg(lu), lambda x: True, set(), None, book,
+                              verdict=lambda x: verdicts.get(x.url))
+        assert [x.url for x in out] == ["http://a/hd-stable",       # measured unstable FHD loses
+                                        "http://b/fhd-unmeasured",  # no measure: resolution decides
+                                        "http://g/fhd-stable"]      # both stable: FHD kept
+
+
 def test_output_does_not_depend_on_input_order(tmp_path):
     lu = Lineup("w", "World", ("s",), favorites=("Zeta",), by_category=True)
     entries = [e(f"Ch {i:03d}", f"http://x/{i}", cat=random.choice(["News", "Music", "Shop", ""]))

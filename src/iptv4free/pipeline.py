@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
-from . import epg, scanner
+from . import epg, health, scanner
 from .channels import LineupReport, build_lineup, validate
 from .config import Config, Lineup
 from .playlists import Entry, effective_url, fetch_text, parse_m3u, render_m3u, request_parts
@@ -102,6 +102,7 @@ def run_build(config: Config) -> dict[str, tuple[Path, LineupReport]]:
     if not history.streams:
         raise PipelineError("no scan results yet; run `iptv4free scan` first")
     numbers = NumberBook(config.state_dir / "channel-numbers.json")
+    book = health.HealthBook(config.state_dir / "health.json")
     used_urls: set[str] = set()
     starts = sorted({lu.first_number for lu in config.lineups})
     built: dict[str, tuple[Path, LineupReport]] = {}
@@ -115,7 +116,12 @@ def run_build(config: Config) -> dict[str, tuple[Path, LineupReport]]:
         entries, report = build_lineup(
             lineup, lineup_entries(config, lineup), config,
             lambda e: history.alive(effective_url(e), config.max_failed_scans),
-            used_urls, index, numbers, nxt)
+            used_urls, index, numbers, nxt, lambda e: book.verdict(effective_url(e)))
+        if config.relay:
+            entries, routed = health.route(entries, book)
+            if routed:
+                log.info("%s: %d channels through the TV relay: %s", lineup.id, len(routed),
+                         ", ".join(routed))
         problems = validate(entries)
         if problems:
             raise PipelineError(f"{lineup.id}: " + "; ".join(problems[:5]))
