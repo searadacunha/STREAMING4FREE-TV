@@ -25,7 +25,7 @@
 
 ## The TV experience
 
-<p align="center">A dedicated IPTV4FREE interface for the channels already configured in Kodi — designed for the remote, not the mouse.</p>
+<p align="center">A dedicated IPTV4FREE interface for the channels — designed for the remote, not the mouse.</p>
 
 <table>
   <tr>
