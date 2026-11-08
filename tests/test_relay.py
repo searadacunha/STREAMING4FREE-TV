@@ -139,6 +139,7 @@ def test_player_byte_range_is_passed_through(servers):
     with urllib.request.urlopen(req, timeout=10) as r:
         assert r.status == 206 and r.read() == SEGMENT[1000:2000]
         assert r.headers["Content-Range"] == f"bytes 1000-1999/{len(SEGMENT)}"
+    assert relay._asked("bytes=-500")[0] is None  # suffix range: passed through as well
 
 
 def test_source_errors_are_passed_on(servers):

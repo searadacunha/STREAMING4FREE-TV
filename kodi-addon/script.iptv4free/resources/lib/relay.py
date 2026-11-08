@@ -155,10 +155,11 @@ def _total(content_range):
 
 
 def _asked(value):
-    """(first byte, last byte or None) of a player's Range header; (0, None) without one."""
+    """(first byte, last byte or None) of a player's Range header; (0, None) without one.
+    A suffix range ("bytes=-500") has no first byte (None): pass it through as is."""
     try:
         a, _, b = value.split("=", 1)[1].split(",")[0].strip().partition("-")
-        return int(a), (int(b) if b else None)
+        return (int(a) if a else None), (int(b) if b else None)
     except (AttributeError, IndexError, ValueError):
         return 0, None
 
@@ -247,8 +248,8 @@ class Handler(BaseHTTPRequestHandler):
         sent back in order as they land. FFmpeg always asks "Range: bytes=0-": an open
         range is served this way too; only a closed one (EXT-X-BYTERANGE) is passed through."""
         start, last = _asked(self.headers.get("Range"))
-        if last is not None:
-            with _open(url, headers, (start, last)) as resp:
+        if start is None or last is not None:
+            with _open(url, dict(headers, Range=self.headers["Range"])) as resp:
                 self._begin(resp.headers.get("Content-Type", "video/mp2t"),
                             resp.headers.get("Content-Length"), resp.status,
                             resp.headers.get("Content-Range"))
