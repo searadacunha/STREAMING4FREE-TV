@@ -32,9 +32,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
-      - uses: android-actions/setup-android@v3
-      - name: Install Android build tools
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Install Android build tools (preinstalled runner SDK)
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          sdkmanager_bin="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          test -n "$sdkmanager_bin"
+          "$sdkmanager_bin" "platforms;android-35" "build-tools;35.0.0"
       - name: Prepare official-logo assets and test launcher
         run: |
           python -m pip install pillow pytest
