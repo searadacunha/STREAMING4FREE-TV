@@ -18,10 +18,12 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - uses: android-actions/setup-android@v3
-      - name: Install SDK and logo renderer
+      # GitHub ubuntu-latest already includes the Android command-line SDK.
+      # setup-android@v3 attempts to install obsolete package "tools" and fails.
+      - name: Install Android platform and logo renderer
         run: |
-          yes | sdkmanager "platforms;android-36" "build-tools;36.0.0"
+          command -v sdkmanager
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
           python3 -m pip install --user Pillow
       - name: Test controller mapping
         run: node pes6/test/test_gamepad.js
