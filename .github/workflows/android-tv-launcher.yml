@@ -1,0 +1,72 @@
+name: Android TV IPTV4FREE launcher
+
+on:
+  push:
+    paths:
+      - "android-tv-launcher/**"
+      - "scripts/prepare_android_launcher.py"
+      - "tests/test_android_launcher.py"
+      - ".github/workflows/android-tv-launcher.yml"
+  pull_request:
+    paths:
+      - "android-tv-launcher/**"
+      - "scripts/prepare_android_launcher.py"
+      - "tests/test_android_launcher.py"
+      - ".github/workflows/android-tv-launcher.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  launcher:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - uses: android-actions/setup-android@v3
+      - name: Install Android build tools
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Prepare official-logo assets and test launcher
+        run: |
+          python -m pip install pillow pytest
+          python scripts/prepare_android_launcher.py
+          python -m pytest -q tests/test_android_launcher.py
+      - name: Build installable debug APK
+        working-directory: android-tv-launcher
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Validate APK and stage GitHub download
+        run: |
+          mkdir -p dist
+          cp android-tv-launcher/app/build/outputs/apk/debug/app-debug.apk dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk
+          test -s dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk
+          unzip -t dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk | tail -1
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk | tee /tmp/iptv4free-badging.txt
+          grep -q "com.iptv4free.launcher" /tmp/iptv4free-badging.txt
+          grep -q "leanback" /tmp/iptv4free-badging.txt
+          sha256sum dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IPTV4FREE-AndroidTV-Launcher-APK
+          path: dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk
+          retention-days: 14
+      - name: Publish APK directly on this GitHub branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/iptv4free-tv-ui'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk
+          if git diff --cached --quiet; then
+            echo "APK already committed"
+          else
+            git commit -m "build(androidtv): publish IPTV4FREE launcher debug APK"
+            git push origin HEAD:refs/heads/feat/iptv4free-tv-ui
+          fi
