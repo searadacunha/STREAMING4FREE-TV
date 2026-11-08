@@ -1,5 +1,4 @@
 """Kodi TV UI tests: synthetic PVR data, no Kodi runtime or network needed."""
-import calendar
 import hashlib
 import importlib.util
 import json
@@ -28,7 +27,8 @@ def load(name, path):
 
 
 core = load("iptv4free_tv_core", ADDON / "resources" / "lib" / "core.py")
-NOW = calendar.timegm((2026, 11, 7, 20, 30, 0))
+# Programmes are placed around the real clock: default.py asks "what is on now" with time.time().
+NOW = int(time.time()) // 60 * 60
 
 
 def utc(epoch):
