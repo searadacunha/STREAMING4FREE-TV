@@ -201,7 +201,7 @@ def test_zip_is_complete_and_reproducible(tmp_path):
     builder = load("build_addon", ROOT / "scripts" / "build_addon.py")
     a = builder.build(tmp_path / "a")
     b = builder.build(tmp_path / "b")
-    assert a.name == "script.iptv4free-0.3.1.zip"
+    assert a.name == "script.iptv4free-0.4.0.zip"
     assert a.read_bytes() == b.read_bytes()
     with ZipFile(a) as archive:
         assert archive.testzip() is None

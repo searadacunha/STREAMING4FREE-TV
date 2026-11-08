@@ -10,7 +10,8 @@ from zipfile import ZIP_STORED, ZipFile, ZipInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "kodi-addon" / "script.iptv4free"
-REQUIRED = ["addon.xml", "default.py", "icon.png", "resources/lib/core.py",
+REQUIRED = ["addon.xml", "default.py", "service.py", "icon.png", "resources/lib/core.py",
+            "resources/lib/relay.py",
             "resources/skins/Default/1080i/IPTV4FREE.xml",
             "resources/skins/Default/media/iptv4free-logo.png",
             "resources/skins/Default/media/iptv4free-pixel.png",
