@@ -71,7 +71,9 @@ public final class MainActivity extends Activity {
             }
             @Override public void onPageFinished(WebView v, String url) {
                 if (url.startsWith(HOME) && !bridge.isEmpty()) {
-                    v.evaluateJavascript(bridge, result -> ready = true);
+                    v.evaluateJavascript(bridge, new android.webkit.ValueCallback<String>() {
+                        @Override public void onReceiveValue(String ignored) { ready = true; }
+                    });
                 }
             }
         });
@@ -204,10 +206,12 @@ public final class MainActivity extends Activity {
     private void showMenu() {
         new AlertDialog.Builder(this).setTitle("PES 2006")
             .setItems(new String[]{"Recharger", "Diagnostic TV / manette", "Ouvrir dans le navigateur"},
-                (dialog, choice) -> {
-                    if (choice == 0) web.reload();
-                    else if (choice == 1) diagnostic();
-                    else openBrowser();
+                new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface dialog, int choice) {
+                        if (choice == 0) web.reload();
+                        else if (choice == 1) diagnostic();
+                        else openBrowser();
+                    }
                 }).show();
     }
     private void diagnostic() {
@@ -223,10 +227,14 @@ public final class MainActivity extends Activity {
         }
         final String devices = names.length() == 0 ? "aucune manette Android" : names.toString();
         web.evaluateJavascript("(function(){var c=document.createElement('canvas');return JSON.stringify({webgl2:!!c.getContext('webgl2'),pads:((navigator.getGamepads&&navigator.getGamepads())||[]).filter(Boolean).length})})()",
-            result -> new AlertDialog.Builder(this).setTitle("Diagnostic PES 2006")
-                .setMessage("Appareil(s) : " + devices + "\nWebView : " + result
-                    + "\n\nTester ensuite boutons et sticks dans un match.")
-                .setPositiveButton("OK", null).show());
+            new android.webkit.ValueCallback<String>() {
+                @Override public void onReceiveValue(String result) {
+                    new AlertDialog.Builder(MainActivity.this).setTitle("Diagnostic PES 2006")
+                        .setMessage("Appareil(s) : " + devices + "\\nWebView : " + result
+                            + "\\n\\nTester ensuite boutons et sticks dans un match.")
+                        .setPositiveButton("OK", null).show();
+                }
+            });
     }
     private void openBrowser() {
         try {
