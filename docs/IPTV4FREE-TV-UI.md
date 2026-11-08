@@ -107,11 +107,16 @@ rea capture-adb-screen SERIAL_TV --output-directory ./captures-avant
 - GUIDE TV (grille de Kodi) et retour sur le même bouton ;
 - journal de Kodi : aucune erreur Python ; les seules erreurs viennent de logos de la playlist introuvables à leur source (404, nom de domaine inconnu).
 
+**Module 0.3.1, ouvert par la tuile Android TV** ([lanceur](IPTV4FREE-ANDROID-TV-LAUNCHER.md)), même TV, le 08/11/2026. Les 3 fichiers modifiés depuis 0.3.0 ont été remplacés par ADB, puis les 9 fichiers du module comparés au ZIP 0.3.1 (SHA-256 identiques) :
+
+- **démarrage à froid** : avec 0.3.0, le module s'ouvrait 6 s avant la fin du démarrage du PVR de Kodi. `PVR.GetChannelGroups` répondait `-32100` et l'écran restait sur « Aucune chaîne ». En 0.3.1, le module attend `PVR.GetProperties` (`available`, 30 s au plus) derrière l'écran « Chargement des chaînes… » avec le logo, puis affiche les 300 premières chaînes sur 7 883. Mesures : écran de chargement vers 4 s après l'appui sur la tuile, liste entre 12 et 15 s. Ce délai vient du PVR de Kodi, qui démarre en 6 à 10 s ;
+- **sortie** : ouvert par la tuile, RETOUR depuis le menu ou QUITTER arrête la lecture en cours et réduit Kodi (`Minimize`). On revient à l'accueil de la TV, pas aux menus de Kodi. Vérifié pendant une lecture de TF1 : session média de Kodi à l'arrêt, aucun lecteur actif. Ouvert depuis Kodi, le module revient toujours dans Kodi.
+
 Sur Mac (Kodi 21.3, 07/11) en plus : installation par le réseau, chaîne en panne (« Lecture impossible »), PARAMÈTRES, état sans PVR, une seule copie.
 
 **Encore ouvert**
 - Le démarrage d'un flux dépend de la source : 18 à 30 s pour France 24 (HLS), environ 1,6 s pour SIC Noticias. IPTV4FREE n'y prend que 0,3 s.
 - Les logos sombres (France 2 à France 5) restent peu lisibles sur le fond sombre : ce sont les logos officiels tels qu'ils sont.
 - Les chaînes portugaises de la TV affichent des programmes français (RTP 1 « Téléfoot ») : correspondance du guide dans les playlists déployées, pas dans l'interface.
-- L'appui long sur OK de la télécommande TCL n'a pas été essayé (seule la touche MENU l'a été, par JSON-RPC) ; l'écran de chargement avec le logo est trop bref pour être capturé.
+- L'appui long sur OK de la télécommande TCL n'a pas été essayé (seule la touche MENU l'a été, par JSON-RPC) ; l'écran de chargement avec le logo n'est visible qu'au démarrage à froid de Kodi.
 - Kodi réutilise un ZIP déjà lu sous le même nom : pour réinstaller la même version, servir le fichier sous un autre nom.

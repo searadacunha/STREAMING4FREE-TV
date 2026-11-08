@@ -495,4 +495,4 @@ An independent Android TV launcher named **IPTV4FREE** adds a branded home-scree
 
 Sources: `android-tv-launcher/`. The APK is compiled on GitHub Actions and published as `dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk` when the build passes. See the [Android TV launcher install and security guide](docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md). Remove the Kodi **shortcut** from the home favorites manually, not the Kodi application package.
 
-Actual TV launcher behavior is pending a physical test on the TCL. The first build is a signed debug APK, not a production release.
+Tested on the TCL on 8 Nov 2026 with add-on 0.3.1: cold start, Kodi already open, Back and Quit to the TV home (playback stops), and the error screen. On a cold start Kodi's own home shows for about 1.5 s before IPTV4FREE. The APK is a debug build: each GitHub build has a new signing key, so an update means uninstalling the launcher first (never Kodi).

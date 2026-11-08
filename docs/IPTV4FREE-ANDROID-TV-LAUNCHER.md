@@ -12,15 +12,18 @@ Ce projet se trouve dans `android-tv-launcher/` avec le package Android distinct
 2. Dans Kodi, Paramètres > Services > Contrôle, activer le contrôle par des applications **sur ce système** (JSON-RPC TCP 9090). Ne pas activer le contrôle par d'autres appareils du réseau si ce n'est pas nécessaire.
 3. Télécharger l'APK Android TV compilé : [IPTV4FREE-AndroidTV-Launcher-0.1.1.apk](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk). Le lien n'est fonctionnel qu'après réussite de GitHub Actions et publication effective du fichier.
 4. Installer cet APK sur la TV avec ADB autorisé, par exemple `adb install -r IPTV4FREE-AndroidTV-Launcher-0.1.1.apk`, ou avec un gestionnaire de fichiers Android TV.
-5. Sur l'accueil TV, placer **IPTV4FREE** dans les applications favorites. Enlever **Kodi** de la rangée des favoris par appui long > Retirer des favoris, lorsque ton lanceur TCL propose cette option. **Ne pas désinstaller ni désactiver Kodi**, indispensable à la lecture. Kodi peut toujours rester visible dans Toutes les applications.
+5. Sur l'accueil TV, placer **IPTV4FREE** dans les applications favorites et en retirer le raccourci **Kodi**. **Ne pas désinstaller ni désactiver Kodi**, indispensable à la lecture. Sur la TCL, l'accueil par défaut est **Projectivy Launcher** (vérifié le 08/11/2026) :
+   - IPTV4FREE apparaît tout seul en tête de la rangée « Apps TV ». Pour fixer sa place : appui long sur OK sur la tuile, puis **Réorganiser** ;
+   - pour retirer Kodi de cette rangée : appui long sur OK sur la tuile Kodi, puis **Masquer** (ou **Déplacer vers…** une autre catégorie). Le même menu contient **Désinstaller** : ne pas le choisir.
 6. Appuyer sur la tuile IPTV4FREE avec la télécommande. Après le lancement de Kodi, l'interface IPTV4FREE doit s'ouvrir automatiquement.
 
 ## Fonctionnement
 
 - L'activité Android dédiée possède `LEANBACK_LAUNCHER`, une icône 512 x 512 transparente et une bannière 320 x 180, issues proportionnellement du logo original du dépôt.
 - Lors d'un appui sur la tuile, l'application récupère et lance l'intent officiel de `org.xbmc.kodi`, puis attend le serveur local `127.0.0.1:9090` (maximum 30 secondes).
-- Après `JSONRPC.Ping`, elle vérifie le module `script.iptv4free` avec `Addons.GetAddonDetails` puis lance `Addons.ExecuteAddon`. Elle ne fait aucun appel réseau vers un serveur externe.
-- Si Kodi n'est pas installé, si le module manque ou si le port 9090 n'est pas actif, l'application affiche un diagnostic et offre Réessayer / Ouvrir Kodi uniquement.
+- Après `JSONRPC.Ping`, elle vérifie que le module `script.iptv4free` est présent et **activé** (`Addons.GetAddonDetails`, propriété `enabled`), puis lance `Addons.ExecuteAddon` avec le paramètre `android`. Elle ne fait aucun appel réseau vers un serveur externe.
+- Le module (0.3.1 ou plus) attend que le PVR de Kodi ait démarré avant de charger les chaînes. Lancé avec `android`, il réduit Kodi quand on le quitte (RETOUR depuis le menu, ou QUITTER) : on revient à l'accueil de la TV.
+- Si Kodi n'est pas installé, si le module manque ou est désactivé, ou si le port 9090 n'est pas actif, l'application revient devant Kodi avec un diagnostic, Réessayer et Ouvrir Kodi uniquement. Un message Android (toast) double ce diagnostic, au cas où Android refuserait de ramener l'écran devant Kodi après les 30 s d'attente.
 - Pas d'installation automatique sur la TV depuis GitHub, pas de modification des réglages Kodi, pas d'arrêt forcé de lecteur.
 
 ## Compilation
@@ -36,9 +39,14 @@ gradle :app:assembleDebug
 
 Pré-requis : Java 17, Android SDK platform 35, build tools 35, Gradle 8.9. L'APK local est `android-tv-launcher/app/build/outputs/apk/debug/app-debug.apk`. La CI produit automatiquement un APK de test sous `dist/` sur la branche de la PR #3, avec validation de sa présence et du manifeste TV.
 
-**Signature :** c'est un APK de test signé en mode DEBUG. Chaque runner GitHub peut utiliser une clé différente : lors d'une mise à jour ultérieure, `adb install -r` peut refuser une signature différente. Créer une clé de publication persistante et privée sur le Mac pour les versions stables. Ne jamais publier une clé privée dans GitHub. En cas de conflit de signature, ne désinstaller que `com.iptv4free.launcher`, jamais Kodi.
+**Signature :** c'est un APK de test signé en mode DEBUG. Chaque runner GitHub crée sa propre clé : les APK 0.1.0 et 0.1.1 ont des certificats différents (constaté le 08/11/2026), donc une mise à jour demande de désinstaller d'abord le lanceur, et sa tuile reprend sa place par défaut. Créer une clé de publication persistante et privée sur le Mac pour les versions stables. Ne jamais publier une clé privée dans GitHub. En cas de conflit de signature, ne désinstaller que `com.iptv4free.launcher`, jamais Kodi.
 
-**Validation réelle :** la compilation GitHub ne garantit pas que la bascule directe fonctionne sur ta TCL. Faire une vérification physique quand aucune vidéo n'est en cours et vérifier le résultat en image / journaux Kodi. Sans essai ADB, présenter cette fonction comme non testée.
+**Validation réelle (08/11/2026, TCL Android 12, Kodi 21.3, MegaNexus, 7 883 chaînes, APK 0.1.1 de la CI, module 0.3.1)** : tuile IPTV4FREE avec le logo dans Projectivy ; lancement à froid (écran IPTV4FREE puis liste) ; lancement avec Kodi déjà ouvert, module ouvert ou fermé (fenêtre du module en 1 s) ; RETOUR et QUITTER vers l'accueil de la TV, y compris pendant une lecture, qui s'arrête ; module désactivé (écran d'erreur devant Kodi, puis Réessayer une fois le module réactivé). Vérifications par captures d'écran, `dumpsys`, `kodi.log` et JSON-RPC.
+
+Limites constatées :
+- au démarrage à froid, l'accueil de Kodi (MegaNexus) reste visible environ 1,5 s avant IPTV4FREE (enregistrement d'écran). Le serveur JSON-RPC de Kodi ne démarre qu'après cet accueil, et la seule parade serait de modifier Kodi ou MegaNexus ;
+- quand Kodi tourne en arrière-plan avec le module fermé, son accueil peut apparaître moins d'une seconde avant le module ;
+- le cas « port 9090 fermé » (attente de 30 s) n'a pas été essayé : il aurait fallu changer un réglage de Kodi.
 
 ## Désinstallation
 
