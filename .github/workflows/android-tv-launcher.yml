@@ -66,6 +66,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin +refs/heads/feat/iptv4free-tv-ui:refs/remotes/origin/feat/iptv4free-tv-ui
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/feat/iptv4free-tv-ui)" ]; then
+            echo "Newer branch commit exists, skip publishing an outdated build"
+            exit 0
+          fi
           git add -f dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk
           if git diff --cached --quiet; then
             echo "APK already committed"
