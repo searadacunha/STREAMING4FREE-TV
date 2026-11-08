@@ -82,7 +82,12 @@ IPTV4FREE does not host or provide any stream. It works with the playlists you c
   checks the TV for the MegaNexus Kodi interface, backs up Kodi's settings, checks the
   official installer and restores Kodi if needed. MegaNexus' Channels screen shows the
   deployed lineups with no second import.
-- **No runtime dependencies.** Python 3.11+ standard library only.
+- **TV interface (Kodi add-on).** A full-screen IPTV4FREE home for Kodi with the official
+  logo: groups by country and category, now and next, each channel's programme, favourites,
+  search and a live preview, all with the remote. See
+  [TV interface](#tv-interface-kodi-add-on).
+- **No runtime dependencies.** Python 3.11+ standard library only, on the computer and in
+  the Kodi add-on. Pillow is used only to build the add-on icon.
 
 ## Architecture
 
@@ -101,6 +106,7 @@ flowchart LR
         F --> K[Kodi<br/>IPTV Simple Client<br/>one instance per lineup]
         E2[(XMLTV guides)] --> K
         K -. optional .-> M[MegaNexus<br/>Channels screen]
+        K -. optional .-> T[IPTV4FREE<br/>TV interface add-on]
     end
 ```
 
@@ -387,6 +393,9 @@ measured threshold.
 | MegaNexus: the zip copied to the TV is not listed | Android 11 and later hide other apps' non-media files from Kodi. Install from the official source URL (`meganexus setup` prints the steps). |
 | MegaNexus: Kodi went back to its old skin | The "Keep this skin?" question expires after about 10 seconds. Open MegaNexus again and answer Yes. |
 | MegaNexus: Kodi is frozen | `iptv4free meganexus rollback --force` (refused while something plays). |
+| TV interface: Kodi crashes or cannot read the ZIP during "Install from zip file" | Serve the ZIP with `python3 scripts/serve_addon.py`, not `python3 -m http.server`: Kodi reads ZIP files with byte ranges, which that server ignores. |
+| TV interface: "Kodi PVR indisponible" or no channels | IPTV Simple Client is off or still loading: enable it, wait for the channels to appear in Kodi, then choose EN DIRECT. |
+| TV interface: a channel shows "Lecture impossible" | The stream did not open (offline or geo-blocked). Kodi's log says why; the next scans remove dead streams. |
 
 Logs: `~/.local/state/iptv4free/iptv4free.log`; `-v` prints debug output.
 
@@ -407,6 +416,10 @@ Logs: `~/.local/state/iptv4free/iptv4free.log`; `-v` prints debug output.
   already saved). Kodi crashed once in `inputstream.adaptive` while switching from an HLS
   channel. The TV left the Wi-Fi for 8 minutes once while MegaNexus was running (cause
   unknown).
+- The TV interface add-on was tested in Kodi 21.3 on macOS (installation from the ZIP,
+  remote navigation, guide, favourites, search, paging, playback and return, failed
+  streams), not yet on the TV. Under another skin such as MegaNexus, Kodi uses that skin's
+  fonts and falls back to one size for names it lacks; this rendering is not verified.
 - Kodi's add-on configuration (installing IPTV Simple Client, one instance per lineup) is a
   one-time manual step: Kodi keeps it in app-private storage that ADB cannot write.
 - Verified on one TV model (Android 12, 32-bit ARM, Kodi 21.3, IPTV Simple Client 21.11.0):

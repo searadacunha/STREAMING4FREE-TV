@@ -28,6 +28,14 @@ The test suite needs no TV and no Internet access: it uses a local HTTP server, 
   Kodi's public interfaces.
 - `meganexus.py` must keep its guarantees: a backup before any change, no rollback while Kodi
   plays, no forced stop of a Kodi that still runs without `--force`.
+- The Kodi add-on (`kodi-addon/script.iptv4free/`) is Python standard library only, and
+  `resources/lib/core.py` must stay free of Kodi imports so it can be tested. Use font names
+  that Kodi skins define (Kodi ignores fonts shipped by an add-on) and texture names starting
+  with `iptv4free-`. Bump the version in `addon.xml` for every published ZIP.
+- Never edit or regenerate the official logo (`assets/branding/IPTV4FREE-original.png`). If it
+  is replaced by the project owner, run `scripts/prepare_branding.py`, then
+  `scripts/build_addon.py`, and commit the generated files and the ZIP in `dist/`. The ZIP is
+  reproducible: CI rebuilds it and fails if its content is incomplete.
 - Write commit messages that say what changed and why.
 
 ## Reporting a bug
