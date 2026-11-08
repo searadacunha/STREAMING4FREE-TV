@@ -30,6 +30,7 @@ def test_launcher_executes_existing_addon_only():
     # The add-on returns to the TV home when opened from the tile; an error screen never relaunches Kodi.
     assert 'new JSONArray().put("android")' in code
     assert "!intent.getBooleanExtra(SHOW_ERROR, false)" in code
+    assert '!found.optBoolean("enabled")' in code
 
 
 def test_logo_source_and_generator_exist():

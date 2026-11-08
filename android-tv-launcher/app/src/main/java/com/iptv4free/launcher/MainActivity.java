@@ -149,8 +149,12 @@ public final class MainActivity extends Activity {
                     connected = true;
                     JSONObject addonArgs = new JSONObject();
                     addonArgs.put("addonid", ADDON);
+                    addonArgs.put("properties", new JSONArray().put("enabled"));
                     JSONObject details = call("Addons.GetAddonDetails", addonArgs, 2);
-                    if (details.has("error")) {
+                    // Kodi also returns the details of a disabled add-on, then refuses to run it.
+                    JSONObject found = details.optJSONObject("result");
+                    found = found == null ? null : found.optJSONObject("addon");
+                    if (found == null || !found.optBoolean("enabled")) {
                         fail("L'extension IPTV4FREE n'est pas installée ou activée dans Kodi.");
                         return;
                     }
