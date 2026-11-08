@@ -15,7 +15,7 @@ relay = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(relay)
 
 SEGMENT = bytes(range(256)) * 12_000  # 3 MB, every byte position checkable
-CAP = 4_000_000  # bytes/s per connection
+CAP = 2_000_000  # bytes/s per connection
 
 
 class Source(BaseHTTPRequestHandler):
@@ -53,8 +53,8 @@ class Source(BaseHTTPRequestHandler):
         if self.path == "/live/high/7.ts":
             rng = self.headers.get("Range")
             if rng and Source.ranges:
-                a, b = (int(x) for x in rng.split("=")[1].split("-"))
-                b = min(b, len(SEGMENT) - 1)
+                a, _, b = rng.split("=")[1].partition("-")
+                a, b = int(a), min(int(b) if b else len(SEGMENT) - 1, len(SEGMENT) - 1)
                 return self._send(206, SEGMENT[a:b + 1], "video/mp2t",
                                   {"Content-Range": f"bytes {a}-{b}/{len(SEGMENT)}"})
             return self._send(200, SEGMENT, "video/mp2t")
@@ -114,15 +114,18 @@ def test_master_keeps_best_variant_and_its_audio(servers):
     assert set(Source.seen_agents) == {"UA/1"}  # the source's headers reach the source
 
 
+def timed(url, **headers):
+    start = time.monotonic()
+    with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=30) as r:
+        return r.status, r.read(), time.monotonic() - start
+
+
 def test_segment_arrives_whole_and_faster_than_one_connection(servers):
     src, port = servers
-    url = relay.local_url(src + "/live/high/7.ts", port=port, name="7.ts")
-    start = time.monotonic()
-    status, body = get(url)
-    took = time.monotonic() - start
+    *_, one_connection = timed(src + "/live/high/7.ts")  # measured here: CI runners are slow
+    status, body, took = timed(relay.local_url(src + "/live/high/7.ts", port=port, name="7.ts"))
     assert status == 200 and body == SEGMENT
-    one_connection = len(SEGMENT) / CAP  # ~0.75 s
-    assert took < one_connection * 0.7, took
+    assert took < one_connection * 0.7, (took, one_connection)
 
 
 def test_segment_without_range_support_passes_through(servers):
@@ -135,10 +138,10 @@ def test_segment_without_range_support_passes_through(servers):
 def test_ffmpeg_open_range_still_uses_parallel_ranges(servers):
     src, port = servers  # Kodi's FFmpeg sends "Range: bytes=0-" on every request
     url = relay.local_url(src + "/live/high/7.ts", port=port, name="7.ts")
-    start = time.monotonic()
-    with urllib.request.urlopen(urllib.request.Request(url, headers={"Range": "bytes=0-"}), timeout=20) as r:
-        assert r.status == 200 and r.read() == SEGMENT
-    assert time.monotonic() - start < len(SEGMENT) / CAP * 0.7
+    *_, one_connection = timed(src + "/live/high/7.ts", Range="bytes=0-")
+    status, body, took = timed(url, Range="bytes=0-")
+    assert status == 200 and body == SEGMENT
+    assert took < one_connection * 0.7, (took, one_connection)
     with urllib.request.urlopen(urllib.request.Request(url, headers={"Range": "bytes=1000000-"}), timeout=20) as r:
         assert r.status == 206 and r.read() == SEGMENT[1000000:]
         assert r.headers["Content-Range"] == f"bytes 1000000-{len(SEGMENT) - 1}/{len(SEGMENT)}"
