@@ -36,7 +36,9 @@ def utc(epoch):
 
 
 def channel(cid, name, number, title=None, start=NOW - 1800, end=NOW + 1800):
-    ch = {"channelid": cid, "label": name, "channelnumber": number, "thumbnail": f"image://{cid}"}
+    # As on the TV: "thumbnail" is the programme's picture, "icon" the channel's tvg-logo.
+    ch = {"channelid": cid, "label": name, "channelnumber": number,
+          "thumbnail": f"http://epg.example/show{cid}.jpg", "icon": f"https://logo.example/{cid}.png"}
     if title:
         ch["broadcastnow"] = {"title": title, "starttime": utc(start), "endtime": utc(end)}
         ch["broadcastnext"] = {"title": f"After {title}", "starttime": utc(end), "endtime": utc(end + 3600)}
@@ -45,6 +47,7 @@ def channel(cid, name, number, title=None, start=NOW - 1800, end=NOW + 1800):
 
 CHANNELS = [channel(i, f"Channel {i}", i, f"Show {i}") for i in range(1, 251)]
 CHANNELS[1] = channel(2, "SIC Notícias", 2)  # no EPG
+CHANNELS[2]["icon"] = "Channel%203"  # no tvg-logo: IPTV Simple stores the URL-encoded name
 CHANNELS.append({"channelid": 999, "label": "Hidden", "hidden": True})
 GROUPS = [{"label": "All channels", "channelgroupid": 1}, {"label": "Portugal · Info", "channelgroupid": 2}]
 BROADCASTS = [
@@ -99,8 +102,18 @@ def test_channels_are_paged_and_normalized():
     assert ch["now"] == "Show 1" and ch["next"] == "After Show 1"
     assert ch["progress"] == 50
     assert ch["now_time"] == f"{core.clock(NOW - 1800)} – {core.clock(NOW + 1800)}"
+    assert ch["logo"] == "https://logo.example/1.png"  # the channel logo, never the programme picture
+    assert core.normalize(CHANNELS[2], now=NOW)["logo"] == ""  # neutral fallback in the window
+    assert core.logo("special://home/logo.png") and core.logo("/storage/x.png") and not core.logo(None)
     no_epg = core.normalize(CHANNELS[1], now=NOW)
     assert no_epg["now"] == "" and no_epg["progress"] == 0 and no_epg["now_time"] == ""
+
+
+def test_count_label_fits_the_skin_fonts():
+    assert core.count_label(300, 7883, True) == "300 sur 7883"
+    assert core.count_label(148, 148, False) == "148 chaînes"
+    assert core.count_label(1, 1, False) == "1 chaîne"
+    assert len(core.count_label(7800, 9999, True)) <= 13  # ~177 px in MegaNexus' font12, box is 200 px
 
 
 def test_search_and_favourites_by_name():
@@ -176,7 +189,7 @@ def test_zip_is_complete_and_reproducible(tmp_path):
     builder = load("build_addon", ROOT / "scripts" / "build_addon.py")
     a = builder.build(tmp_path / "a")
     b = builder.build(tmp_path / "b")
-    assert a.name == "script.iptv4free-0.2.0.zip"
+    assert a.name == "script.iptv4free-0.3.0.zip"
     assert a.read_bytes() == b.read_bytes()
     with ZipFile(a) as archive:
         assert archive.testzip() is None
@@ -202,7 +215,7 @@ class Item:
 class ListControl:
     def __init__(self): self.items, self.pos = [], 0
     def reset(self): self.items, self.pos = [], 0
-    def addItems(self, items): self.items.extend(items)
+    def addItems(self, items): self.items.extend(items); self.pos = 0  # Kodi rebinds: back to row 1
     def size(self): return len(self.items)
     def getSelectedPosition(self): return self.pos if self.items else -1
     def getSelectedItem(self): return self.items[self.pos] if self.items else None
@@ -224,7 +237,10 @@ def ui(tmp_path, monkeypatch):
         def getProperty(self, k): return self.props.get(k, "")
         def clearProperty(self, k): self.props.pop(k, None)
         def setFocusId(self, cid): self.focus = cid
-        def getFocusId(self): return self.focus
+        def getFocusId(self):
+            if self.focus is None:
+                raise RuntimeError("no control has focus")
+            return self.focus
         def close(self): self.closed = True
 
     class Player:
@@ -266,7 +282,7 @@ def test_home_loads_groups_and_first_page(ui):
     assert home.getControl(300).items[1].label2 == "PORTUGAL"
     assert home.getControl(500).size() == 250 and home.props["Count"] == "250 chaînes"
     first = home.getControl(500).items[0]
-    assert first.label == "Channel 1" and first.props["number"] == "1" and first.art["thumb"] == "image://1"
+    assert first.label == "Channel 1" and first.props["number"] == "1" and first.art["thumb"] == "https://logo.example/1.png"
 
 
 def test_remote_flow_programme_favourite_search_play_back(ui):
@@ -303,6 +319,30 @@ def test_remote_flow_programme_favourite_search_play_back(ui):
     assert home.focus == 100 and not home.closed
     home.onAction(types.SimpleNamespace(getId=lambda: 92))
     assert home.closed
+
+
+def test_next_page_keeps_the_selected_row(ui, monkeypatch):
+    home, m = ui.home, ui.m
+    monkeypatch.setattr(m, "PAGE_SIZE", 100)
+    home._show_group(core.channel_groups(fake_rpc)[0])
+    assert home.getControl(500).size() == 100 and home.props["Count"] == "100 sur 251"
+    home.getControl(500).selectItem(98)
+    home.setFocusId(500)
+    home.onAction(types.SimpleNamespace(getId=lambda: 4))  # Down near the end loads the next page
+    assert home.getControl(500).size() == 200 and home.getControl(500).getSelectedPosition() == 98
+
+
+def test_emptied_favourites_and_lost_focus_give_the_remote_a_way_out(ui):
+    home, m = ui.home, ui.m
+    home.setFocusId(500)
+    home.onAction(types.SimpleNamespace(getId=lambda: 117))  # add Channel 1
+    home.onClick(m.FAVS)
+    home.setFocusId(500)
+    home.onAction(types.SimpleNamespace(getId=lambda: 117))  # remove it from the Favoris view
+    assert home.getControl(500).size() == 0 and home.focus == m.FAVS
+    home.focus = None                                        # Kodi could not focus anything
+    home.onAction(types.SimpleNamespace(getId=lambda: 1))
+    assert home.focus == m.LIVE and not home.closed
 
 
 def test_back_from_kodi_window_restores_lists_and_marks_playing(ui):

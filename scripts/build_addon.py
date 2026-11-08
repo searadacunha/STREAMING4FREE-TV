@@ -14,7 +14,8 @@ REQUIRED = ["addon.xml", "default.py", "icon.png", "resources/lib/core.py",
             "resources/skins/Default/1080i/IPTV4FREE.xml",
             "resources/skins/Default/media/iptv4free-logo.png",
             "resources/skins/Default/media/iptv4free-pixel.png",
-            "resources/skins/Default/media/iptv4free-backdrop.png"]
+            "resources/skins/Default/media/iptv4free-backdrop.png",
+            "resources/skins/Default/media/iptv4free-nologo.png"]
 
 
 def build(out_dir: Path = ROOT / "dist") -> Path:

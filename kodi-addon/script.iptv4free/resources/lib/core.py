@@ -5,9 +5,9 @@ import calendar
 import json
 import time
 
-PAGE = 100  # channels fetched per JSON-RPC call, keeps memory flat on 2 GB TVs
-FULL = ["thumbnail", "channelnumber", "broadcastnow", "broadcastnext", "hidden"]
-LIGHT = ["thumbnail", "channelnumber", "hidden"]
+# "icon" is the channel logo (tvg-logo); "thumbnail" is the current programme's picture.
+FULL = ["icon", "channelnumber", "broadcastnow", "broadcastnext", "hidden"]
+LIGHT = ["icon", "channelnumber", "hidden"]
 ALL_LABELS = {"all channels", "toutes les chaînes", "todos os canais", "todos los canales"}
 
 
@@ -78,6 +78,20 @@ def progress(start, end, now: float) -> int:
     return max(0, min(100, int(100 * (now - a) / (b - a))))
 
 
+def logo(icon) -> str:
+    """Channel logo or "" (neutral fallback). Without tvg-logo, IPTV Simple puts the URL-encoded name here."""
+    icon = str(icon or "")
+    return icon if "://" in icon or icon.startswith("/") else ""
+
+
+def count_label(shown: int, total: int, more: bool) -> str:
+    """'300 sur 7883' / '148 chaînes': at most 13 characters, about 177 px in MegaNexus' font12.
+
+    shortcut: no thousands separator so "7800 sur 7883" fits the 200 px box; widen it past 9999 channels.
+    """
+    return f"{shown} sur {total}" if more else f"{shown} chaîne{'s' if shown > 1 else ''}"
+
+
 def _broadcast(value) -> dict:
     return value if isinstance(value, dict) else {}
 
@@ -95,7 +109,7 @@ def normalize(ch: dict, now: float | None = None) -> dict | None:
         "id": ch["channelid"],
         "name": str(ch.get("label") or ch.get("channel") or "Chaîne").strip(),
         "number": str(number or ""),
-        "thumb": ch.get("thumbnail") or "",
+        "logo": logo(ch.get("icon")),
         "now": str(cur.get("title") or ""),
         "now_time": time_range(cur.get("starttime"), cur.get("endtime")),
         "progress": progress(cur.get("starttime"), cur.get("endtime"), now) if cur else 0,
@@ -106,22 +120,18 @@ def normalize(ch: dict, now: float | None = None) -> dict | None:
 
 def channels_page(transport, group_id: int, start: int = 0, count: int = 300,
                   properties=FULL) -> tuple[list[dict], int, int]:
-    """Channels [start, start+count) of a group, PAGE per call -> (channels, next_start, total).
+    """Channels [start, start+count) of a group in ONE call -> (channels, next_start, total).
 
-    next_start counts raw PVR rows (hidden ones included), so paging never re-reads a row."""
-    result, total, pos = [], start, start
-    while pos < start + count:
-        data = rpc_call(transport, "PVR.GetChannels", {
-            "channelgroupid": group_id, "properties": list(properties),
-            "limits": {"start": pos, "end": min(pos + PAGE, start + count)},
-        })
-        page = data.get("channels") or []
-        total = int((data.get("limits") or {}).get("total", pos + len(page)))
-        result.extend(c for c in map(normalize, page) if c)
-        pos += len(page)
-        if not page or pos >= total:
-            break
-    return result, pos, total
+    On the TV every call costs ~0.35 s whatever its size (Kodi rebuilds the group), while 7,883
+    light channels in one call take 1.1 s: never split a page. next_start counts raw PVR rows
+    (hidden ones included), so paging never re-reads a row."""
+    data = rpc_call(transport, "PVR.GetChannels", {
+        "channelgroupid": group_id, "properties": list(properties),
+        "limits": {"start": start, "end": start + count},
+    })
+    page = data.get("channels") or []
+    total = int((data.get("limits") or {}).get("total", start + len(page)))
+    return [c for c in map(normalize, page) if c], start + len(page), total
 
 
 def channel_index(transport, group_id: int, cap: int = 20000) -> list[dict]:

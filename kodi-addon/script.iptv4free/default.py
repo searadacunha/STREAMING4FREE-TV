@@ -121,8 +121,11 @@ class TVHome(xbmcgui.WindowXML):
             return
         page, self.next, self.total = core.channels_page(rpc, self.view["group"], self.next, PAGE_SIZE)
         if page:
+            control = self.getControl(CHANNELS)
+            pos = control.getSelectedPosition()
             self.channels.extend(page)
-            self.getControl(CHANNELS).addItems([self._item(c) for c in page])
+            control.addItems([self._item(c) for c in page])
+            control.selectItem(pos)  # addItems rebinds the whole list and jumps back to row 1
             self._set_count()
 
     def _shortlist(self, kind, title, predicate, empty):
@@ -185,7 +188,7 @@ class TVHome(xbmcgui.WindowXML):
 
     def _item(self, ch):
         li = xbmcgui.ListItem(ch["name"], ch["now"] or "Programme indisponible", offscreen=True)
-        li.setArt({"thumb": ch["thumb"], "icon": ch["thumb"]})
+        li.setArt({"thumb": ch["logo"]})
         for key in ("id", "number", "now_time", "progress", "next", "next_time"):
             li.setProperty(key, str(ch[key]))
         li.setProperty("favorite", "true" if ch["name"].casefold() in self._fav_keys() else "")
@@ -211,10 +214,8 @@ class TVHome(xbmcgui.WindowXML):
             item.setProperty("playing", "true" if name and item.getLabel() == name else "")
 
     def _set_count(self):
-        shown = len(self.channels)
         more = self.view["kind"] == "group" and self.next < self.total
-        plural = "s" if shown > 1 else ""
-        self.setProperty("Count", f"{shown} / {self.total} chaînes" if more else f"{shown} chaîne{plural}")
+        self.setProperty("Count", core.count_label(len(self.channels), self.total, more))
 
     # ---------- favourites ----------
     def _fav_keys(self):
@@ -246,6 +247,8 @@ class TVHome(xbmcgui.WindowXML):
             return
         if self.view["kind"] == "favorites":
             self._show_favorites()
+            if not self.channels:
+                self.setFocusId(FAVS)  # the emptied list cannot keep the focus
         else:
             item = self.getControl(CHANNELS).getSelectedItem()
             if item:
@@ -374,9 +377,17 @@ class TVHome(xbmcgui.WindowXML):
         elif control_id == QUIT:
             self.close()
 
+    def _focus_id(self):
+        try:
+            return self.getFocusId()
+        except RuntimeError:  # nothing focused
+            return 0
+
     def onAction(self, action):
-        aid, focus = action.getId(), self.getFocusId()
-        if aid in BACK:
+        aid, focus = action.getId(), self._focus_id()
+        if not focus and aid not in BACK:
+            self.setFocusId(LIVE)  # an emptied list lost the focus: give the remote a way out
+        elif aid in BACK:
             if focus == PROGRAMME:
                 self.setFocusId(CHANNELS)
             elif focus in (CHANNELS, GROUPS):
