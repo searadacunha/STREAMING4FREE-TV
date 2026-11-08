@@ -416,10 +416,11 @@ Logs: `~/.local/state/iptv4free/iptv4free.log`; `-v` prints debug output.
   already saved). Kodi crashed once in `inputstream.adaptive` while switching from an HLS
   channel. The TV left the Wi-Fi for 8 minutes once while MegaNexus was running (cause
   unknown).
-- The TV interface add-on was tested in Kodi 21.3 on macOS (installation from the ZIP,
-  remote navigation, guide, favourites, search, paging, playback and return, failed
-  streams), not yet on the TV. Under another skin such as MegaNexus, Kodi uses that skin's
-  fonts and falls back to one size for names it lacks; this rendering is not verified.
+- The TV interface add-on 0.3.0 was tested on the same TV under MegaNexus with its 7,883
+  channels (opening in under 2 s, 32 to 72 ms per key, paging, groups, favourites, search,
+  playback, return and channel switching) and in Kodi 21.3 on macOS. How long a channel
+  takes to start depends on its stream (1.6 s to 30 s seen), not on the add-on. Long-press
+  OK on the TV remote was not tried.
 - Kodi's add-on configuration (installing IPTV Simple Client, one instance per lineup) is a
   one-time manual step: Kodi keeps it in app-private storage that ADB cannot write.
 - Verified on one TV model (Android 12, 32-bit ARM, Kodi 21.3, IPTV Simple Client 21.11.0):
@@ -453,14 +454,14 @@ Logs: `~/.local/state/iptv4free/iptv4free.log`; `-v` prints debug output.
 official IPTV4FREE logo, in electric blue, white and black. It reads the channels Kodi already
 has from IPTV Simple Client: groups by country and category, channel logos, now and next with
 progress, each channel's full programme, Kodi's TV guide, favourites, search, and a live
-preview of the channel playing. Everything works with the remote; Back from the video returns
+preview of the channel playing. Channel logos come from the playlists' `tvg-logo`. Everything works with the remote; Back from the video returns
 to IPTV4FREE. It changes nothing in Kodi, IPTV Simple Client or MegaNexus.
 
 ![IPTV4FREE in Kodi 21.3](docs/images/iptv4free-kodi21-accueil.jpg)
 
 *Real Kodi 21.3 screen on a Mac, with a test playlist of fictional channels.*
 
-**Download:** [script.iptv4free-0.2.0.zip](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.2.0.zip)
+**Download:** [script.iptv4free-0.3.0.zip](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.3.0.zip)
 (`python3 scripts/build_addon.py` rebuilds the same file, byte for byte).
 
 Install on the TV:
@@ -471,7 +472,7 @@ Install on the TV:
    and Kodi 21.3 crashes while installing.
 2. In Kodi: **Settings → File manager → Add source**, enter that address, name it `IPTV4FREE`.
 3. **Settings → System → Add-ons → Unknown sources**: on.
-4. **Add-ons → Install from zip file → IPTV4FREE → script.iptv4free-0.2.0.zip**, then stop the
+4. **Add-ons → Install from zip file → IPTV4FREE → script.iptv4free-0.3.0.zip**, then stop the
    server (Ctrl+C).
 5. Open **Add-ons → Program add-ons → IPTV4FREE**.
 
@@ -479,8 +480,8 @@ To remove it: **My add-ons → Program add-ons → IPTV4FREE → Uninstall**. Pl
 stay as they are.
 
 Remote keys, low-RAM design, the logo files, the study of a full `skin.iptv4free` theme and
-what was and was not tested: [docs/IPTV4FREE-TV-UI.md](docs/IPTV4FREE-TV-UI.md). It was tested
-in Kodi 21.3 on a Mac, not yet on the TV itself.
+what was and was not tested: [docs/IPTV4FREE-TV-UI.md](docs/IPTV4FREE-TV-UI.md). Tested on the
+TV (Kodi 21.3, MegaNexus, 7,883 channels) and in Kodi 21.3 on a Mac.
 
 ## License
 

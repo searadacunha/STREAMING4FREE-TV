@@ -1,4 +1,4 @@
-# IPTV4FREE : interface TV pour Kodi (module 0.2.0)
+# IPTV4FREE : interface TV pour Kodi (module 0.3.0)
 
 Interface plein écran 1920 × 1080 (16:9), pilotée à la télécommande, pour les chaînes déjà configurées dans **Kodi PVR IPTV Simple Client**. Elle porte le logo officiel IPTV4FREE et les couleurs bleu électrique, blanc et noir. Elle ne fournit aucune chaîne ni aucun flux, et ne modifie ni Kodi, ni IPTV Simple, ni MegaNexus.
 
@@ -12,7 +12,7 @@ Interface plein écran 1920 × 1080 (16:9), pilotée à la télécommande, pour 
 |---|---|
 | Colonne de gauche | Logo officiel, puis EN DIRECT, GUIDE TV, FAVORIS, RECHERCHE, GROUPES, PARAMÈTRES, QUITTER |
 | Groupes | Les groupes réels d'IPTV Simple, affichés par pays et catégorie (`France · Info` devient FRANCE / Info) ; « Toutes les chaînes » en tête |
-| Chaînes | Numéro, logo, nom, programme en cours, barre de progression, repère FAVORI, repère blanc sur la chaîne en lecture |
+| Chaînes | Numéro, vrai logo de la chaîne (`tvg-logo`, lu dans le champ PVR `icon`), nom, programme en cours, barre de progression, repère FAVORI, repère blanc sur la chaîne en lecture. Sans logo, ou si son lien ne répond pas, une image neutre (contour de TV) |
 | Panneau de droite | Aperçu vidéo de la chaîne en lecture (ou logo de la chaîne), programme en cours avec horaires et progression, programme suivant, programme complet de la chaîne |
 
 **Télécommande**
@@ -28,7 +28,7 @@ Interface plein écran 1920 × 1080 (16:9), pilotée à la télécommande, pour 
 
 GUIDE TV ouvre la grille complète de Kodi (tous les programmes, toutes les chaînes) ; RETOUR revient dans IPTV4FREE, sur le même bouton. PARAMÈTRES ouvre les réglages TV de Kodi.
 
-**Pour une TV à 2 Go de RAM** : chaînes chargées par pages de 300 (la suite se charge en arrivant en bas de la liste), appels JSON-RPC de 100 chaînes, programme complet chargé seulement à la demande, logos des chaînes chargés en arrière-plan, recherche et favoris limités à 60 résultats. Mesuré sur Mac : ouvrir l'interface avec 341 chaînes ajoute environ 4 Mo à Kodi.
+**Pour une TV à 2 Go de RAM** : chaînes chargées par pages de 300 (la suite se charge trois rangs avant le bas de la liste, sans perdre la sélection), **une page = un seul appel JSON-RPC** (sur la TV, chaque appel coûte environ 0,35 s quelle que soit sa taille), programme complet chargé seulement à la demande, logos chargés en arrière-plan, recherche et favoris limités à 60 résultats. Mesuré sur la TV (08/11, 7 883 chaînes) : ouverture en 1,5 à 1,8 s, 32 à 72 ms par touche, Favoris en 2,2 s, recherche en 1,0 s ; Kodi passe de 240 Mo (module fermé) à 258 Mo (module ouvert, 600 chaînes chargées, index de recherche en mémoire).
 
 **Favoris** : enregistrés par nom de chaîne dans `userdata/addon_data/script.iptv4free/favorites.json`. Ils survivent à une mise à jour des playlists, qui change les identifiants internes de Kodi (vérifié).
 
@@ -38,12 +38,12 @@ GUIDE TV ouvre la grille complète de Kodi (tous les programmes, toutes les cha�
 
 Prérequis : les chaînes sont déjà visibles dans Kodi (IPTV Simple Client). Sur l'ordinateur : `iptv4free doctor`.
 
-1. Le ZIP est dans `dist/` du dépôt (branche `feat/iptv4free-tv-ui`), lien direct : [script.iptv4free-0.2.0.zip](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.2.0.zip). Depuis un clone, il est déjà en place ; un fichier téléchargé à part se range dans `dist/`. On peut aussi le reconstruire : `python3 scripts/build_addon.py` donne le même fichier, octet pour octet.
+1. Le ZIP est dans `dist/` du dépôt (branche `feat/iptv4free-tv-ui`), lien direct : [script.iptv4free-0.3.0.zip](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.3.0.zip). Depuis un clone, il est déjà en place ; un fichier téléchargé à part se range dans `dist/`. On peut aussi le reconstruire : `python3 scripts/build_addon.py` donne le même fichier, octet pour octet.
 2. Le servir sur le Wi-Fi : `python3 scripts/serve_addon.py`. Le script affiche l'adresse à saisir dans Kodi, par exemple `http://192.168.1.30:8780/`.
    - **Ne pas utiliser `python3 -m http.server`** : Kodi lit les ZIP par plages d'octets (*ranges*), que ce serveur ignore. Kodi 21.3 n'arrive alors pas à lire le ZIP et **plante** pendant l'installation (constaté le 07/11/2026). `serve_addon.py` répond à ces plages.
 3. Dans Kodi : **Paramètres → Gestionnaire de fichiers → Ajouter une source**, saisir l'adresse affichée, nommer la source `IPTV4FREE`.
 4. **Paramètres → Système → Extensions → Sources inconnues** : activer, si ce n'est pas déjà fait.
-5. **Extensions → Installer depuis un fichier ZIP → IPTV4FREE → script.iptv4free-0.2.0.zip**, puis arrêter `serve_addon.py` (Ctrl+C).
+5. **Extensions → Installer depuis un fichier ZIP → IPTV4FREE → script.iptv4free-0.3.0.zip**, puis arrêter `serve_addon.py` (Ctrl+C).
 6. Ouvrir **Extensions → Extensions de programmes → IPTV4FREE**. Le module apparaît aussi dans les extensions vidéo.
 
 **Désinstaller** : Extensions → Mes extensions → Extensions de programmes → IPTV4FREE → Désinstaller. Les playlists, IPTV Simple, MegaNexus et les réglages de Kodi ne sont pas touchés.
@@ -66,7 +66,7 @@ Un thème Kodi remplace **toutes** les fenêtres de Kodi : accueil, réglages, l
 - **partir d'Estuary** (GPL-2.0, Team Kodi) et le renommer : faisable, mais le thème passe sous GPL-2.0 et doit suivre chaque version de Kodi ;
 - **sur la TV**, activer un thème remplace MegaNexus, qui est lui-même un thème (`skin.meganexus`) : l'accueil MegaNexus disparaîtrait. Les changements de thème ont déjà provoqué des gels au démarrage sur cette TV (journal du 06/11).
 
-Décision pour 0.2.0 : rester un **module de programmes** autonome. Il fonctionne sous n'importe quel thème, ne touche ni à Kodi ni à MegaNexus, et s'affiche en plein écran avec sa propre identité. Un thème complet reste possible plus tard, sur une TV de test et avec l'accord de Benjamin.
+Décision pour 0.3.0 : rester un **module de programmes** autonome. Il fonctionne sous n'importe quel thème, ne touche ni à Kodi ni à MegaNexus, et s'affiche en plein écran avec sa propre identité. Un thème complet reste possible plus tard, sur une TV de test et avec l'accord de Benjamin.
 
 Conséquence technique : Kodi n'utilise que les polices du thème actif. Le module emploie les noms de polices d'Estuary (`font12`, `font13`, `font30_title`…). Sous un autre thème, Kodi se rabat sur `font13` si un nom manque. Le rendu sous MegaNexus n'a pas été vérifié (sa licence interdit de lire son code).
 
@@ -96,18 +96,22 @@ rea capture-adb-screen SERIAL_TV --output-directory ./captures-avant
 
 ## Ce qui a été vérifié, et ce qui ne l'a pas été
 
-Vérifié le 07/11/2026 dans **Kodi 21.3 sur Mac**, avec PVR IPTV Simple Client 21.11.0, 341 chaînes de test, un guide XMLTV et des flux HLS locaux :
+**Sur la télévision** (TCL, Android 12, armeabi-v7a, 1,8 Go, Kodi 21.3, thème MegaNexus, 7 883 chaînes réelles), le 08/11/2026, avec le module 0.3.0 installé par « Installer d'un fichier Zip » (fichiers identiques au ZIP, contrôle SHA-256) :
 
-- installation par « Installer depuis un fichier ZIP », depuis une source locale puis par le réseau avec `serve_addon.py` ;
-- icône dans la fiche de l'extension, logo à l'écran ;
-- navigation et focus à la télécommande, groupes, programme de la chaîne et résumé, favoris (menu contextuel, vue Favoris, survie à une réimportation), recherche avec accents ;
-- chargement par pages (300 puis 341) ;
-- lecture, RETOUR avec aperçu, passage d'une chaîne à l'autre, chaîne en panne (« Lecture impossible ») ;
-- GUIDE TV et PARAMÈTRES avec retour au même bouton, état sans PVR, une seule copie.
+- rendu sous MegaNexus : logo officiel, compteur « 300 sur 7883 » entier, vrais logos des chaînes, image neutre pour les logos absents ou cassés (RTP 1 et RTP 2) ;
+- navigation à la télécommande (32 à 72 ms par touche), changement de groupe, programme complet d'une chaîne (0,3 s), dernière ligne d'un groupe sans retour en haut ;
+- pagination au-delà de 300 : la page suivante arrive vers le rang 298, la sélection reste en place (600 sur 7883) ;
+- favoris : ajout par MENU, vue Favoris, retrait, focus rendu au bouton FAVORIS quand la liste se vide ;
+- recherche « france 24 » : 4 chaînes en 1,0 s ;
+- lecture (France 24, France 24 English, SIC Noticias), RETOUR vers IPTV4FREE avec aperçu vidéo dans le panneau, passage d'une chaîne à l'autre (arrêt puis ouverture en 0,34 s), OK sur la chaîne déjà en lecture : plein écran en 0,17 s sans relancer le flux ;
+- GUIDE TV (grille de Kodi) et retour sur le même bouton ;
+- journal de Kodi : aucune erreur Python ; les seules erreurs viennent de logos de la playlist introuvables à leur source (404, nom de domaine inconnu).
 
-**Pas vérifié sur la télévision** (TCL, Android 12, armeabi-v7a, 1,8 Go) : elle était éteinte et injoignable pendant le développement. Restent donc à essayer sur la TV :
-- le rendu sous le thème MegaNexus ;
-- la fluidité avec 7 883 chaînes ;
-- l'appui long sur OK de la télécommande TCL ;
-- l'aperçu vidéo avec le décodeur MediaCodec ;
-- l'écran de chargement avec le logo, trop bref pour être capturé sur Mac.
+Sur Mac (Kodi 21.3, 07/11) en plus : installation par le réseau, chaîne en panne (« Lecture impossible »), PARAMÈTRES, état sans PVR, une seule copie.
+
+**Encore ouvert**
+- Le démarrage d'un flux dépend de la source : 18 à 30 s pour France 24 (HLS), environ 1,6 s pour SIC Noticias. IPTV4FREE n'y prend que 0,3 s.
+- Les logos sombres (France 2 à France 5) restent peu lisibles sur le fond sombre : ce sont les logos officiels tels qu'ils sont.
+- Les chaînes portugaises de la TV affichent des programmes français (RTP 1 « Téléfoot ») : correspondance du guide dans les playlists déployées, pas dans l'interface.
+- L'appui long sur OK de la télécommande TCL n'a pas été essayé (seule la touche MENU l'a été, par JSON-RPC) ; l'écran de chargement avec le logo est trop bref pour être capturé.
+- Kodi réutilise un ZIP déjà lu sous le même nom : pour réinstaller la même version, servir le fichier sous un autre nom.
