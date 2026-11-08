@@ -488,3 +488,11 @@ TV (Kodi 21.3, MegaNexus, 7,883 channels) and in Kodi 21.3 on a Mac.
 IPTV4FREE is released under the [MIT License](LICENSE). Kodi, its add-ons and the Android
 platform tools are separate projects under their own licenses; they are not distributed with
 IPTV4FREE. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## IPTV4FREE button on Android TV (optional)
+
+An independent Android TV launcher named **IPTV4FREE** adds a branded home-screen tile. Pressing it opens official Kodi and then starts the installed `script.iptv4free` Kodi interface through localhost JSON-RPC. Kodi, PVR IPTV Simple and MegaNexus remain installed and unchanged.
+
+Sources: `android-tv-launcher/`. The APK is compiled on GitHub Actions and published as `dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk` when the build passes. See the [Android TV launcher install and security guide](docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md). Remove the Kodi **shortcut** from the home favorites manually, not the Kodi application package.
+
+Actual TV launcher behavior is pending a physical test on the TCL. The first build is a signed debug APK, not a production release.
