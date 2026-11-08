@@ -16,6 +16,7 @@ import, so the same file runs in Kodi and in the tests.
 import base64
 import json
 import sys
+import threading
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -134,16 +135,29 @@ def _open(url, headers, rng=None):
     return urllib.request.urlopen(urllib.request.Request(url, headers=h), timeout=TIMEOUT)
 
 
+_slots, _slots_lock = {}, threading.Lock()
+
+
+def _slot(url):
+    """Extra range connections allowed to one server at a time, for all segments together:
+    FFmpeg opens the next segment before the current one ends, and the server that carries
+    TF1 refused connections when 12-15 were open from one address (08/11)."""
+    host = urllib.parse.urlsplit(url).netloc
+    with _slots_lock:
+        return _slots.setdefault(host, threading.BoundedSemaphore(PARTS - 1))
+
+
 def _part(url, headers, rng):
-    for attempt in (1, 2):
-        try:
-            with _open(url, headers, rng) as resp:
-                data = resp.read()
-            if resp.status == 206 and len(data) == rng[1] - rng[0] + 1:
-                return data
-        except (OSError, urllib.error.URLError):
-            if attempt == 2:
-                raise
+    with _slot(url):
+        for attempt in (1, 2):
+            try:
+                with _open(url, headers, rng) as resp:
+                    data = resp.read()
+                if resp.status == 206 and len(data) == rng[1] - rng[0] + 1:
+                    return data
+            except (OSError, urllib.error.URLError):
+                if attempt == 2:
+                    raise
     raise OSError("range %d-%d not delivered" % rng)
 
 

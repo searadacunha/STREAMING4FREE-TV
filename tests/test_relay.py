@@ -22,11 +22,23 @@ class Source(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
     ranges = True
     seen_agents: list = []
+    open_now = peak = 0
+    lock = threading.Lock()
 
     def log_message(self, *a):
         pass
 
     def do_GET(self):
+        with Source.lock:
+            Source.open_now += 1
+            Source.peak = max(Source.peak, Source.open_now)
+        try:
+            self._get()
+        finally:
+            with Source.lock:
+                Source.open_now -= 1
+
+    def _get(self):
         Source.seen_agents.append(self.headers.get("User-Agent"))
         if self.path == "/live/master.m3u8":
             body = ("#EXTM3U\n#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"aud\",NAME=\"fr\",URI=\"a/fr.m3u8\"\n"
@@ -56,8 +68,8 @@ class Source(BaseHTTPRequestHandler):
             self.send_header(k, v)
         self.end_headers()
         for i in range(0, len(body), 64 * 1024):  # per-connection speed cap
-            self.wfile.write(body[i:i + 64 * 1024])
             time.sleep(64 * 1024 / CAP)
+            self.wfile.write(body[i:i + 64 * 1024])
 
 
 @pytest.fixture
@@ -66,7 +78,7 @@ def servers():
     rel = relay.serve(port=0)
     for s in (src, rel):
         threading.Thread(target=s.serve_forever, daemon=True).start()
-    Source.ranges, Source.seen_agents = True, []
+    Source.ranges, Source.seen_agents, Source.peak = True, [], 0
     yield f"http://127.0.0.1:{src.server_address[1]}", rel.server_address[1]
     for s in (src, rel):
         s.shutdown()
@@ -158,3 +170,13 @@ def test_relay_listens_on_loopback_only():
         assert server.server_address[0] == "127.0.0.1"
     finally:
         server.server_close()
+
+
+def test_connections_to_one_server_stay_bounded(servers):
+    src, port = servers  # three segments asked at once, as FFmpeg does when it reads ahead
+    from concurrent.futures import ThreadPoolExecutor
+    url = relay.local_url(src + "/live/high/7.ts", port=port, name="7.ts")
+    with ThreadPoolExecutor(3) as pool:
+        bodies = list(pool.map(lambda _: get(url)[1], range(3)))
+    assert bodies == [SEGMENT] * 3
+    assert Source.peak <= 3 + (relay.PARTS - 1), Source.peak  # one first range per request + shared parts

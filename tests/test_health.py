@@ -9,6 +9,9 @@ def test_replay_counts_stalls_only_when_the_buffer_runs_dry():
     # one 5 s segment, the next lands at t=8: 3 s stalled, then on time again
     late = [(0, 5), (8, 5), (13, 5)]
     assert health.replay(late, 0) == (1, 3.0)
+    # downloads stop after 10 s of media and the test runs to t=30: 20 s frozen at the end
+    assert health.replay([(0, 5), (0, 5)], 0, end=30) == (1, 20.0)
+    assert health.replay(smooth, 0, end=20) == (0, 0.0)
 
 
 def test_parse_media_playlist_and_best_variant():

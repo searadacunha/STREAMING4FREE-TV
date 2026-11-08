@@ -117,9 +117,10 @@ def best_variant(base: str, text: str) -> tuple[str, float] | None:
     return best
 
 
-def replay(arrivals: list[tuple[float, float]], start: float) -> tuple[int, float]:
+def replay(arrivals: list[tuple[float, float]], start: float, end: float | None = None) -> tuple[int, float]:
     """Stalls a player sees. `arrivals` = (time the segment finished downloading, its duration),
-    in playback order; playback starts at `start` and resumes as soon as the next segment lands."""
+    in playback order; playback starts at `start` and resumes as soon as the next segment lands.
+    With `end`, a buffer that runs dry before the end of the test counts as a stall too."""
     stalls, stalled, clock, buffered = 0, 0.0, start, 0.0  # `buffered` s of media play from `clock`
     for t, dur in arrivals:
         if t > clock + buffered and t > start:  # the buffer ran dry before this segment arrived
@@ -130,6 +131,9 @@ def replay(arrivals: list[tuple[float, float]], start: float) -> tuple[int, floa
             buffered -= t - clock
             clock = t
         buffered += dur
+    if end is not None and end > clock + buffered:  # downloads stopped: the picture froze
+        stalls += 1
+        stalled += end - (clock + buffered)
     return stalls, stalled
 
 
@@ -190,7 +194,7 @@ def check_hls(h: Health, url: str, headers: dict, seconds: float, timeout: float
             sleep(1.0)
     h.seconds = clock() - t0
     if first is not None:
-        h.stalls, h.stall_seconds = replay(arrivals, first)
+        h.stalls, h.stall_seconds = replay(arrivals, first, None if ended else clock())
         h.speed_p10 = statistics.quantiles(speeds, n=10)[0] if len(speeds) >= 2 else speeds[0]
     return h
 
