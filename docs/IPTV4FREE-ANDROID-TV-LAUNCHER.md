@@ -8,10 +8,10 @@ Ce projet se trouve dans `android-tv-launcher/` avec le package Android distinct
 
 ## Installation sur la TCL
 
-1. Vérifier que Kodi et le module **IPTV4FREE 0.3.0** fonctionnent déjà sur la TV.
+1. Vérifier que Kodi et le module **IPTV4FREE 0.3.1** fonctionnent déjà sur la TV.
 2. Dans Kodi, Paramètres > Services > Contrôle, activer le contrôle par des applications **sur ce système** (JSON-RPC TCP 9090). Ne pas activer le contrôle par d'autres appareils du réseau si ce n'est pas nécessaire.
-3. Télécharger l'APK Android TV compilé : [IPTV4FREE-AndroidTV-Launcher-0.1.0.apk](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk). Le lien n'est fonctionnel qu'après réussite de GitHub Actions et publication effective du fichier.
-4. Installer cet APK sur la TV avec ADB autorisé, par exemple `adb install -r IPTV4FREE-AndroidTV-Launcher-0.1.0.apk`, ou avec un gestionnaire de fichiers Android TV.
+3. Télécharger l'APK Android TV compilé : [IPTV4FREE-AndroidTV-Launcher-0.1.1.apk](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk). Le lien n'est fonctionnel qu'après réussite de GitHub Actions et publication effective du fichier.
+4. Installer cet APK sur la TV avec ADB autorisé, par exemple `adb install -r IPTV4FREE-AndroidTV-Launcher-0.1.1.apk`, ou avec un gestionnaire de fichiers Android TV.
 5. Sur l'accueil TV, placer **IPTV4FREE** dans les applications favorites. Enlever **Kodi** de la rangée des favoris par appui long > Retirer des favoris, lorsque ton lanceur TCL propose cette option. **Ne pas désinstaller ni désactiver Kodi**, indispensable à la lecture. Kodi peut toujours rester visible dans Toutes les applications.
 6. Appuyer sur la tuile IPTV4FREE avec la télécommande. Après le lancement de Kodi, l'interface IPTV4FREE doit s'ouvrir automatiquement.
 

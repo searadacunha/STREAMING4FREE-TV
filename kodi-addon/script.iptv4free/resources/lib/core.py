@@ -27,6 +27,21 @@ def rpc_call(transport, method: str, params: dict | None = None):
     return response["result"]
 
 
+def wait_for_pvr(transport, wait, timeout: float = 30.0, step: float = 0.5) -> bool:
+    """True once Kodi's PVR manager has started. Until then every PVR call fails (-32100):
+    6 s after a cold start on the TV, when the Android TV tile opens the add-on with Kodi.
+    wait(seconds) returns True when Kodi is shutting down (xbmc.Monitor().waitForAbort)."""
+    for _ in range(round(timeout / step)):
+        try:
+            if rpc_call(transport, "PVR.GetProperties", {"properties": ["available"]}).get("available"):
+                return True
+        except RpcError:
+            pass
+        if wait(step):
+            return False
+    return False
+
+
 def channel_groups(transport) -> list[dict]:
     result = rpc_call(transport, "PVR.GetChannelGroups", {"channeltype": "tv"})
     return [g for g in result.get("channelgroups", [])

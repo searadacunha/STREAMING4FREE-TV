@@ -27,6 +27,9 @@ def test_launcher_executes_existing_addon_only():
     assert '"127.0.0.1"' in code
     assert "getLeanbackLaunchIntentForPackage" in code
     assert "force-stop" not in code and "setComponentEnabledSetting" not in code
+    # The add-on returns to the TV home when opened from the tile; an error screen never relaunches Kodi.
+    assert 'new JSONArray().put("android")' in code
+    assert "!intent.getBooleanExtra(SHOW_ERROR, false)" in code
 
 
 def test_logo_source_and_generator_exist():

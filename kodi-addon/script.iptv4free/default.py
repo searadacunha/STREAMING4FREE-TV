@@ -21,6 +21,7 @@ PAGE_SIZE, SHORTLIST = 300, 60  # channels per page in a group; max search/favou
 STALE = 300  # seconds before now/next is reloaded when coming back to the window
 rpc = xbmc.executeJSONRPC
 HOME, RUNNING = xbmcgui.Window(10000), "iptv4free.window"  # Kodi Home window holds the instance flag
+FROM_TILE = "iptv4free.android"
 
 
 def log(msg, level=xbmc.LOGINFO):
@@ -61,6 +62,8 @@ class TVHome(xbmcgui.WindowXML):
         if not self.started:
             self.started = True
             self.setProperty("Loading", "true")
+            self.setProperty("Empty", "Chargement des chaînes…")
+            core.wait_for_pvr(rpc, xbmc.Monitor().waitForAbort)
             self._safe(self._load_groups)
             self._safe(lambda: self._show_group(core.default_group(self.groups)))
             self.clearProperty("Loading")
@@ -406,6 +409,9 @@ class TVHome(xbmcgui.WindowXML):
 
 def main():
     running = HOME.getProperty(RUNNING)
+    from_tile = "android" in sys.argv[1:]  # Addons.ExecuteAddon params of the Android TV launcher
+    if from_tile or not running:
+        HOME.setProperty(FROM_TILE, "true" if from_tile else "")
     if running:  # still open behind Kodi's Home or the video: bring it back, never stack a 2nd copy
         xbmc.executebuiltin(f"ActivateWindow({running})")
         return
@@ -417,6 +423,11 @@ def main():
         HOME.clearProperty(RUNNING)
         ui.player.ui = None
     del ui
+    if HOME.getProperty(FROM_TILE) and not xbmc.Monitor().abortRequested():
+        # Opened from the IPTV4FREE tile: leaving goes back to the TV home, not to Kodi's menus.
+        HOME.clearProperty(FROM_TILE)
+        xbmc.Player().stop()
+        xbmc.executebuiltin("Minimize")
 
 
 if __name__ == "__main__":

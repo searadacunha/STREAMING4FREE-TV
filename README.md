@@ -461,7 +461,7 @@ to IPTV4FREE. It changes nothing in Kodi, IPTV Simple Client or MegaNexus.
 
 *Real Kodi 21.3 screen on a Mac, with a test playlist of fictional channels.*
 
-**Download:** [script.iptv4free-0.3.0.zip](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.3.0.zip)
+**Download:** [script.iptv4free-0.3.1.zip](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.3.1.zip)
 (`python3 scripts/build_addon.py` rebuilds the same file, byte for byte).
 
 Install on the TV:
@@ -472,7 +472,7 @@ Install on the TV:
    and Kodi 21.3 crashes while installing.
 2. In Kodi: **Settings → File manager → Add source**, enter that address, name it `IPTV4FREE`.
 3. **Settings → System → Add-ons → Unknown sources**: on.
-4. **Add-ons → Install from zip file → IPTV4FREE → script.iptv4free-0.3.0.zip**, then stop the
+4. **Add-ons → Install from zip file → IPTV4FREE → script.iptv4free-0.3.1.zip**, then stop the
    server (Ctrl+C).
 5. Open **Add-ons → Program add-ons → IPTV4FREE**.
 
@@ -493,6 +493,6 @@ IPTV4FREE. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 An independent Android TV launcher named **IPTV4FREE** adds a branded home-screen tile. Pressing it opens official Kodi and then starts the installed `script.iptv4free` Kodi interface through localhost JSON-RPC. Kodi, PVR IPTV Simple and MegaNexus remain installed and unchanged.
 
-Sources: `android-tv-launcher/`. The APK is compiled on GitHub Actions and published as `dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk` when the build passes. See the [Android TV launcher install and security guide](docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md). Remove the Kodi **shortcut** from the home favorites manually, not the Kodi application package.
+Sources: `android-tv-launcher/`. The APK is compiled on GitHub Actions and published as `dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk` when the build passes. See the [Android TV launcher install and security guide](docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md). Remove the Kodi **shortcut** from the home favorites manually, not the Kodi application package.
 
 Actual TV launcher behavior is pending a physical test on the TCL. The first build is a signed debug APK, not a production release.

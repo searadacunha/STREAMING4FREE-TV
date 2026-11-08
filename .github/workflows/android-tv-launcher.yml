@@ -49,17 +49,17 @@ jobs:
       - name: Validate APK and stage GitHub download
         run: |
           mkdir -p dist
-          cp android-tv-launcher/app/build/outputs/apk/debug/app-debug.apk dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk
-          test -s dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk
-          unzip -t dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk | tail -1
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk | tee /tmp/iptv4free-badging.txt
+          cp android-tv-launcher/app/build/outputs/apk/debug/app-debug.apk dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk
+          test -s dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk
+          unzip -t dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk | tail -1
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk | tee /tmp/iptv4free-badging.txt
           grep -q "com.iptv4free.launcher" /tmp/iptv4free-badging.txt
           grep -q "leanback" /tmp/iptv4free-badging.txt
-          sha256sum dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk
+          sha256sum dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk
       - uses: actions/upload-artifact@v4
         with:
           name: IPTV4FREE-AndroidTV-Launcher-APK
-          path: dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk
+          path: dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk
           retention-days: 14
       - name: Publish APK directly on this GitHub branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/feat/iptv4free-tv-ui'
@@ -71,7 +71,7 @@ jobs:
             echo "Newer branch commit exists, skip publishing an outdated build"
             exit 0
           fi
-          git add -f dist/IPTV4FREE-AndroidTV-Launcher-0.1.0.apk
+          git add -f dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk
           if git diff --cached --quiet; then
             echo "APK already committed"
           else

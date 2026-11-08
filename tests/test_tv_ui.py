@@ -139,6 +139,18 @@ def test_rpc_errors_raise():
         core.rpc_call(lambda _: "not json", "PVR.GetChannels")
 
 
+def test_waits_for_pvr_started_by_a_cold_kodi():
+    # As seen on the TV: PVR calls fail with -32100 for ~6 s after Kodi starts.
+    replies = iter([{"error": {"code": -32100}}, {"result": {"available": False}}, {"result": {"available": True}}])
+    waits = []
+    transport = lambda _: json.dumps({"jsonrpc": "2.0", "id": 1, **next(replies)})
+    assert core.wait_for_pvr(transport, lambda s: waits.append(s) or False)
+    assert waits == [0.5, 0.5]
+    never = lambda _: json.dumps({"jsonrpc": "2.0", "id": 1, "error": {"code": -32100}})
+    assert not core.wait_for_pvr(never, lambda s: False, timeout=2)
+    assert not core.wait_for_pvr(never, lambda s: True)  # Kodi shutting down: stop at once
+
+
 # ---------- official logo and Kodi files ----------
 
 def test_official_logo_is_present_and_unchanged():
@@ -189,7 +201,7 @@ def test_zip_is_complete_and_reproducible(tmp_path):
     builder = load("build_addon", ROOT / "scripts" / "build_addon.py")
     a = builder.build(tmp_path / "a")
     b = builder.build(tmp_path / "b")
-    assert a.name == "script.iptv4free-0.3.0.zip"
+    assert a.name == "script.iptv4free-0.3.1.zip"
     assert a.read_bytes() == b.read_bytes()
     with ZipFile(a) as archive:
         assert archive.testzip() is None

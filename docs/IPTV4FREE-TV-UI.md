@@ -1,4 +1,4 @@
-# IPTV4FREE : interface TV pour Kodi (module 0.3.0)
+# IPTV4FREE : interface TV pour Kodi (module 0.3.1)
 
 Interface plein écran 1920 × 1080 (16:9), pilotée à la télécommande, pour les chaînes déjà configurées dans **Kodi PVR IPTV Simple Client**. Elle porte le logo officiel IPTV4FREE et les couleurs bleu électrique, blanc et noir. Elle ne fournit aucune chaîne ni aucun flux, et ne modifie ni Kodi, ni IPTV Simple, ni MegaNexus.
 
@@ -38,12 +38,12 @@ GUIDE TV ouvre la grille complète de Kodi (tous les programmes, toutes les cha�
 
 Prérequis : les chaînes sont déjà visibles dans Kodi (IPTV Simple Client). Sur l'ordinateur : `iptv4free doctor`.
 
-1. Le ZIP est dans `dist/` du dépôt (branche `feat/iptv4free-tv-ui`), lien direct : [script.iptv4free-0.3.0.zip](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.3.0.zip). Depuis un clone, il est déjà en place ; un fichier téléchargé à part se range dans `dist/`. On peut aussi le reconstruire : `python3 scripts/build_addon.py` donne le même fichier, octet pour octet.
+1. Le ZIP est dans `dist/` du dépôt (branche `feat/iptv4free-tv-ui`), lien direct : [script.iptv4free-0.3.1.zip](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.3.1.zip). Depuis un clone, il est déjà en place ; un fichier téléchargé à part se range dans `dist/`. On peut aussi le reconstruire : `python3 scripts/build_addon.py` donne le même fichier, octet pour octet.
 2. Le servir sur le Wi-Fi : `python3 scripts/serve_addon.py`. Le script affiche l'adresse à saisir dans Kodi, par exemple `http://192.168.1.30:8780/`.
    - **Ne pas utiliser `python3 -m http.server`** : Kodi lit les ZIP par plages d'octets (*ranges*), que ce serveur ignore. Kodi 21.3 n'arrive alors pas à lire le ZIP et **plante** pendant l'installation (constaté le 07/11/2026). `serve_addon.py` répond à ces plages.
 3. Dans Kodi : **Paramètres → Gestionnaire de fichiers → Ajouter une source**, saisir l'adresse affichée, nommer la source `IPTV4FREE`.
 4. **Paramètres → Système → Extensions → Sources inconnues** : activer, si ce n'est pas déjà fait.
-5. **Extensions → Installer depuis un fichier ZIP → IPTV4FREE → script.iptv4free-0.3.0.zip**, puis arrêter `serve_addon.py` (Ctrl+C).
+5. **Extensions → Installer depuis un fichier ZIP → IPTV4FREE → script.iptv4free-0.3.1.zip**, puis arrêter `serve_addon.py` (Ctrl+C).
 6. Ouvrir **Extensions → Extensions de programmes → IPTV4FREE**. Le module apparaît aussi dans les extensions vidéo.
 
 **Désinstaller** : Extensions → Mes extensions → Extensions de programmes → IPTV4FREE → Désinstaller. Les playlists, IPTV Simple, MegaNexus et les réglages de Kodi ne sont pas touchés.

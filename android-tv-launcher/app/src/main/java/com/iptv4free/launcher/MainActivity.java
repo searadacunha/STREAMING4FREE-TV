@@ -13,7 +13,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,6 +38,7 @@ public final class MainActivity extends Activity {
     private static final int PORT = 9090;
     private static final long DEADLINE_MS = 30000;
     private static final int MAX_REPLY = 65536;
+    private static final String SHOW_ERROR = "com.iptv4free.launcher.SHOW_ERROR";
 
     private TextView status;
     private Button retry;
@@ -52,7 +55,7 @@ public final class MainActivity extends Activity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (!launching) beginLaunch();
+        if (!launching && !intent.getBooleanExtra(SHOW_ERROR, false)) beginLaunch();
     }
 
     private void createScreen() {
@@ -154,6 +157,8 @@ public final class MainActivity extends Activity {
                     JSONObject launchArgs = new JSONObject();
                     launchArgs.put("addonid", ADDON);
                     launchArgs.put("wait", false);
+                    // Tells the add-on to return to the TV home, not Kodi's menus, when it is closed.
+                    launchArgs.put("params", new JSONArray().put("android"));
                     JSONObject execution = call("Addons.ExecuteAddon", launchArgs, 3);
                     if (execution.has("error")) {
                         fail("Kodi refuse l'ouverture d'IPTV4FREE : " + execution.optJSONObject("error"));
@@ -184,6 +189,11 @@ public final class MainActivity extends Activity {
         runOnUiThread(() -> {
             launching = false;
             showError(message);
+            // Kodi was opened on top of this screen: bring the diagnostic back in front of it.
+            // Android may refuse that from the background (after the 30 s wait): the toast still shows.
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            startActivity(new Intent(this, MainActivity.class).putExtra(SHOW_ERROR, true)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
         });
     }
 
