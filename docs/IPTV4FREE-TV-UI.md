@@ -1,4 +1,4 @@
-# IPTV4FREE — interface TV pour Kodi (module 0.2.0)
+# IPTV4FREE : interface TV pour Kodi (module 0.2.0)
 
 Interface plein écran 1920 × 1080 (16:9), pilotée à la télécommande, pour les chaînes déjà configurées dans **Kodi PVR IPTV Simple Client**. Elle porte le logo officiel IPTV4FREE et les couleurs bleu électrique, blanc et noir. Elle ne fournit aucune chaîne ni aucun flux, et ne modifie ni Kodi, ni IPTV Simple, ni MegaNexus.
 
