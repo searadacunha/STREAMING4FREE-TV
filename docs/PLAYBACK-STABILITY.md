@@ -53,7 +53,11 @@ iptv4free --config TV.toml deploy                       # sauvegarde, contrôle,
 iptv4free --config TV.toml playback-diagnose
 ```
 
-Le module 0.4.0 doit être installé sur la TV **avant** de déployer des chaînes routées.
+Le module 0.4.0 doit être installé sur la TV **avant** de déployer des chaînes routées, quand personne ne regarde :
+
+1. `python3 scripts/serve_addon.py` sur le Mac (même réseau), puis sur la TV : **Extensions → Installer d'un fichier Zip → IPTV4FREE → script.iptv4free-0.4.0.zip**, et arrêter le serveur (Ctrl+C). Kodi garde une copie d'un ZIP déjà vu sous le même nom : en cas de doute, le servir sous un nom neuf.
+2. Contrôle : `kodi.log` contient « IPTV4FREE: relay listening on 127.0.0.1:52180 » et `playback-diagnose` affiche « relay listening ».
+3. `health`, `tune`, `deploy` (ci-dessus), puis regarder une chaîne routée quelques minutes et relancer `playback-diagnose`.
 
 ## Revenir en arrière
 

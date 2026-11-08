@@ -172,10 +172,25 @@ def cmd_health(config: Config, args) -> int:
     print(f"Following {len(targets)} streams for {args.seconds:.0f} s each, {args.workers} at a time: "
           f"about {minutes:.0f} to {2 * minutes:.0f} min (the relay A/B doubles the time when it runs).")
     book = health.HealthBook(config.state_dir / "health.json")
+    import itertools
+    import threading
+    import urllib.parse
     from concurrent.futures import ThreadPoolExecutor
+    # Two streams of one server followed at once share what it gives one address: one at a
+    # time per host (TF1 measured 5.2 Mb/s through the relay next to two others, TFX alone 9.0).
+    locks: dict[str, threading.Lock] = {}
+    by_host: dict[str, list] = {}
+    for name, t in targets:
+        host = urllib.parse.urlsplit(t.url).netloc
+        locks.setdefault(host, threading.Lock())
+        by_host.setdefault(host, []).append((name, t, locks[host]))
+    order = [job for group in itertools.zip_longest(*by_host.values()) for job in group if job]
+
+    def follow(t, lock):
+        with lock:
+            return health.check_with_relay(t, args.seconds, 10.0, config.user_agent)
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        jobs = [(name, pool.submit(health.check_with_relay, t, args.seconds, 10.0, config.user_agent))
-                for name, t in targets]
+        jobs = [(name, pool.submit(follow, t, lock)) for name, t, lock in order]
         for name, job in jobs:
             direct, relayed = job.result()
             book.record(direct, relayed)
