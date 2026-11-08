@@ -7,7 +7,7 @@ import os
 import sys
 from pathlib import Path
 
-from . import __version__, deploy, doctor, kodi, meganexus, pipeline
+from . import __version__, deploy, diagnose, doctor, health, kodi, meganexus, pipeline
 from .adb import Adb, AdbError
 from .config import RESTART_POLICIES, Config, ConfigError, load_config
 
@@ -122,6 +122,101 @@ def cmd_meganexus_rollback(config: Config, args) -> int:
                               force=args.force)
 
 
+def _health_targets(config: Config, args) -> list[tuple[str, "scanner.Target"]]:
+    """(channel name, target) to follow: favourites of the given or built playlists, the
+    channels named with --channel, and with --duplicates every alive source of a channel
+    that has several (what `build` chooses between)."""
+    from .channels import clean_name
+    from .epg import match_key
+    from .playlists import effective_url, parse_m3u, request_parts
+    from .scanner import Target
+    files = [Path(f) for f in args.playlist] or [config.output_dir / f"{lu.id}.m3u" for lu in config.lineups]
+    wanted = {match_key(n) for n in args.channel}
+    picked: dict[str, tuple[str, Target]] = {}
+
+    def add(e):
+        e = health.unroute(e)
+        key = effective_url(e)
+        url, headers = request_parts(e)
+        picked.setdefault(key, (e.name, Target(key, url, tuple(sorted(headers.items())))))
+    for f in files:
+        if not f.exists():
+            continue
+        for e in parse_m3u(f.read_text(encoding="utf-8")).entries:
+            groups = e.attrs.get("group-title", "")
+            if (match_key(clean_name(e.name)) in wanted if wanted
+                    else config.favorites_label.casefold() in groups.casefold()):
+                add(e)
+    if args.duplicates:
+        history = pipeline._history(config)
+        for lineup in config.lineups:
+            by_key: dict = {}
+            for e in pipeline.lineup_entries(config, lineup):
+                if history.alive(effective_url(e), config.max_failed_scans):
+                    k = (match_key(clean_name(e.name)), e.attrs.get("tvg-id", "").split("@")[0].lower())
+                    by_key.setdefault(k, {})[e.url] = e
+            for found in by_key.values():
+                if len(found) > 1:
+                    for e in found.values():
+                        add(e)
+    return list(picked.values())
+
+
+def cmd_health(config: Config, args) -> int:
+    targets = _health_targets(config, args)
+    if not targets:
+        print("nothing to follow: give --playlist, --channel or --duplicates (favourites are "
+              f"the entries whose group contains '{config.favorites_label}')")
+        return 1
+    minutes = len(targets) * args.seconds / args.workers / 60
+    print(f"Following {len(targets)} streams for {args.seconds:.0f} s each, {args.workers} at a time: "
+          f"about {minutes:.0f} to {2 * minutes:.0f} min (the relay A/B doubles the time when it runs).")
+    book = health.HealthBook(config.state_dir / "health.json")
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=args.workers) as pool:
+        jobs = [(name, pool.submit(health.check_with_relay, t, args.seconds, 10.0, config.user_agent))
+                for name, t in targets]
+        for name, job in jobs:
+            direct, relayed = job.result()
+            book.record(direct, relayed)
+            book.save()
+            line = (f"  {name[:28]:28s} {direct.verdict:8s} {direct.stalls} stalls "
+                    f"{direct.stall_seconds:.0f} s, speed p10 {direct.speed_p10 / 1e6:.1f} Mb/s "
+                    f"for {direct.bitrate / 1e6:.1f} Mb/s, {direct.variants} variants")
+            if relayed:
+                line += (f" | relay: {relayed.verdict}, {relayed.stalls} stalls, "
+                         f"p10 {relayed.speed_p10 / 1e6:.1f} Mb/s")
+            if health.relay_helps(book.records[direct.key]):
+                line += "  -> relay helps"
+            print(line, flush=True)
+    print(f"Saved to {book.path}")
+    return 0
+
+
+def cmd_tune(config: Config, args) -> int:
+    """Rewrite existing playlists so the channels the relay helps go through it (or back)."""
+    from .playlists import parse_m3u, render_m3u
+    from .updates import atomic_write
+    book = health.HealthBook(config.state_dir / "health.json")
+    out_dir = Path(args.out)
+    for f in (Path(p) for p in args.playlist):
+        entries = parse_m3u(f.read_text(encoding="utf-8")).entries
+        if args.undo:
+            new = [health.unroute(e) for e in entries]
+            changed = [e.name for e, n in zip(entries, new) if n is not e]
+        else:
+            new, changed = health.route(entries, book)
+        atomic_write(out_dir / f.name, render_m3u(new))
+        verb = "back to the source" if args.undo else "through the relay"
+        print(f"{f.name}: {len(changed)} of {len(entries)} channels {verb}"
+              + (f": {', '.join(changed[:12])}{' ...' if len(changed) > 12 else ''}" if changed else ""))
+    return 0
+
+
+def cmd_playback_diagnose(config: Config, args) -> int:
+    return diagnose.run(config, _adb(config), ping=not args.no_ping)
+
+
 def cmd_update(config: Config, args) -> int:
     cmd_scan(config, args)
     cmd_build(config, args)
@@ -164,6 +259,28 @@ def parser() -> argparse.ArgumentParser:
     r.set_defaults(func=cmd_rollback)
 
     sub.add_parser("doctor", help="read-only diagnostics").set_defaults(func=cmd_doctor)
+
+    h = sub.add_parser("health", help="follow a few streams like a player for minutes "
+                       "(stalls, speed), with and without the relay")
+    h.add_argument("--playlist", action="append", default=[], help="M3U to read (default: built playlists)")
+    h.add_argument("--channel", action="append", default=[], help="channel name (repeatable)")
+    h.add_argument("--duplicates", action="store_true",
+                   help="also every alive source of the channels that have several (needs `scan`)")
+    h.add_argument("--seconds", type=float, default=120, help="per stream (default 120)")
+    h.add_argument("--workers", type=int, default=2, help="streams followed at once (default 2)")
+    h.set_defaults(func=cmd_health)
+
+    t = sub.add_parser("tune", help="route the channels `health` found better through the relay "
+                       "in existing playlists (or --undo)")
+    t.add_argument("playlist", nargs="+")
+    t.add_argument("--out", required=True, help="directory for the rewritten playlists")
+    t.add_argument("--undo", action="store_true", help="put every relayed channel back on its source")
+    t.set_defaults(func=cmd_tune)
+
+    pd = sub.add_parser("playback-diagnose", help="read-only report: Kodi, memory, Wi-Fi, "
+                        "stalls and slow starts per server, likely causes")
+    pd.add_argument("--no-ping", action="store_true", help="skip the ping measurements")
+    pd.set_defaults(func=cmd_playback_diagnose)
 
     u = sub.add_parser("update", help="scan, build and deploy")
     deploy_flags(u)
