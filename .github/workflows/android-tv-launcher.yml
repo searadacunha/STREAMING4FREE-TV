@@ -20,6 +20,9 @@ permissions:
 jobs:
   launcher:
     runs-on: ubuntu-latest
+    env:
+      # Public fingerprint of the IPTV4FREE signing certificate (the key itself is a repository secret).
+      IPTV4FREE_CERT_SHA256: b44870f86baea816cc718b0efe1adf37bae4f7adf726d9ab09f613a9d30c6b78
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -45,21 +48,30 @@ jobs:
           python -m pytest -q tests/test_android_launcher.py
       - name: Build installable debug APK
         working-directory: android-tv-launcher
-        run: gradle --no-daemon :app:assembleDebug
+        env:
+          KEYSTORE_BASE64: ${{ secrets.IPTV4FREE_KEYSTORE_BASE64 }}
+          IPTV4FREE_KEYSTORE_PASSWORD: ${{ secrets.IPTV4FREE_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/iptv4free.p12"
+            export IPTV4FREE_KEYSTORE="$RUNNER_TEMP/iptv4free.p12"
+          fi
+          gradle --no-daemon :app:assembleDebug
       - name: Validate APK and stage GitHub download
         run: |
           mkdir -p dist
-          cp android-tv-launcher/app/build/outputs/apk/debug/app-debug.apk dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk
-          test -s dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk
-          unzip -t dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk | tail -1
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk | tee /tmp/iptv4free-badging.txt
+          cp android-tv-launcher/app/build/outputs/apk/debug/app-debug.apk dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk
+          test -s dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk
+          unzip -t dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk | tail -1
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk | tee /tmp/iptv4free-badging.txt
           grep -q "com.iptv4free.launcher" /tmp/iptv4free-badging.txt
           grep -q "leanback" /tmp/iptv4free-badging.txt
-          sha256sum dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk
+          sha256sum dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk | tee /tmp/iptv4free-signer.txt
       - uses: actions/upload-artifact@v4
         with:
           name: IPTV4FREE-AndroidTV-Launcher-APK
-          path: dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk
+          path: dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk
           retention-days: 14
       - name: Publish APK directly on this GitHub branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/feat/iptv4free-tv-ui'
@@ -71,10 +83,15 @@ jobs:
             echo "Newer branch commit exists, skip publishing an outdated build"
             exit 0
           fi
-          git add -f dist/IPTV4FREE-AndroidTV-Launcher-0.1.1.apk
+          # Only the stable key lets an update install over the APK already on the TV.
+          if ! grep -q "SHA-256 digest: $IPTV4FREE_CERT_SHA256" /tmp/iptv4free-signer.txt; then
+            echo "APK not signed with the IPTV4FREE key: not published"
+            exit 1
+          fi
+          git add -f dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk
           if git diff --cached --quiet; then
             echo "APK already committed"
           else
-            git commit -m "build(androidtv): publish IPTV4FREE launcher debug APK"
+            git commit -m "build(androidtv): publish IPTV4FREE launcher APK"
             git push origin HEAD:refs/heads/feat/iptv4free-tv-ui
           fi
