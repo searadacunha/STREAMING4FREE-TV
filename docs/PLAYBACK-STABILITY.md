@@ -23,6 +23,7 @@ Ce qui ne sert à rien ici :
 
 1. **Relais local dans le module Kodi** (`resources/lib/relay.py`, service `service.py`) : écoute sur `127.0.0.1:52180` uniquement, démarre avec Kodi.
    - segments : 4 connexions en plages d'octets, renvoyés dans l'ordre au fur et à mesure (les requêtes `Range: bytes=0-` de FFmpeg aussi) ; plage fermée (`EXT-X-BYTERANGE`) et serveur sans plages : transmis tels quels ;
+   - au plus 3 connexions parallèles par serveur pour tous les segments ensemble, en plus de la première plage de chaque segment : le serveur de TF1 a refusé des connexions quand 12 à 15 étaient ouvertes depuis une même adresse ;
    - maîtres : seule la variante de plus haut débit (celle que Kodi choisit déjà) et ses pistes audio et sous-titres ;
    - aucun cache : chaque playlist est relue à la source, URL signées et en-têtes HTTP conservés (dans le jeton de l'URL locale) ;
    - erreurs de source dans `kodi.log` (« IPTV4FREE relay: », nom d'hôte seulement).
@@ -68,6 +69,8 @@ Le module 0.4.0 doit être installé sur la TV **avant** de déployer des chaîn
 ## Limites
 
 - Un serveur plus lent que le flux **même** avec 4 connexions, ou qui bride par adresse IP, reste coupé : `health` le dit (relais « unstable ») et rien n'est routé.
+- `health` suit un seul flux par serveur à la fois : deux flux d'un même serveur se partagent ce qu'il accorde à une adresse (TF1 à 5,2 Mb/s par le relais à côté de deux autres chaînes du même serveur, TFX seul à 9,0) et le serveur de TF1 refuse des connexions au-delà d'une douzaine. Ne pas lancer `health` sur ce serveur pendant qu'on y regarde une chaîne.
+- Certaines sources expirent d'elles-mêmes : CNews (playlist figée sur GitHub vers Dailymotion) répond 403 dès le troisième segment ; `health` la classe instable, le relais n'y peut rien.
 - Chaînes routées : si le module est désactivé, elles ne s'ouvrent plus (les autres ne dépendent pas du service).
 - Les flux HTTP directs (MPEG-TS) et DASH ne sont pas suivis en profondeur (DASH : inputstream.adaptive a son propre tampon).
 - Les mesures `health` se font depuis le Mac : même accès Internet que la TV, pas la même puce Wi-Fi.
