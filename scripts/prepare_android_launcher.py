@@ -1,8 +1,10 @@
 """Build Android TV banner/icon using the official, unmodified IPTV4FREE source logo.
 
-Source bytes are never overwritten. Build derivatives are resized proportionally.
+Source bytes are never overwritten. Build derivatives are resized proportionally; the splash
+uses a byte-for-byte copy of the original file.
 Requires Pillow for build-time only, not at runtime on the TV.
 """
+import shutil
 from pathlib import Path
 
 from PIL import Image
@@ -31,6 +33,7 @@ def make_fit(image, canvas_size, fraction):
 def main():
     logo = visible_logo()
     OUT.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ORIGINAL, OUT / "iptv4free_logo_original.png")
 
     icon = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
     art, point = make_fit(logo, (512, 512), 0.88)

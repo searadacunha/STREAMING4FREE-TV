@@ -2,7 +2,7 @@
 
 ## Résultat attendu
 
-Sur la télévision TCL, une nouvelle application Android nommée **IPTV4FREE**, avec le logo officiel, remplace le **raccourci** Kodi dans la rangée des favoris. Un appui sur IPTV4FREE lance le Kodi officiel, puis ouvre directement l'interface Kodi **script.iptv4free** déjà installée. Kodi, PVR IPTV Simple Client et MegaNexus sont conservés. L'application Android ne fournit aucune chaîne.
+Sur la télévision TCL, une nouvelle application Android nommée **IPTV4FREE**, avec le logo officiel, remplace le **raccourci** Kodi dans la rangée des favoris. Un appui sur IPTV4FREE affiche aussitôt le logo officiel sur fond noir, lance le Kodi officiel en dessous, puis laisse apparaître directement l'interface Kodi **script.iptv4free** déjà installée : ni l'écran de démarrage de Kodi ni l'accueil MegaNexus ne passent à l'écran. Kodi, PVR IPTV Simple Client et MegaNexus sont conservés. L'application Android ne fournit aucune chaîne.
 
 Ce projet se trouve dans `android-tv-launcher/` avec le package Android distinct `com.iptv4free.launcher`. Il ne modifie jamais l'APK de Kodi, ses icônes ni ses composants.
 
@@ -10,20 +10,28 @@ Ce projet se trouve dans `android-tv-launcher/` avec le package Android distinct
 
 1. Vérifier que Kodi et le module **IPTV4FREE 0.3.1** fonctionnent déjà sur la TV.
 2. Dans Kodi, Paramètres > Services > Contrôle, activer le contrôle par des applications **sur ce système** (JSON-RPC TCP 9090). Ne pas activer le contrôle par d'autres appareils du réseau si ce n'est pas nécessaire.
-3. Télécharger l'APK Android TV compilé : [IPTV4FREE-AndroidTV-Launcher-0.1.2.apk](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk). Le lien n'est fonctionnel qu'après réussite de GitHub Actions et publication effective du fichier.
-4. Installer cet APK sur la TV avec ADB autorisé, par exemple `adb install -r IPTV4FREE-AndroidTV-Launcher-0.1.2.apk`, ou avec un gestionnaire de fichiers Android TV.
-5. Sur l'accueil TV, placer **IPTV4FREE** dans les applications favorites et en retirer le raccourci **Kodi**. **Ne pas désinstaller ni désactiver Kodi**, indispensable à la lecture. Sur la TCL, l'accueil par défaut est **Projectivy Launcher** (vérifié le 08/11/2026) :
+3. Télécharger l'APK Android TV compilé : [IPTV4FREE-AndroidTV-Launcher-0.2.0.apk](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk). Le lien n'est fonctionnel qu'après réussite de GitHub Actions et publication effective du fichier.
+4. Installer cet APK sur la TV avec ADB autorisé, par exemple `adb install -r IPTV4FREE-AndroidTV-Launcher-0.2.0.apk`, ou avec un gestionnaire de fichiers Android TV.
+5. Autoriser une fois IPTV4FREE à s'afficher par-dessus les autres applications, sans quoi Kodi reste visible pendant son démarrage :
+   `adb shell appops set com.iptv4free.launcher SYSTEM_ALERT_WINDOW allow`
+   (ou Paramètres Android TV > Applications > Accès spécial des applications > affichage par-dessus les autres applications > IPTV4FREE). Vérification : `adb shell appops get com.iptv4free.launcher SYSTEM_ALERT_WINDOW` doit répondre `allow`. L'autorisation survit aux redémarrages et aux mises à jour (`adb install -r`), pas à une désinstallation.
+6. Sur l'accueil TV, placer **IPTV4FREE** dans les applications favorites et en retirer le raccourci **Kodi**. **Ne pas désinstaller ni désactiver Kodi**, indispensable à la lecture. Sur la TCL, l'accueil par défaut est **Projectivy Launcher** (vérifié le 08/11/2026) :
    - IPTV4FREE apparaît tout seul en tête de la rangée « Apps TV ». Pour fixer sa place : appui long sur OK sur la tuile, puis **Réorganiser** ;
    - pour retirer Kodi de cette rangée : appui long sur OK sur la tuile Kodi, puis **Masquer** (ou **Déplacer vers…** une autre catégorie). Le même menu contient **Désinstaller** : ne pas le choisir.
-6. Appuyer sur la tuile IPTV4FREE avec la télécommande. Après le lancement de Kodi, l'interface IPTV4FREE doit s'ouvrir automatiquement.
+7. Appuyer sur la tuile IPTV4FREE avec la télécommande : logo IPTV4FREE, puis la liste des chaînes.
 
 ## Fonctionnement
 
 - L'activité Android dédiée possède `LEANBACK_LAUNCHER`, une icône 512 x 512 transparente et une bannière 320 x 180, issues proportionnellement du logo original du dépôt.
-- Lors d'un appui sur la tuile, l'application récupère et lance l'intent officiel de `org.xbmc.kodi`, puis attend le serveur local `127.0.0.1:9090` (maximum 30 secondes).
+- Le thème de l'activité a pour fond le logo officiel (fichier `assets/branding/IPTV4FREE-original.png` copié tel quel, octet pour octet, vérifié par la CI) sur noir : Android l'affiche dès l'appui, avant tout code. Le logo occupe la même place et la même taille que dans l'écran de chargement du module (1080 x 720 à 420, 120 sur une TV 1080p).
+- Lors d'un appui sur la tuile, l'application pose d'abord un **voile IPTV4FREE** (même logo, fine barre animée) au-dessus de toutes les fenêtres (`TYPE_APPLICATION_OVERLAY`). Une fois ce voile dessiné seulement, elle lance l'intent officiel de `org.xbmc.kodi`, qui démarre normalement en dessous : écran de démarrage de Kodi, MegaNexus et ouverture du module restent cachés. Kodi garde sa surface et son fonctionnement habituels ; il perd seulement le focus clavier, ce qui ne change rien chez lui (code de Kodi 21.3 : `onLostFocus` ne sert qu'à l'économiseur d'écran).
+- Pendant le voile, les touches de la télécommande sont ignorées (elles iraient sinon aux menus de Kodi, invisibles). La touche Accueil retire le voile tout de suite (`ACTION_CLOSE_SYSTEM_DIALOGS`, raison `homekey`).
+- L'application attend le serveur local `127.0.0.1:9090` (maximum 30 secondes).
 - Après `JSONRPC.Ping`, elle vérifie que le module `script.iptv4free` est présent et **activé** (`Addons.GetAddonDetails`, propriété `enabled`), puis lance `Addons.ExecuteAddon` avec le paramètre `android`. Elle ne fait aucun appel réseau vers un serveur externe.
+- Elle lit ensuite, par JSON-RPC, la fenêtre que le module déclare sur l'accueil de Kodi (`Window(Home).Property(iptv4free.window)`). Dès que cette fenêtre est active et affiche son chargement (propriété `Loading`, même logo au même endroit), ou après 3 lectures si elle affiche déjà la liste, le voile s'efface en 0,3 s. Si la fenêtre n'apparaît pas en 15 s, le voile part quand même : l'écran ne reste jamais bloqué.
+- Sans l'autorisation d'affichage par-dessus les autres applications, le lanceur se comporte comme 0.1.x (Kodi visible pendant son démarrage).
 - Le module (0.3.1 ou plus) attend que le PVR de Kodi ait démarré avant de charger les chaînes. Lancé avec `android`, il réduit Kodi quand on le quitte (RETOUR depuis le menu, ou QUITTER) : on revient à l'accueil de la TV.
-- Si Kodi n'est pas installé, si le module manque ou est désactivé, ou si le port 9090 n'est pas actif, l'application revient devant Kodi avec un diagnostic, Réessayer et Ouvrir Kodi uniquement. Un message Android (toast) double ce diagnostic, au cas où Android refuserait de ramener l'écran devant Kodi après les 30 s d'attente.
+- Si Kodi n'est pas installé, si le module manque ou est désactivé, ou si le port 9090 n'est pas actif, l'application revient devant Kodi avec un diagnostic, Réessayer et Ouvrir Kodi uniquement, puis retire le voile. Un message Android (toast) double ce diagnostic, au cas où Android refuserait de ramener l'écran devant Kodi (sans l'autorisation d'affichage, après les 30 s d'attente).
 - Pas d'installation automatique sur la TV depuis GitHub, pas de modification des réglages Kodi, pas d'arrêt forcé de lecteur.
 
 ## Compilation
@@ -37,7 +45,7 @@ cd android-tv-launcher
 gradle :app:assembleDebug
 ```
 
-Pré-requis : Java 17, Android SDK platform 35, build tools 35, Gradle 8.9. L'APK local est `android-tv-launcher/app/build/outputs/apk/debug/app-debug.apk`. La CI produit automatiquement un APK de test sous `dist/` sur la branche de la PR #3, avec validation de sa présence et du manifeste TV.
+Pré-requis : Java 17 ou 21, Android SDK platform 35, build tools 35, Gradle 8.9. L'APK local est `android-tv-launcher/app/build/outputs/apk/debug/app-debug.apk`. La CI produit automatiquement un APK de test sous `dist/` sur la branche de la PR #3, avec validation de sa présence et du manifeste TV.
 
 **Signature :** depuis 0.1.2, la CI signe l'APK avec une clé IPTV4FREE fixe, gardée dans deux secrets du dépôt (`IPTV4FREE_KEYSTORE_BASE64`, `IPTV4FREE_KEYSTORE_PASSWORD`) et en copie privée chez le mainteneur. Empreinte SHA-256 du certificat : `b44870f86baea816cc718b0efe1adf37bae4f7adf726d9ab09f613a9d30c6b78`. La CI refuse de publier un APK qui porte une autre empreinte. Les mises à jour s'installent donc par-dessus (`adb install -r`). Une seule exception : passer de 0.1.0 ou 0.1.1, signés par une clé de débogage différente à chaque compilation, à 0.1.2 oblige une dernière fois à désinstaller le lanceur. Un APK compilé ailleurs sans ces secrets reprend la clé de débogage de la machine. Ne jamais publier la clé privée. En cas de conflit de signature, ne désinstaller que `com.iptv4free.launcher`, jamais Kodi.
 

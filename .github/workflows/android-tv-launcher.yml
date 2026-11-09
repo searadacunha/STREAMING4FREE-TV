@@ -60,18 +60,22 @@ jobs:
       - name: Validate APK and stage GitHub download
         run: |
           mkdir -p dist
-          cp android-tv-launcher/app/build/outputs/apk/debug/app-debug.apk dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk
-          test -s dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk
-          unzip -t dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk | tail -1
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk | tee /tmp/iptv4free-badging.txt
+          cp android-tv-launcher/app/build/outputs/apk/debug/app-debug.apk dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk
+          test -s dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk
+          unzip -t dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk | tail -1
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk | tee /tmp/iptv4free-badging.txt
           grep -q "com.iptv4free.launcher" /tmp/iptv4free-badging.txt
           grep -q "leanback" /tmp/iptv4free-badging.txt
-          sha256sum dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk | tee /tmp/iptv4free-signer.txt
+          grep -q "SYSTEM_ALERT_WINDOW" /tmp/iptv4free-badging.txt
+          # The splash shows the official logo file itself, byte for byte.
+          unzip -p dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk res/drawable-nodpi-v4/iptv4free_logo_original.png \
+            | cmp - assets/branding/IPTV4FREE-original.png
+          sha256sum dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk | tee /tmp/iptv4free-signer.txt
       - uses: actions/upload-artifact@v4
         with:
           name: IPTV4FREE-AndroidTV-Launcher-APK
-          path: dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk
+          path: dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk
           retention-days: 14
       - name: Publish APK directly on this GitHub branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/feat/iptv4free-tv-ui'
@@ -88,7 +92,7 @@ jobs:
             echo "APK not signed with the IPTV4FREE key: not published"
             exit 1
           fi
-          git add -f dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk
+          git add -f dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk
           if git diff --cached --quiet; then
             echo "APK already committed"
           else

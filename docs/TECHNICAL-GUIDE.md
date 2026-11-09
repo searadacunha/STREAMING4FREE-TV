@@ -464,8 +464,8 @@ IPTV4FREE. See [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
 
 ## IPTV4FREE button on Android TV (optional)
 
-An independent Android TV launcher named **IPTV4FREE** adds a branded home-screen tile. Pressing it opens official Kodi and then starts the installed `script.iptv4free` Kodi interface through localhost JSON-RPC. Kodi, PVR IPTV Simple and MegaNexus remain installed and unchanged.
+An independent Android TV launcher named **IPTV4FREE** adds a branded home-screen tile. Pressing it shows the official logo on black, puts that splash above every window (Android overlay, granted once with `adb shell appops set com.iptv4free.launcher SYSTEM_ALERT_WINDOW allow`), opens official Kodi underneath and starts the installed `script.iptv4free` Kodi interface through localhost JSON-RPC. The splash fades out once the add-on window is active, so Kodi's splash and MegaNexus never reach the screen. Kodi, PVR IPTV Simple and MegaNexus remain installed and unchanged.
 
-Sources: `android-tv-launcher/`. The APK is compiled on GitHub Actions and published as `dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk` when the build passes. See the [Android TV launcher install and security guide](IPTV4FREE-ANDROID-TV-LAUNCHER.md). Remove the Kodi **shortcut** from the home favorites manually, not the Kodi application package.
+Sources: `android-tv-launcher/`. The APK is compiled on GitHub Actions and published as `dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk` when the build passes. See the [Android TV launcher install and security guide](IPTV4FREE-ANDROID-TV-LAUNCHER.md). Remove the Kodi **shortcut** from the home favorites manually, not the Kodi application package.
 
 Tested on the TCL on 8 Nov 2026 with add-on 0.3.1: cold start, Kodi already open, Back and Quit to the TV home (playback stops), and the error screen. On a cold start Kodi's own home shows for about 1.5 s before IPTV4FREE. From 0.1.2 GitHub signs the APK with a fixed IPTV4FREE key (repository secrets, certificate SHA-256 `b44870f8…6b78`), so updates install over the previous version; moving from 0.1.0 or 0.1.1 needs one last uninstall of the launcher (never Kodi).

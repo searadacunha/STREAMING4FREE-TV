@@ -14,3 +14,7 @@ build/
 !tests/**/*.m3u
 *.log
 .DS_Store
+
+# Local Android builds
+.gradle/
+android-tv-launcher/app/src/main/res/drawable-nodpi/
