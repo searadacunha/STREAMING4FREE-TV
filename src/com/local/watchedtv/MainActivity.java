@@ -2,6 +2,7 @@ package com.local.watchedtv;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -70,10 +71,16 @@ public class MainActivity extends Activity {
         setContentView(root);
         if (b != null) web.restoreState(b);
         else {
-            Uri u = getIntent().getData(); // testing: am start -n ... -d <url>
+            Uri u = testUrl(getIntent());
             web.loadUrl(u != null ? u.toString() : HOME);
         }
         web.requestFocus();
+    }
+
+    /** URL passed with "am start -d <url>": honoured by DEBUG=1 builds only, because any installed app can send this intent. */
+    Uri testUrl(Intent i) {
+        boolean debuggable = (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+        return debuggable ? i.getData() : null;
     }
 
     @Override public void onBackPressed() {
@@ -97,7 +104,8 @@ public class MainActivity extends Activity {
 
     @Override protected void onNewIntent(Intent i) {
         super.onNewIntent(i);
-        if (i.getData() != null) web.loadUrl(i.getData().toString());
+        Uri u = testUrl(i);
+        if (u != null) web.loadUrl(u.toString());
     }
 
     @Override protected void onPause() { super.onPause(); web.onPause(); CookieManager.getInstance().flush(); } // stops the sound when leaving

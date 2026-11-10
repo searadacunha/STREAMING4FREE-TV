@@ -2,6 +2,7 @@ package com.local.cinefusetv;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
@@ -104,10 +105,16 @@ public class MainActivity extends Activity {
         setContentView(root);
         if (b != null) web.restoreState(b);
         else {
-            Uri u = getIntent().getData(); // testing: am start -n ... -d <url>
+            Uri u = testUrl(getIntent());
             web.loadUrl(u != null ? u.toString() : HOME);
         }
         web.requestFocus();
+    }
+
+    /** URL passed with "am start -d <url>": honoured by DEBUG=1 builds only, because any installed app can send this intent. */
+    Uri testUrl(Intent i) {
+        boolean debuggable = (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+        return debuggable ? i.getData() : null;
     }
 
     /** cinefuse.<any TLD> and its subdomains: the site moves to a new TLD every few months (cc, icu, mom, sbs in Nov 2026).
@@ -211,7 +218,8 @@ public class MainActivity extends Activity {
 
     @Override protected void onNewIntent(Intent i) {
         super.onNewIntent(i);
-        if (i.getData() != null) { failed = false; web.loadUrl(i.getData().toString()); } // onResume follows: no retry of the old page
+        Uri u = testUrl(i);
+        if (u != null) { failed = false; web.loadUrl(u.toString()); } // onResume follows: no retry of the old page
     }
 
     @Override protected void onPause() { super.onPause(); web.onPause(); CookieManager.getInstance().flush(); } // stops the sound when leaving

@@ -124,6 +124,8 @@ For WebView debugging during development only:
 DEBUG=1 ./build.sh
 ```
 
+A debuggable build also opens a start URL passed by ADB, for testing: `adb shell am start -n com.local.watchedtv/.MainActivity -d <url>`. Regular builds ignore that URL, because any app installed on the TV could send it.
+
 **Do not keep the debuggable build installed** for regular use. To uninstall:
 
 ```bash
