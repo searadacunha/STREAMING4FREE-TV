@@ -57,7 +57,7 @@ The following packages are available in the [development branch / PR #3](https:/
 | Package | What it does | Download |
 | :--- | :--- | :--- |
 | **IPTV4FREE Kodi add-on 0.3.1** | Branded live TV interface inside an existing Kodi installation. | [Download ZIP](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.3.1.zip) |
-| **IPTV4FREE Android TV launcher 0.1.2** | Adds an IPTV4FREE tile to the Android TV home screen and launches the Kodi add-on. | [Download APK](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/IPTV4FREE-AndroidTV-Launcher-0.1.2.apk) |
+| **IPTV4FREE Android TV launcher 0.2.0** | Adds an IPTV4FREE tile to the Android TV home screen and opens the Kodi add-on behind an IPTV4FREE splash, so Kodi's own screens never show. Needs a one-time `adb shell appops set com.iptv4free.launcher SYSTEM_ALERT_WINDOW allow`. | [Download APK](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk) |
 
 The Kodi ZIP is served locally for installation using the included range-aware server (`python3 scripts/serve_addon.py` from the development branch). **Do not use the standard Python HTTP server** for this Kodi version. For precise installation, requirements, testing evidence and rollback, see the [Kodi interface guide](https://github.com/searadacunha/IPTV4FREE/blob/feat/iptv4free-tv-ui/docs/IPTV4FREE-TV-UI.md) and [Android launcher guide](https://github.com/searadacunha/IPTV4FREE/blob/feat/iptv4free-tv-ui/docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md).
 
