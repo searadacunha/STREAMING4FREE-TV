@@ -70,6 +70,9 @@ public class MainActivity extends Activity {
             @Override public void onPageFinished(WebView v, String url) {
                 if (isSite(Uri.parse(url).getHost())) v.evaluateJavascript(TV_CSS_FIX, null);
             }
+            @Override public boolean onRenderProcessGone(WebView v, android.webkit.RenderProcessGoneDetail d) {
+                return restart(v);
+            }
         });
         web.setWebChromeClient(chrome = new WebChromeClient() {
             @Override public void onPermissionRequest(PermissionRequest r) { // Widevine DRM, as in Chrome; nothing else (microphone, camera) is granted
@@ -103,12 +106,19 @@ public class MainActivity extends Activity {
         cursor.setVisibility(View.INVISIBLE); // laid out, so its size is known
         root.addView(cursor, new FrameLayout.LayoutParams(px(22), px(22)));
         setContentView(root);
-        if (b != null) web.restoreState(b);
-        else {
-            Uri u = testUrl(getIntent());
+        if (b == null || web.restoreState(b) == null) { // restoreState returns null when nothing could be restored: black page otherwise
+            Uri u = b == null ? testUrl(getIntent()) : null;
             web.loadUrl(u != null ? u.toString() : HOME);
         }
         web.requestFocus();
+    }
+
+    /** The page's renderer crashed, or the TV killed it to free memory: without this Android closes the app.
+     * The dead WebView is only detached here (it is destroyed with this activity) and the app starts again on its home page. */
+    boolean restart(WebView dead) {
+        root.removeView(dead);
+        startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        return true;
     }
 
     /** URL passed with "am start -d <url>": honoured by DEBUG=1 builds only, because any installed app can send this intent. */

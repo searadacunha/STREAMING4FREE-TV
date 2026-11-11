@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
     View fullscreen;
     WebChromeClient.CustomViewCallback fullscreenDone;
     WebChromeClient chrome;
+    boolean failed; // the main page failed to load
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
@@ -43,6 +44,13 @@ public class MainActivity extends Activity {
                 String scheme = r.getUrl().getScheme();
                 if ("http".equals(scheme) || "https".equals(scheme)) return false;
                 return true; // intent:, market:... are ignored: stay on the site
+            }
+            @Override public void onPageStarted(WebView v, String url, android.graphics.Bitmap icon) { failed = false; }
+            @Override public void onReceivedError(WebView v, WebResourceRequest r, android.webkit.WebResourceError err) {
+                if (r.isForMainFrame()) failed = true; // TV offline: Chromium's error page, retried by onResume
+            }
+            @Override public boolean onRenderProcessGone(WebView v, android.webkit.RenderProcessGoneDetail d) {
+                return restart(v);
             }
         });
         web.setWebChromeClient(chrome = new WebChromeClient() {
@@ -69,12 +77,19 @@ public class MainActivity extends Activity {
         });
         root.addView(web);
         setContentView(root);
-        if (b != null) web.restoreState(b);
-        else {
-            Uri u = testUrl(getIntent());
+        if (b == null || web.restoreState(b) == null) { // restoreState returns null when nothing could be restored: black page otherwise
+            Uri u = b == null ? testUrl(getIntent()) : null;
             web.loadUrl(u != null ? u.toString() : HOME);
         }
         web.requestFocus();
+    }
+
+    /** The page's renderer crashed, or the TV killed it to free memory: without this Android closes the app.
+     * The dead WebView is only detached here (it is destroyed with this activity) and the app starts again on its home page. */
+    boolean restart(WebView dead) {
+        root.removeView(dead);
+        startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        return true;
     }
 
     /** URL passed with "am start -d <url>": honoured by DEBUG=1 builds only, because any installed app can send this intent. */
@@ -105,11 +120,11 @@ public class MainActivity extends Activity {
     @Override protected void onNewIntent(Intent i) {
         super.onNewIntent(i);
         Uri u = testUrl(i);
-        if (u != null) web.loadUrl(u.toString());
+        if (u != null) { failed = false; web.loadUrl(u.toString()); } // onResume follows: no retry of the old page
     }
 
     @Override protected void onPause() { super.onPause(); web.onPause(); CookieManager.getInstance().flush(); } // stops the sound when leaving
-    @Override protected void onResume() { super.onResume(); web.onResume(); }
+    @Override protected void onResume() { super.onResume(); web.onResume(); if (failed) web.reload(); } // reopening never shows a stale error page
     @Override protected void onSaveInstanceState(Bundle b) { super.onSaveInstanceState(b); web.saveState(b); }
     @Override protected void onDestroy() { root.removeAllViews(); web.destroy(); super.onDestroy(); }
 }
