@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- a setting or a hint: three sliders -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="176dp" android:height="99dp" android:viewportWidth="176" android:viewportHeight="99">
+    <path android:fillColor="#FF111827" android:pathData="M0,0h176v99h-176z" />
+    <path android:strokeColor="#FF8A94A6" android:strokeWidth="3" android:pathData="M68,36h40 M68,50h40 M68,64h40" />
+    <path android:fillColor="#FF1E78FF"
+        android:pathData="M76,36a4,4 0,1 0,8 0a4,4 0,1 0,-8 0z M94,50a4,4 0,1 0,8 0a4,4 0,1 0,-8 0z M82,64a4,4 0,1 0,8 0a4,4 0,1 0,-8 0z" />
+</vector>

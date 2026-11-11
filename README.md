@@ -1,21 +1,23 @@
 <div align="center">
 
+<img src="hub/src/main/res/drawable-xhdpi/banner.png" width="320" alt="STREAMING4FREE hub tile for the Android TV home screen" />
 <img src="res/drawable-xhdpi/banner.png" width="320" alt="WATCHED tile for the Android TV home screen" />
 <img src="cinefuse/res/drawable-xhdpi/banner.png" width="320" alt="CINEFUSE TV tile for the Android TV home screen" />
 
 # STREAMING4FREE TV
 
-**Lightweight Android TV launchers for WATCHED and CINEFUSE.**  
-Fullscreen, remote-friendly ways to open [watched.cx](https://watched.cx) and [cinefuse.cc](https://cinefuse.cc) on your TV, built from source without Gradle.
+**A free-TV hub and lightweight launchers for WATCHED and CINEFUSE, for Android TV.**  
+One remote-friendly home for free live channels, free streaming apps and fullscreen ways to open [watched.cx](https://watched.cx) and [cinefuse.cc](https://cinefuse.cc) on your TV.
 
 <p>
   <img alt="Android TV" src="https://img.shields.io/badge/Android_TV-3DDC84?style=flat-square&logo=android&logoColor=white">
   <img alt="Android 5.0+" src="https://img.shields.io/badge/Android-5.0%2B-1F2937?style=flat-square">
   <img alt="Java 17 build toolchain" src="https://img.shields.io/badge/Build-JDK_17-2563EB?style=flat-square">
-  <img alt="No Gradle" src="https://img.shields.io/badge/Gradle-Not_required-1F2937?style=flat-square">
+  <img alt="Launchers without Gradle" src="https://img.shields.io/badge/Launchers-No_Gradle-1F2937?style=flat-square">
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-22C55E?style=flat-square"></a>
 </p>
 
+<a href="#streaming4free-hub">Hub</a> ·
 <a href="#what-it-does">Features</a> ·
 <a href="#quick-start">Quick start</a> ·
 <a href="#remote-controls">Controls</a> ·
@@ -27,14 +29,28 @@ Fullscreen, remote-friendly ways to open [watched.cx](https://watched.cx) and [c
 
 ## Overview
 
-STREAMING4FREE TV contains **two small, single-activity Android TV apps**. Each one opens a website in a fullscreen Android WebView and appears on the TV home screen under its own name, icon and banner.
+STREAMING4FREE TV contains **a hub and two small, single-activity Android TV apps**. The hub gathers free live channels and the TV's streaming apps; WATCHED and CINEFUSE TV each open a website in a fullscreen Android WebView. All three appear on the TV home screen under their own name, icon and banner.
 
 | App | Opens | Source | Package | APK |
 |---|---|---|---|---|
+| **STREAMING4FREE** | free channels and apps, see [below](#streaming4free-hub) | [`hub/`](hub/) | `com.local.streaming4free` | `hub/build/outputs/apk/release/streaming4free-hub-release.apk` |
 | **WATCHED** | `https://watched.cx` | repository root | `com.local.watchedtv` | `build/watched-1.0.apk` |
 | **CINEFUSE TV** | `https://cinefuse.cc` | [`cinefuse/`](cinefuse/) | `com.local.cinefusetv` | `cinefuse/build/cinefuse-tv-1.0.apk` |
 
-The two apps have different packages and install side by side. The websites are operated by third parties and may provide TV-specific interfaces. **This repository is a launcher, not an IPTV player or a source of channels, subscriptions, or streaming content.**
+The three apps have different packages and install side by side. The websites are operated by third parties and may provide TV-specific interfaces. **The hub plays public, free streams listed by M3UPT, iptv-org and Free-TV and opens the official apps; it hosts no media and supplies no subscription.**
+
+## STREAMING4FREE hub
+
+A Leanback home with a left menu: **Home, Movies, Series, Live TV, Sport, Documentaries, YouTube, IPTV, Favorites, Continue watching, Settings**. French and Portuguese, no account.
+
+| | Feature | Details |
+|:--:|---|---|
+| 📡 | **Checked channels** | 781 free channels in 19 rows, each one probed from the TV's own network (Portugal) by [`tools/probe_streams.py`](tools/probe_streams.py): playlist, best variant and a media segment must answer without browser headers or DRM. Re-streams of paid channels are left out. Results: [`docs/SOURCES.md`](docs/SOURCES.md). |
+| 📺 | **Free apps** | Plex, Rakuten TV, Pluto TV, ARTE, RTP Play, Red Bull TV and others: installed ones open directly, free ones not yet installed open their Play Store page. Paid or geo-blocked apps are labelled as such. |
+| 🗂 | **Public playlists** | M3UPT, Free-TV and iptv-org, downloaded by the TV (kept 12 hours, last copy used offline) and browsed by country or category. |
+| ▶️ | **Player** | Media3: HLS, DASH, MPEG-TS and MP4, hardware decoders first, quality from the bandwidth (or capped in Settings), audio and subtitle tracks, resume for films, reconnection on network errors, a clear message when a source refuses. |
+| ⭐ | **Favorites and history** | Long press on OK adds or removes a favorite; Continue watching lists what was opened last. Kept on the TV only. |
+| 🔎 | **Search** | One search over the apps, the checked channels and the three playlists, plus a hand-off to YouTube. Voice through the TV's own recognizer. |
 
 ## What it does
 
@@ -83,6 +99,16 @@ cd cinefuse && ./build.sh
 
 **Output:** `cinefuse/build/cinefuse-tv-1.0.apk`. Its build also runs a small self-check of the link rule (`test/SiteCheck.java`).
 
+The hub uses the Gradle wrapper (it downloads Gradle and the libraries the first time):
+
+```bash
+cd hub && ./gradlew testDebugUnitTest assembleRelease
+```
+
+**Output:** `hub/build/outputs/apk/release/streaming4free-hub-release.apk`.
+
+Or build the three apps and install them on the TV in one go: `tools/tv.sh install TV_IP` (`tools/tv.sh status TV_IP` shows what is installed).
+
 ### 3. Install on Android TV
 
 Enable Android/ADB debugging on the TV and make sure the TV is reachable from your computer.
@@ -91,17 +117,20 @@ Enable Android/ADB debugging on the TV and make sure the TV is reachable from yo
 adb connect TV_IP:5555
 adb -s TV_IP:5555 install -r build/watched-1.0.apk
 adb -s TV_IP:5555 install -r cinefuse/build/cinefuse-tv-1.0.apk
+adb -s TV_IP:5555 install -r hub/build/outputs/apk/release/streaming4free-hub-release.apk
 ```
 
 Replace `TV_IP` with your television's IP address. Some devices require wireless-debugging pairing or a different port before ADB can connect.
 
-Open **WATCHED** or **CINEFUSE TV** from the TV home screen.
+Open **STREAMING4FREE**, **WATCHED** or **CINEFUSE TV** from the TV home screen.
 
 ## Remote controls
 
 | Remote action | Behavior |
 |---|---|
-| **Back** | Exits fullscreen video, goes to the previous webpage, or leaves the app. In CINEFUSE TV it hides the cursor first. |
+| **Back** | Exits fullscreen video, goes to the previous webpage, or leaves the app. In CINEFUSE TV it hides the cursor first. In the hub's player it returns to the hub at once. |
+| **Long press OK** (hub) | Adds the channel or app under the focus to the favorites, or removes it. |
+| **OK** (hub player) | Shows the controls: audio and subtitle tracks, quality, seek. After an error, tries again. |
 | **Home** | Sends the app to the background; the WebView is paused. Reopening the app returns to the same page. |
 | **Play / Pause / Play-Pause** | Controls the first ready HTML5 video on the top-level page. |
 | **Long press OK** (CINEFUSE TV) | Shows or hides the cursor. Arrows move it, pushing it against an edge scrolls, OK clicks. |
@@ -147,9 +176,19 @@ STREAMING4FREE-TV/
 │   ├── src/com/local/cinefusetv/MainActivity.java
 │   ├── test/SiteCheck.java      # link rule self-check, run by build.sh
 │   └── README.md                # CINEFUSE TV details
+├── hub/                         # STREAMING4FREE hub (Kotlin, Leanback, Media3, Gradle wrapper)
+│   ├── src/main/kotlin/…        # menu and pages, player, search, playlists, favorites
+│   ├── src/main/assets/catalog.json  # checked channels, written by tools/probe_streams.py
+│   └── make_art.py              # hub banner and icon, same look as the two launchers
+├── tools/
+│   ├── probe_streams.py         # probes the public playlists, writes the catalog and docs/SOURCES.md
+│   └── tv.sh                    # build, install over Wi-Fi ADB, status
+├── docs/SOURCES.md              # what works from the TV's network, and what does not
 ├── THIRD_PARTY_NOTICES.md
 └── LICENSE
 ```
+
+Refresh the checked channels from the network the TV uses with `python3 tools/probe_streams.py` (about 2,000 streams, a few minutes), then rebuild the hub.
 
 The launcher artwork can be regenerated with `python3 make_art.py` (in the root or in `cinefuse/`) after installing **Pillow** on macOS.
 
@@ -164,6 +203,8 @@ The launcher artwork can be regenerated with `python3 make_art.py` (in the root 
 | **CINEFUSE TV, tested** | On the same TV: launch, redirects, search, movie page, playback of one film, resume, media keys, ±10 s seek, VF/VOSTFR switch, player settings, fullscreen, Back, Home and reopening. |
 | **CINEFUSE TV, not verified** | Login, series and episodes, subtitles, quality above 448p, live channels, watch parties. See [`cinefuse/README.md`](cinefuse/README.md). |
 | **Device-specific limits** | The tested WebView did not decode AC-3/E-AC-3 audio and did not provide Widevine L1. |
+| **Hub, tested** | On an Android TV 12 emulator (1080p): menu, rows, playback of a live channel, controls, Play/Pause, Back to the hub, favorites, history kept after a reinstall, playlists, groups, error message on a refused stream (about 4 s), YouTube hand-off and return, search, Portuguese. |
+| **Hub, limits** | RTP 1, RTP 2, SIC and most French national channels refuse a plain player (browser headers or geo-blocking): use their official apps. The hub does not read other apps' content, progress or favorites; Android gives no access to them. |
 
 The WebView enables JavaScript, DOM storage, and third-party cookies to support web playback. It blocks external application-link schemes such as `intent:` and `market:`; ordinary HTTP(S) links remain within the WebView.
 
@@ -176,5 +217,5 @@ The project's own code and artwork are released under the **MIT License**. See [
 ---
 
 <div align="center">
-  <sub>Built for Android TV · Small codebase · No Gradle</sub>
+  <sub>Built for Android TV · Small codebase · Launchers without Gradle</sub>
 </div>

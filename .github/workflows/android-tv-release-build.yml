@@ -41,6 +41,25 @@ jobs:
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose build/watched-1.0.apk
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose cinefuse/build/cinefuse-tv-1.0.apk
           sha256sum build/watched-1.0.apk cinefuse/build/cinefuse-tv-1.0.apk
+      - name: Build and test the STREAMING4FREE hub
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          export JAVA_HOME="${JAVA_HOME_17_X64}"
+          ( cd hub && ./gradlew --no-daemon testDebugUnitTest assembleRelease )
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify hub/build/outputs/apk/release/streaming4free-hub-release.apk
+          python3 tools/probe_streams.py --help > /dev/null  # runs the probe's own self-check
+          python3 - <<'PY'
+          import json, re
+          from pathlib import Path
+          rows = json.loads(Path("hub/src/main/assets/catalog.json").read_text())["rows"]
+          titles = set(re.findall(r'"(\w+/\w+)" to R\.string', Path("hub/src/main/kotlin/com/local/streaming4free/MainActivity.kt").read_text()))
+          missing = {f"{r['cat']}/{r['row']}" for r in rows} - titles
+          assert rows and not missing, f"catalog rows without a title: {missing}"
+          assert all(i["u"].startswith(("http://", "https://")) for r in rows for i in r["items"])
+          print("catalog OK:", sum(len(r["items"]) for r in rows), "channels")
+          PY
       - name: Check checked-in release code blocks external intent URLs
         shell: bash
         run: |

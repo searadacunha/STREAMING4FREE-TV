@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cat_home">Início</string>
+    <string name="cat_movies">Filmes</string>
+    <string name="cat_series">Séries</string>
+    <string name="cat_live">TV em direto</string>
+    <string name="cat_sport">Desporto</string>
+    <string name="cat_docs">Documentários</string>
+    <string name="cat_favorites">Favoritos</string>
+    <string name="cat_continue">Continuar a ver</string>
+    <string name="cat_settings">Definições</string>
+
+    <string name="terms_free">Grátis</string>
+    <string name="terms_account">Grátis com conta</string>
+    <string name="terms_freemium">Grátis + pago</string>
+    <string name="terms_france">Bloqueado fora de França</string>
+    <string name="terms_paid">Assinatura</string>
+    <string name="terms_site">Site</string>
+
+    <string name="app_cinefuse">filmes e séries</string>
+    <string name="app_watched">filmes e séries</string>
+    <string name="app_plex">filmes e séries com anúncios</string>
+    <string name="app_rakuten">filmes grátis com anúncios</string>
+    <string name="app_pluto">canais e filmes com anúncios</string>
+    <string name="app_tubi">filmes e séries com anúncios</string>
+    <string name="app_arte">documentários, filmes, cultura</string>
+    <string name="app_viki">séries asiáticas</string>
+    <string name="app_crunchyroll">anime</string>
+    <string name="app_rtp">RTP em direto e a pedido</string>
+    <string name="app_tvi">TVI em direto e a pedido</string>
+    <string name="app_opto">SIC em direto e a pedido</string>
+    <string name="app_rtve">TV espanhola</string>
+    <string name="app_redbull">desportos radicais</string>
+    <string name="app_smarttube">YouTube sem anúncios</string>
+    <string name="app_youtube">YouTube oficial</string>
+    <string name="app_ytmusic">música</string>
+    <string name="app_iptv4free">canais IPTV</string>
+    <string name="app_kodi">leitor multimédia</string>
+    <string name="app_tivimate">leitor IPTV</string>
+    <string name="app_france">canais franceses</string>
+    <string name="app_paid">desporto</string>
+
+    <string name="row_continue">Continuar a ver</string>
+    <string name="row_favorites">Favoritos</string>
+    <string name="row_apps">Apps</string>
+    <string name="row_free_apps">Apps grátis para instalar</string>
+    <string name="row_youtube_live">Em direto no YouTube</string>
+    <string name="row_live_pt">Canais portugueses</string>
+    <string name="row_live_fra">Canais em francês</string>
+    <string name="row_live_por">Em português (Brasil, África, Macau)</string>
+    <string name="row_live_kids">Crianças</string>
+    <string name="row_live_music">Música</string>
+    <string name="row_live_news">Notícias do mundo</string>
+    <string name="row_live_other">Religião e instituições</string>
+    <string name="row_sport_por">Desporto em português</string>
+    <string name="row_sport_fra">Desporto em francês</string>
+    <string name="row_sport_int">Desporto, outras línguas</string>
+    <string name="row_docs_por">Documentários em português</string>
+    <string name="row_docs_fra">Documentários em francês</string>
+    <string name="row_docs_int">Documentários, outras línguas</string>
+    <string name="row_movies_por">Canais de filmes em português</string>
+    <string name="row_movies_fra">Canais de filmes em francês</string>
+    <string name="row_movies_int">Canais de filmes, outras línguas</string>
+    <string name="row_series_por">Canais de séries em português</string>
+    <string name="row_series_fra">Canais de séries em francês</string>
+    <string name="row_series_int">Canais de séries, outras línguas</string>
+
+    <string name="to_install">Para instalar</string>
+    <string name="channels_count">%d canais</string>
+    <string name="dead">Indisponível hoje</string>
+    <string name="fav_added">Adicionado aos favoritos</string>
+    <string name="fav_removed">Removido dos favoritos</string>
+    <string name="no_store">Play Store não encontrada nesta TV</string>
+    <string name="not_installed">Não instalada nesta TV</string>
+    <string name="no_youtube">Instale o SmartTube ou o YouTube</string>
+    <string name="hint_favorites">Sem favoritos: mantenha OK premido num canal ou numa app</string>
+    <string name="hint_history">Nada por agora</string>
+    <string name="loading">A carregar…</string>
+    <string name="list_offline">Lista indisponível: sem ligação</string>
+
+    <string name="opening">A abrir %s…</string>
+    <string name="reconnecting">Ligação perdida, nova tentativa %1$d de %2$d…</string>
+    <string name="play_error">%1$s: fonte indisponível (%2$s).\nOK: tentar de novo · Voltar: regressar</string>
+
+    <string name="current">atual</string>
+    <string name="set_lang">Idioma</string>
+    <string name="lang_auto">Idioma da TV</string>
+    <string name="set_quality">Qualidade máxima</string>
+    <string name="q_auto">Automática</string>
+    <string name="q_480">480p (ligação lenta)</string>
+    <string name="set_data">Dados</string>
+    <string name="refresh">Atualizar listas IPTV</string>
+    <string name="refresh_value">senão a cada 12 h</string>
+    <string name="refresh_done">%1$d de %2$d listas atualizadas</string>
+    <string name="clear_history">Apagar histórico</string>
+    <string name="cleared">Histórico apagado</string>
+    <string name="set_help">Ajuda</string>
+    <string name="help_fav">Manter OK premido: adicionar aos favoritos</string>
+    <string name="help_back">Voltar: regressar ao HUB</string>
+    <string name="catalog_info">%d canais verificados</string>
+    <string name="version">Versão</string>
+    <string name="set_unavailable">Não grátis ou bloqueado aqui</string>
+    <string name="un_rtp">RTP 1, RTP 2, SIC, TVI em direto</string>
+    <string name="un_rtp_v">nas apps RTP Play, OPTO, TVI Player</string>
+    <string name="un_fr">TF1, France 2, M6 em direto</string>
+    <string name="un_fr_v">bloqueados fora de França</string>
+    <string name="un_paid">Sport TV, DAZN, Eleven</string>
+    <string name="un_paid_v">assinatura paga</string>
+
+    <string name="search_youtube">«%s» no YouTube</string>
+    <string name="search_apps">Apps</string>
+    <string name="search_catalog">Canais verificados</string>
+</resources>
