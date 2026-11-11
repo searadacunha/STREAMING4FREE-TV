@@ -40,6 +40,7 @@ class SearchActivity : FragmentActivity() {
             setSpeechRecognitionCallback {
                 try { startActivityForResult(recognizerIntent, 1) } catch (e: ActivityNotFoundException) {}
             }
+            if (b == null) setSearchQuery("", false) // opens on the keyboard; voice stays one press away (mic button)
             val app = requireContext().applicationContext
             for (s in Playlists.SOURCES) IO.execute { // so that the playlists can be searched too
                 try { Playlists.load(app, s) } catch (e: IOException) {}

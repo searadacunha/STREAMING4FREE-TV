@@ -70,7 +70,7 @@ jobs:
                        Path("cinefuse/src/com/local/cinefusetv/MainActivity.java")):
               source = path.read_text()
               assert "ApplicationInfo.FLAG_DEBUGGABLE" in source, path
-              assert "Uri u = testUrl(getIntent());" in source, path
+              assert "testUrl(getIntent())" in source, path  # start URL: debug builds only, also after a failed restore
               assert "Uri u = testUrl(i);" in source, path
               assert "return debuggable ? i.getData() : null;" in source, path
               print(f"PASS source checks: {path}")

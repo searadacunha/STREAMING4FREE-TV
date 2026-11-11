@@ -75,6 +75,8 @@ class PlayerActivity : Activity() {
             i.getStringExtra("g").orEmpty(), i.getStringExtra("s").orEmpty(), i.getStringExtra("id").orEmpty(), i.getStringExtra("q").orEmpty())
         view.setShowBuffering(PlayerView.SHOW_BUFFERING_ALWAYS)
         view.setShowSubtitleButton(true)
+        view.setShowPreviousButton(false) // one stream at a time: no playlist to move through
+        view.setShowNextButton(false)
         view.controllerAutoShow = false
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
