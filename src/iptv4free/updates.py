@@ -70,7 +70,7 @@ class NumberBook:
 
     def assign(self, lineup: str, key: str, floor: int) -> int:
         numbers = self.book.setdefault(lineup, {})
-        if key not in numbers:
+        if numbers.get(key, 0) < floor:  # new channel, or its number is now reserved for a favorite
             numbers[key] = max(floor - 1, self._top.get(lineup, 0)) + 1
             self._top[lineup] = numbers[key]
         return numbers[key]

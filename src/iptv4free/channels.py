@@ -68,8 +68,8 @@ def build_lineup(lineup: Lineup, entries: list[Entry], config: Config,
         if src.url in used_urls:
             rep.taken_by_earlier_lineup += 1
             continue
-        category = src.attrs.get("group-title", "").split(";")[0].strip()
-        if category and category in lineup.exclude_categories:
+        categories = {c.strip() for c in src.attrs.get("group-title", "").split(";")}
+        if categories & set(lineup.exclude_categories):
             rep.excluded_category += 1
             continue
         consumed.add(src.url)
