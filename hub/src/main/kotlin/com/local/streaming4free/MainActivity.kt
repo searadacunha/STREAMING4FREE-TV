@@ -129,9 +129,9 @@ class PageFragment : RowsSupportFragment() {
     private fun build() {
         val c = requireContext()
         when (cat) {
-            Cat.HOME -> {
-                row(R.string.row_continue, true) { Store.history().take(15).ifEmpty { hint(R.string.hint_history) } }
-                row(R.string.row_favorites, true) { Store.favorites().ifEmpty { hint(R.string.hint_favorites) } }
+            Cat.HOME -> { // empty history and favorites rows only show on their own pages: the first screen starts with something to watch
+                if (Store.history().isNotEmpty()) row(R.string.row_continue, true) { Store.history().take(15).ifEmpty { hint(R.string.hint_history) } }
+                if (Store.favorites().isNotEmpty()) row(R.string.row_favorites, true) { Store.favorites().ifEmpty { hint(R.string.hint_favorites) } }
                 row(R.string.row_apps) { APPS.filter { it.installedPackage(c.packageManager) != null && it.terms != Terms.PAID } }
                 catalog("live", "pt", "fra")
                 row(R.string.row_free_apps) { APPS.filter { it.visible(c.packageManager) && it.installedPackage(c.packageManager) == null } }

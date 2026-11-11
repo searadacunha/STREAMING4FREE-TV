@@ -21,11 +21,9 @@
     <string name="app_watched">filmes e séries</string>
     <string name="app_plex">filmes e séries com anúncios</string>
     <string name="app_rakuten">filmes grátis com anúncios</string>
-    <string name="app_pluto">canais e filmes com anúncios</string>
-    <string name="app_tubi">filmes e séries com anúncios</string>
     <string name="app_arte">documentários, filmes, cultura</string>
     <string name="app_viki">séries asiáticas</string>
-    <string name="app_crunchyroll">anime</string>
+    <string name="app_crunchyroll">anime, teste e depois assinatura</string>
     <string name="app_rtp">RTP em direto e a pedido</string>
     <string name="app_tvi">TVI em direto e a pedido</string>
     <string name="app_opto">SIC em direto e a pedido</string>

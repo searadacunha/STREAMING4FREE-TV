@@ -25,11 +25,9 @@
     <string name="app_watched">films et séries</string>
     <string name="app_plex">films et séries avec pub</string>
     <string name="app_rakuten">films gratuits avec pub</string>
-    <string name="app_pluto">chaînes et films avec pub</string>
-    <string name="app_tubi">films et séries avec pub</string>
     <string name="app_arte">docs, films, culture</string>
     <string name="app_viki">séries asiatiques</string>
-    <string name="app_crunchyroll">animés</string>
+    <string name="app_crunchyroll">animés, essai puis abonnement</string>
     <string name="app_rtp">RTP en direct et replay</string>
     <string name="app_tvi">TVI en direct et replay</string>
     <string name="app_opto">SIC en direct et replay</string>
