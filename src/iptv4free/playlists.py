@@ -66,7 +66,8 @@ def parse_m3u(text: str) -> ParseResult:
     skipped: list[tuple[int, str]] = []
     pending: Entry | None = None
     pending_line = 0
-    for lineno, raw in enumerate(text.lstrip("﻿").splitlines(), 1):
+    lines = text.lstrip("﻿").replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    for lineno, raw in enumerate(lines, 1):  # not splitlines(): it also cuts on U+2028, U+0085, form feed
         line = raw.strip()
         if not line or line.startswith("#EXTM3U"):
             continue

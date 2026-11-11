@@ -22,10 +22,10 @@ log = logging.getLogger(__name__)
 
 def match_key(name: str) -> str:
     """Loose key for comparing channel names: accents, case, punctuation and quality tags dropped."""
-    s = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
+    s = "".join(c for c in unicodedata.normalize("NFKD", name) if not unicodedata.combining(c)).lower()
     s = re.sub(r"\(.*?\)|\[.*?\]", "", s)
     s = re.sub(r"\b(hd|sd|fhd|uhd|4k)\b", "", s)
-    return re.sub(r"[^a-z0-9+]", "", s)
+    return "".join(c for c in s if c.isalnum() or c == "+")
 
 
 @dataclass
