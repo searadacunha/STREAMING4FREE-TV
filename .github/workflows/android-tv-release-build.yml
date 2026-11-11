@@ -1,0 +1,58 @@
+name: Build Android TV release APKs
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  release-build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Prepare Android SDK and JDK 17
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          export JAVA_HOME="${JAVA_HOME_17_X64}"
+          export PATH="$JAVA_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+          java -version
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+          test -f "$ANDROID_HOME/platforms/android-36/android.jar"
+      - name: Build and verify WATCHED and CINEFUSE TV release APKs
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          export JAVA_HOME="${JAVA_HOME_17_X64}"
+          export PATH="$JAVA_HOME/bin:$PATH"
+          unset DEBUG
+          ./build.sh
+          ( cd cinefuse && ./build.sh )
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose build/watched-1.0.apk
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose cinefuse/build/cinefuse-tv-1.0.apk
+          sha256sum build/watched-1.0.apk cinefuse/build/cinefuse-tv-1.0.apk
+      - name: Check checked-in release code blocks external intent URLs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          for path in (Path("src/com/local/watchedtv/MainActivity.java"),
+                       Path("cinefuse/src/com/local/cinefusetv/MainActivity.java")):
+              source = path.read_text()
+              assert "ApplicationInfo.FLAG_DEBUGGABLE" in source, path
+              assert "Uri u = testUrl(getIntent());" in source, path
+              assert "Uri u = testUrl(i);" in source, path
+              assert "return debuggable ? i.getData() : null;" in source, path
+              print(f"PASS source checks: {path}")
+          PY
