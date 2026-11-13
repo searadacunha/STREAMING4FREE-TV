@@ -4,10 +4,11 @@
 <img src="res/drawable-xhdpi/banner.png" width="320" alt="WATCHED tile for the Android TV home screen" />
 <img src="cinefuse/res/drawable-xhdpi/banner.png" width="320" alt="CINEFUSE TV tile for the Android TV home screen" />
 
-# STREAMING4FREE TV
+# IPTVnSTREAMING4FREE
 
-**A free-TV hub and lightweight launchers for WATCHED and CINEFUSE, for Android TV.**  
-One remote-friendly home for free live channels, free streaming apps and fullscreen ways to open [watched.cx](https://watched.cx) and [cinefuse.cc](https://cinefuse.cc) on your TV.
+**YOUR CHANNELS. YOUR SCREEN. YOUR CONTROL.**
+
+A single source repository for **IPTV4FREE** and **STREAMING4FREE**: Python/Kodi IPTV automation, a branded Kodi/Android TV interface preview, a native Android TV hub and standalone WATCHED/CINEFUSE launchers. Build and manage your TV projects from one place without discarding their original code or history.
 
 <p>
   <img alt="Android TV" src="https://img.shields.io/badge/Android_TV-3DDC84?style=flat-square&logo=android&logoColor=white">
@@ -17,6 +18,7 @@ One remote-friendly home for free live channels, free streaming apps and fullscr
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-22C55E?style=flat-square"></a>
 </p>
 
+<a href="#iptv4free--kodi-and-android-tv">IPTV4FREE</a> ·
 <a href="#streaming4free-hub">Hub</a> ·
 <a href="#what-it-does">Features</a> ·
 <a href="#quick-start">Quick start</a> ·
@@ -29,15 +31,35 @@ One remote-friendly home for free live channels, free streaming apps and fullscr
 
 ## Overview
 
-STREAMING4FREE TV contains **a hub and two small, single-activity Android TV apps**. The hub gathers free live channels and the TV's streaming apps; WATCHED and CINEFUSE TV each open a website in a fullscreen Android WebView. All three appear on the TV home screen under their own name, icon and banner.
+This repository contains **two complementary product lines**: the IPTV4FREE toolkit/interface for Kodi and a STREAMING4FREE hub with standalone Android TV launchers. IPTV4FREE's stable code and unmerged TV UI have been imported in separate directories so that neither set of changes is lost.
 
-| App | Opens | Source | Package | APK |
-|---|---|---|---|---|
-| **STREAMING4FREE** | free channels and apps, see [below](#streaming4free-hub) | [`hub/`](hub/) | `com.local.streaming4free` | `hub/build/outputs/apk/release/streaming4free-hub-release.apk` |
-| **WATCHED** | `https://watched.cx` | repository root | `com.local.watchedtv` | `build/watched-1.0.apk` |
-| **CINEFUSE TV** | `https://cinefuse.cc` | [`cinefuse/`](cinefuse/) | `com.local.cinefusetv` | `cinefuse/build/cinefuse-tv-1.0.apk` |
+| Component | Purpose | Source | Build or install output |
+|---|---|---|---|
+| **IPTV4FREE toolkit** | Playlist validation, channel management, EPG mapping and safe Kodi/ADB deployment | [`iptv/`](iptv/) | Python CLI `iptv4free` |
+| **IPTV4FREE TV preview** | Kodi add-on and dedicated Android TV shortcut | [`iptv-tv-preview/`](iptv-tv-preview/) | [Kodi ZIP](iptv-tv-preview/dist/script.iptv4free-0.3.1.zip) / [Android APK](iptv-tv-preview/dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk) (preview builds) |
+| **STREAMING4FREE hub** | Live-TV catalog, discovery, search, favorites and playback | [`hub/`](hub/) | `hub/build/outputs/apk/release/streaming4free-hub-release.apk` |
+| **WATCHED** | Fullscreen WebView launcher for watched.cx | [root](./) | `build/watched-1.0.apk` |
+| **CINEFUSE TV** | Fullscreen WebView launcher for cinefuse.cc | [`cinefuse/`](cinefuse/) | `cinefuse/build/cinefuse-tv-1.0.apk` |
 
-The three apps have different packages and install side by side. The websites are operated by third parties and may provide TV-specific interfaces. **The hub plays public, free streams listed by M3UPT, iptv-org and Free-TV and opens the official apps; it hosts no media and supplies no subscription.**
+The three existing STREAMING4FREE applications remain separately installable. The IPTV4FREE Android launcher opens a Kodi add-on; it is **not** a standalone IPTV player. The streaming hub uses its own playback engine. Neither project hosts or supplies subscription streams.
+
+## IPTV4FREE — Kodi and Android TV
+
+The stable [IPTV automation toolkit](iptv/) checks M3U and HLS sources, builds deterministic channel lineups, connects EPG identifiers, and deploys approved playlists to Kodi over ADB with backup, integrity checks and rollback. It requires a source you are authorized to use and a locally reachable TV.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e "./iptv[dev]"
+cp iptv/config/example.toml iptv4free.toml
+# Set the appropriate TV address and source configuration.
+iptv4free --help
+(cd iptv && python -m pytest -q)
+```
+
+The [branded Kodi interface and Android TV launcher](iptv-tv-preview/) are preserved from the original **unmerged development branch**. Source files, build scripts, graphics, and the previously produced [Kodi ZIP](iptv-tv-preview/dist/script.iptv4free-0.3.1.zip) and [APK](iptv-tv-preview/dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk) are available here. Rebuilding the Android launcher may require a new signing key; a newly signed APK may not install over the existing app without uninstalling it first.
+
+For IPTV configuration and deployment, use [the stable toolkit guide](iptv/README.md). For Kodi UI and launcher installation, consult [the preview guide](iptv-tv-preview/docs/IPTV4FREE-TV-UI.md) and [the launcher guide](iptv-tv-preview/docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md). These two imported snapshots are intentionally not claimed to be a unified, tested IPTV release yet.
 
 ## STREAMING4FREE hub
 
@@ -165,7 +187,7 @@ adb uninstall com.local.cinefusetv
 ## Project structure
 
 ```text
-STREAMING4FREE-TV/
+IPTVnSTREAMING4FREE/
 ├── AndroidManifest.xml          # Android TV launcher metadata
 ├── src/com/local/watchedtv/
 │   └── MainActivity.java        # WebView, fullscreen, remote keys
@@ -184,6 +206,8 @@ STREAMING4FREE-TV/
 │   ├── probe_streams.py         # probes the public playlists, writes the catalog and docs/SOURCES.md
 │   └── tv.sh                    # build, install over Wi-Fi ADB, status
 ├── docs/SOURCES.md              # what works from the TV's network, and what does not
+├── iptv/                       # Stable Python IPTV4FREE toolkit, tests, config and docs
+├── iptv-tv-preview/            # Unmerged Kodi interface, Android launcher and preview binaries
 ├── THIRD_PARTY_NOTICES.md
 └── LICENSE
 ```
@@ -191,6 +215,12 @@ STREAMING4FREE-TV/
 Refresh the checked channels from the network the TV uses with `python3 tools/probe_streams.py` (about 2,000 streams, a few minutes), then rebuild the hub.
 
 The launcher artwork can be regenerated with `python3 make_art.py` (in the root or in `cinefuse/`) after installing **Pillow** on macOS.
+
+
+
+### IPTV and STREAMING build verification
+
+For STREAMING4FREE Android apps, run `tools/tv.sh build`. For IPTV4FREE, run `(cd iptv && python -m pytest -q)` after installing `./iptv[dev]`. For the preview Kodi package, run `python3 iptv-tv-preview/scripts/build_addon.py`; its output is the Kodi ZIP, not a full Android player. The imported preview launcher has its own Gradle project at `iptv-tv-preview/android-tv-launcher/` and may need signing and device-specific setup.
 
 ## Compatibility & limitations
 
@@ -210,7 +240,7 @@ The WebView enables JavaScript, DOM storage, and third-party cookies to support 
 
 ## Content, affiliation & licensing
 
-**STREAMING4FREE TV is an independent, open-source launcher.** It is **not affiliated with watched.cx or cinefuse.cc**, does not host or supply media, and does not assess the licensing or availability of content on those websites. Use third-party services in accordance with applicable laws and rights-holder terms.
+**IPTVnSTREAMING4FREE is an independent, open-source collection of IPTV management tools and Android TV applications.** It is **not affiliated with watched.cx or cinefuse.cc**, does not host or supply media, and does not assess the licensing or availability of content on those websites. Use third-party services in accordance with applicable laws and rights-holder terms.
 
 The project's own code and artwork are released under the **MIT License**. See [LICENSE](LICENSE) and [Third-party notices](THIRD_PARTY_NOTICES.md).
 
