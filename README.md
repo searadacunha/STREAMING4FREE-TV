@@ -1,102 +1,125 @@
 <div align="center">
 
-<img src="iptv-tv-preview/assets/branding/IPTV4FREE-original.png" width="320" alt="IPTV4FREE official branding and Kodi TV interface" />
-<img src="hub/src/main/res/drawable-xhdpi/banner.png" width="320" alt="STREAMING4FREE hub tile for the Android TV home screen" />
-<img src="res/drawable-xhdpi/banner.png" width="320" alt="WATCHED tile for the Android TV home screen" />
-<img src="cinefuse/res/drawable-xhdpi/banner.png" width="320" alt="CINEFUSE TV tile for the Android TV home screen" />
+<img src="iptv-tv-preview/assets/branding/IPTV4FREE-original.png" width="420" alt="IPTV4FREE — official visual identity" />
 
 # IPTVnSTREAMING4FREE
 
 **YOUR CHANNELS. YOUR SCREEN. YOUR CONTROL.**
 
-A single source repository for **IPTV4FREE** and **STREAMING4FREE**: Python/Kodi IPTV automation, a branded Kodi/Android TV interface preview, a native Android TV hub and standalone WATCHED/CINEFUSE launchers. Build and manage your TV projects from one place without discarding their original code or history.
+**A remote-first IPTV experience for Kodi and Android TV — with a complementary native streaming hub.**
+
+Manage live-TV sources, browse channels through a dedicated TV interface, and launch your viewing apps from the Android TV home screen. One open-source repository, with **IPTV4FREE at its core**.
 
 <p>
-  <img alt="Android TV" src="https://img.shields.io/badge/Android_TV-3DDC84?style=flat-square&logo=android&logoColor=white">
-  <img alt="Android 5.0+" src="https://img.shields.io/badge/Android-5.0%2B-1F2937?style=flat-square">
-  <img alt="Java 17 build toolchain" src="https://img.shields.io/badge/Build-JDK_17-2563EB?style=flat-square">
-  <img alt="Launchers without Gradle" src="https://img.shields.io/badge/Launchers-No_Gradle-1F2937?style=flat-square">
-  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-22C55E?style=flat-square"></a>
+  <img alt="Kodi" src="https://img.shields.io/badge/Kodi-PVR-172b50?style=flat-square">
+  <img alt="Android TV" src="https://img.shields.io/badge/Android-TV-3DDC84?style=flat-square&logo=android&logoColor=white">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.11%2B-2563EB?style=flat-square">
+  <img alt="Open source" src="https://img.shields.io/badge/Open%20Source-MIT-22C55E?style=flat-square">
 </p>
 
-<a href="#iptv4free--kodi-and-android-tv">IPTV4FREE</a> ·
-<a href="#streaming4free-hub">Hub</a> ·
-<a href="#what-it-does">Features</a> ·
-<a href="#quick-start">Quick start</a> ·
-<a href="#remote-controls">Controls</a> ·
-<a href="#compatibility--limitations">Compatibility</a>
+**[Explore IPTV4FREE](#iptv4free--live-tv-designed-for-the-remote)** ·
+**[Install IPTV4FREE](#get-iptv4free-on-your-tv)** ·
+**[STREAMING4FREE](#streaming4free--your-android-tv-hub)** ·
+**[Build & install](#build-and-install)** ·
+**[Technical details](#architecture-and-project-structure)**
 
 </div>
 
 ---
 
-## Overview
+## IPTV4FREE — Live TV, designed for the remote
 
-This repository contains **two complementary product lines**: the IPTV4FREE toolkit/interface for Kodi and a STREAMING4FREE hub with standalone Android TV launchers. IPTV4FREE's stable code and unmerged TV UI have been imported in separate directories so that neither set of changes is lost.
+**A dedicated interface for your own TV lineup.** IPTV4FREE puts live channels, country and category groups, the programme guide, favourites and search into a clean, remote-controlled Kodi experience. Behind that interface, a Python toolkit helps validate, organise and deploy IPTV playlists with repeatable safeguards.
 
-| Component | Purpose | Source | Build or install output |
-|---|---|---|---|
-| **IPTV4FREE toolkit** | Playlist validation, channel management, EPG mapping and safe Kodi/ADB deployment | [`iptv/`](iptv/) | Python CLI `iptv4free` |
-| **IPTV4FREE TV preview** | Kodi add-on and dedicated Android TV shortcut | [`iptv-tv-preview/`](iptv-tv-preview/) | [Kodi ZIP](iptv-tv-preview/dist/script.iptv4free-0.3.1.zip) / [Android APK](iptv-tv-preview/dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk) (preview builds) |
-| **STREAMING4FREE hub** | Live-TV catalog, discovery, search, favorites and playback | [`hub/`](hub/) | `hub/build/outputs/apk/release/streaming4free-hub-release.apk` |
-| **WATCHED** | Fullscreen WebView launcher for watched.cx | [root](./) | `build/watched-1.0.apk` |
-| **CINEFUSE TV** | Fullscreen WebView launcher for cinefuse.cc | [`cinefuse/`](cinefuse/) | `cinefuse/build/cinefuse-tv-1.0.apk` |
+<table>
+  <tr>
+    <td width="62%"><img src="iptv-tv-preview/docs/images/iptv4free-kodi21-accueil.jpg" alt="IPTV4FREE live-TV browsing and channel groups in Kodi 21" width="100%"></td>
+    <td width="38%"><img src="iptv-tv-preview/docs/images/iptv4free-kodi21-fiche.jpg" alt="IPTV4FREE programme details and now-next view" width="100%"></td>
+  </tr>
+  <tr>
+    <td><sub><strong>LIVE TV</strong> — channel browsing, groups, logos and programme context.</sub></td>
+    <td><sub><strong>TV GUIDE</strong> — programme details and navigation.</sub></td>
+  </tr>
+</table>
 
-The three existing STREAMING4FREE applications remain separately installable. The IPTV4FREE Android launcher opens a Kodi add-on; it is **not** a standalone IPTV player. The streaming hub uses its own playback engine. Neither project hosts or supplies subscription streams.
+<sub>Actual screenshots from Kodi 21.3 using fictional test channels. The TV interface and Android launcher are preserved here as preview builds; Kodi and PVR IPTV Simple Client provide playback.</sub>
 
-## IPTV4FREE — Kodi and Android TV
+### What makes IPTV4FREE different
 
-The stable [IPTV automation toolkit](iptv/) checks M3U and HLS sources, builds deterministic channel lineups, connects EPG identifiers, and deploys approved playlists to Kodi over ADB with backup, integrity checks and rollback. It requires a source you are authorized to use and a locally reachable TV.
+| TV experience | Playlist-management engine |
+|---|---|
+| **Purpose-built for a television** — Full-screen interface with remote navigation, live channel preview and a dedicated Android TV shortcut. | **Source checks** — Probe playlist sources and monitor failures instead of trusting every entry blindly. |
+| **Channels, without the clutter** — Browse by country and category with channel numbers, logos, search and favourites. | **Clean, stable lineups** — Deduplicate, order and group channels while preserving identifiers and predictable numbering. |
+| **Know what's on** — Now/next programme information, EPG access and programme details when available. | **EPG mapping** — Align channel IDs with guide data to improve listings. |
+| **Keep Kodi as the playback engine** — IPTV4FREE works with Kodi PVR and an existing IPTV Simple Client configuration. | **Controlled deployment** — Dry runs, integrity checks, backups, update limits and rollback-aware operations over authorised ADB access. |
+
+**Measured on the test setup:** the Kodi interface was exercised on a TCL Android 12 TV with a lineup of 7,883 channels. Recorded opening time was **1.5–1.8 seconds** once Kodi/PVR was running, with **32–72 ms** navigation responses. These are setup-specific measurements, not universal performance guarantees. See the [TV interface test report](iptv-tv-preview/docs/IPTV4FREE-TV-UI.md).
+
+### Get IPTV4FREE on your TV
+
+| Package | What you get | File |
+|---|---|---|
+| **Kodi add-on · v0.3.1** | The IPTV4FREE interface inside Kodi, navigated with the remote. | **[Kodi ZIP](iptv-tv-preview/dist/script.iptv4free-0.3.1.zip)** |
+| **Android TV launcher · v0.2.0** | A branded **IPTV4FREE** tile on the TV home screen that opens the Kodi add-on. | **[Android TV APK](iptv-tv-preview/dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk)** |
+| **Python toolkit** | Playlist scanning, normalisation, EPG mapping and safe deployment. | **[Source & configuration](iptv/)** |
+
+**Setup:** install Kodi and configure **PVR IPTV Simple Client** with your authorised sources; install the IPTV4FREE Kodi add-on; optionally install the Android TV launcher for direct access from the TV home screen. The launcher depends on Kodi and the add-on — it is **not** an independent IPTV player. Its setup involves local Kodi JSON-RPC and a one-time Android display-over-other-apps permission.
+
+See the **[Kodi interface & installation guide](iptv-tv-preview/docs/IPTV4FREE-TV-UI.md)** and **[Android TV launcher guide](iptv-tv-preview/docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md)** for exact installation, permissions and troubleshooting. These packages are **preview builds**, preserved alongside the stable playlist toolkit rather than represented as one fully integrated release.
+
+### Build your own channel lineup
+
+Run the playlist-management CLI on your computer. Configure your own sources before scanning or deploying.
 
 ```bash
+git clone https://github.com/searadacunha/STREAMING4FREE-TV.git
+cd STREAMING4FREE-TV/iptv
+
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -e "./iptv[dev]"
-cp iptv/config/example.toml iptv4free.toml
-# Set the appropriate TV address and source configuration.
-iptv4free --help
-(cd iptv && python -m pytest -q)
+python -m pip install -e .
+
+cp config/example.toml iptv4free.toml
+# Edit iptv4free.toml with your permitted sources and TV settings.
+
+iptv4free setup
+iptv4free scan
+iptv4free build
+iptv4free deploy --dry-run
+iptv4free doctor
 ```
 
-The [branded Kodi interface and Android TV launcher](iptv-tv-preview/) are preserved from the original **unmerged development branch**. Source files, build scripts, graphics, and the previously produced [Kodi ZIP](iptv-tv-preview/dist/script.iptv4free-0.3.1.zip) and [APK](iptv-tv-preview/dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk) are available here. Rebuilding the Android launcher may require a new signing key; a newly signed APK may not install over the existing app without uninstalling it first.
+Review the dry-run output before a real deployment. The toolkit supports safeguards for unexpectedly large changes, backups and repeatable updates. Full configuration and command reference: **[IPTV4FREE technical guide](iptv/docs/TECHNICAL-GUIDE.md)**.
 
-<p align="center">
-  <img src="iptv-tv-preview/docs/images/iptv4free-kodi21-accueil.jpg" width="720" alt="IPTV4FREE Kodi 21 home interface preview" />
-</p>
+---
 
-For IPTV configuration and deployment, use [the stable toolkit guide](iptv/README.md). For Kodi UI and launcher installation, consult [the preview guide](iptv-tv-preview/docs/IPTV4FREE-TV-UI.md) and [the launcher guide](iptv-tv-preview/docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md). These two imported snapshots are intentionally not claimed to be a unified, tested IPTV release yet.
+## STREAMING4FREE — Your Android TV hub
 
-## STREAMING4FREE hub
+**One TV-focused collection of apps alongside IPTV4FREE.** STREAMING4FREE combines a native browsing and playback hub with two standalone fullscreen website launchers. Each can be built and installed independently.
 
-A Leanback home with a left menu: **Home, Movies, Series, Live TV, Sport, Documentaries, YouTube, IPTV, Favorites, Continue watching, Settings**. French and Portuguese, no account.
+<div align="center">
+  <img src="hub/src/main/res/drawable-xhdpi/banner.png" width="300" alt="STREAMING4FREE Android TV home screen banner">
+  <img src="res/drawable-xhdpi/banner.png" width="300" alt="WATCHED Android TV banner">
+  <img src="cinefuse/res/drawable-xhdpi/banner.png" width="300" alt="CINEFUSE TV Android TV banner">
+</div>
 
-| | Feature | Details |
-|:--:|---|---|
-| 📡 | **Checked channels** | 781 free channels in 19 rows, each one probed from the TV's own network (Portugal) by [`tools/probe_streams.py`](tools/probe_streams.py): playlist, best variant and a media segment must answer without browser headers or DRM. Re-streams of paid channels are left out. Results: [`docs/SOURCES.md`](docs/SOURCES.md). |
-| 📺 | **Free apps** | Plex, Rakuten TV, ARTE, RTP Play, TVI Player, RTVE Play, Red Bull TV, Viki and others: installed ones open directly, free ones not yet installed open their Play Store page. Paid or geo-blocked apps are labelled as such; Pluto TV and Tubi are left out because they refuse Portugal. |
-| 🗂 | **Public playlists** | M3UPT, Free-TV and iptv-org, downloaded by the TV (kept 12 hours, last copy used offline) and browsed by country or category. |
-| ▶️ | **Player** | Media3: HLS, DASH, MPEG-TS and MP4, hardware decoders first, quality from the bandwidth (or capped in Settings), audio and subtitle tracks, resume for films, reconnection on network errors, a clear message when a source refuses. |
-| ⭐ | **Favorites and history** | Long press on OK adds or removes a favorite; Continue watching lists what was opened last. Kept on the TV only. |
-| 🔎 | **Search** | One search over the apps, the checked channels and the three playlists, plus a hand-off to YouTube. Voice through the TV's own recognizer. |
+### Three ways to watch
 
-## What it does
+| App | Experience | Source |
+|---|---|---|
+| **STREAMING4FREE hub** | Native Leanback interface for Live TV, Movies, Series, Sport, Documentaries, YouTube, IPTV, favourites, search and continue-watching. | [`hub/`](hub/) |
+| **WATCHED** | Lightweight Android TV fullscreen WebView launcher for watched.cx, with remote playback-key support where available. | [Root launcher](./) |
+| **CINEFUSE TV** | Fullscreen cinefuse.cc launcher with remote-friendly navigation, an optional cursor and restricted external-site navigation. | [`cinefuse/`](cinefuse/) |
 
-| | Feature | Details |
-|:--:|---|---|
-| 📺 | **TV launcher integration** | A dedicated tile for each app on the Android TV home screen. |
-| ⛶ | **Fullscreen viewing** | Hosts the website in a fullscreen WebView, including its HTML5 fullscreen video view. |
-| ⏯ | **Remote playback keys** | Handles Play, Pause, and Play/Pause for a video in the main webpage. |
-| ↩ | **Predictable navigation** | Back closes fullscreen first, then navigates browser history, then exits the app. |
-| 🔒 | **Restricted permissions** | Allows protected-media identification requests; denies other WebView permission requests, including camera and microphone. |
-| 🖱 | **Cursor** (CINEFUSE TV) | A long press on OK shows a pointer for what the arrows cannot reach, such as search results and the player's buttons. |
-| 🚫 | **Site-only navigation** (CINEFUSE TV) | Links and popups to other websites are blocked; video players inside iframes keep working. |
-| 🛠 | **Simple source build** | Uses Android SDK command-line tools and JDK 17, with no Gradle project. |
+**Inside the hub:** a public-channel catalogue, country/category playlist browsing, unified search, favourites and on-device history. Its Media3 player supports HLS, DASH, MPEG-TS and MP4, audio/subtitle selection, adaptive quality and reconnect-on-error behaviour. The catalogue's documented Portugal-network test snapshot contained **781 checked free channels**; stream availability changes and is not guaranteed. See [source-testing results](docs/SOURCES.md).
 
-## Quick start
+The hub also links to official free services such as ARTE, RTP Play, Plex, Rakuten TV and others, opening installed apps or their store listings where appropriate. Some services are restricted by country or require their own apps.
 
-### 1. Install the build tools
+## Build and install
 
-On **macOS**, using Homebrew:
+### Prerequisites
+
+For the Android TV apps: **JDK 17**, Android SDK platform/API 36, Build Tools 36.0.0 and ADB. The hub uses its Gradle wrapper; the two WebView launchers use command-line build scripts. On macOS:
 
 ```bash
 brew install --cask android-commandlinetools
@@ -104,41 +127,25 @@ brew install openjdk@17 android-platform-tools
 sdkmanager "build-tools;36.0.0" "platforms;android-36"
 ```
 
-Required: **JDK 17**, Android SDK **Build Tools 36.0.0**, **Android API 36** platform, and **ADB** for installation.
-
-### 2. Build the APK
+### Build the streaming apps
 
 From the repository root:
 
 ```bash
-./build.sh
+./build.sh                               # WATCHED
+(cd cinefuse && ./build.sh)             # CINEFUSE TV
+(cd hub && ./gradlew testDebugUnitTest assembleRelease)  # STREAMING4FREE hub
 ```
 
-The script compiles, packages, aligns, and signs the app with your local **Android debug keystore**.
+Expected output paths:
 
-**Output:** `build/watched-1.0.apk`
+- WATCHED: `build/watched-1.0.apk`
+- CINEFUSE TV: `cinefuse/build/cinefuse-tv-1.0.apk`
+- Hub: `hub/build/outputs/apk/release/streaming4free-hub-release.apk`
 
-For CINEFUSE TV, build from its folder:
+### Install over Wi-Fi
 
-```bash
-cd cinefuse && ./build.sh
-```
-
-**Output:** `cinefuse/build/cinefuse-tv-1.0.apk`. Its build also runs a small self-check of the link rule (`test/SiteCheck.java`).
-
-The hub uses the Gradle wrapper (it downloads Gradle and the libraries the first time):
-
-```bash
-cd hub && ./gradlew testDebugUnitTest assembleRelease
-```
-
-**Output:** `hub/build/outputs/apk/release/streaming4free-hub-release.apk`.
-
-Or build the three apps and install them on the TV in one go: `tools/tv.sh install TV_IP` (`tools/tv.sh status TV_IP` shows what is installed).
-
-### 3. Install on Android TV
-
-Enable Android/ADB debugging on the TV and make sure the TV is reachable from your computer.
+Enable authorised ADB debugging on your Android TV, then connect from a computer on the same network. Replace `TV_IP` with the device address.
 
 ```bash
 adb connect TV_IP:5555
@@ -147,120 +154,75 @@ adb -s TV_IP:5555 install -r cinefuse/build/cinefuse-tv-1.0.apk
 adb -s TV_IP:5555 install -r hub/build/outputs/apk/release/streaming4free-hub-release.apk
 ```
 
-Replace `TV_IP` with your television's IP address. Some devices require wireless-debugging pairing or a different port before ADB can connect.
+Some TVs require wireless-debugging pairing or a different port. For an automated streaming-app build/install workflow, see `tools/tv.sh install TV_IP` and `tools/tv.sh status TV_IP`.
 
-Open **STREAMING4FREE**, **WATCHED** or **CINEFUSE TV** from the TV home screen.
-
-## Remote controls
-
-| Remote action | Behavior |
-|---|---|
-| **Back** | Exits fullscreen video, goes to the previous webpage, or leaves the app. In CINEFUSE TV it hides the cursor first. In the hub's player it returns to the hub at once. |
-| **Long press OK** (hub) | Adds the channel or app under the focus to the favorites, or removes it. |
-| **OK** (hub player) | Shows the controls: audio and subtitle tracks, quality, seek. After an error, tries again. |
-| **Home** | Sends the app to the background; the WebView is paused. Reopening the app returns to the same page. |
-| **Play / Pause / Play-Pause** | Controls the first ready HTML5 video on the top-level page. |
-| **Long press OK** (CINEFUSE TV) | Shows or hides the cursor. Arrows move it, pushing it against an edge scrolls, OK clicks. |
-
-> **Playback key limitation:** The media-key shortcut does not reach videos embedded inside third-party iframes. Playback and navigation still depend on the website's implementation.
-
-## Build options
-
-The build script assumes Homebrew's default macOS paths. Override them if needed:
+The IPTV Kodi ZIP and launcher APK use their **own installation procedure** described above. To check and build both project families from the consolidated repository:
 
 ```bash
-ANDROID_HOME=/path/to/android-sdk JAVA_HOME=/path/to/jdk17 ./build.sh
-```
-
-You can also select a different installed SDK build-tool or platform version through `BUILD_TOOLS` and `PLATFORM`.
-
-For WebView debugging during development only:
-
-```bash
-DEBUG=1 ./build.sh
-```
-
-A debuggable build also opens a start URL passed by ADB, for testing: `adb shell am start -n com.local.watchedtv/.MainActivity -d <url>`. Regular builds ignore that URL, because any app installed on the TV could send it.
-
-**Do not keep the debuggable build installed** for regular use. To uninstall:
-
-```bash
-adb uninstall com.local.watchedtv
-adb uninstall com.local.cinefusetv
-```
-
-## Project structure
-
-```text
-IPTVnSTREAMING4FREE/
-├── AndroidManifest.xml          # Android TV launcher metadata
-├── src/com/local/watchedtv/
-│   └── MainActivity.java        # WebView, fullscreen, remote keys
-├── res/                         # TV banner and launcher icons
-├── make_art.py                  # Regenerates the artwork (macOS + Pillow)
-├── build.sh                     # Gradle-free build and APK signing
-├── cinefuse/                    # CINEFUSE TV, same layout
-│   ├── src/com/local/cinefusetv/MainActivity.java
-│   ├── test/SiteCheck.java      # link rule self-check, run by build.sh
-│   └── README.md                # CINEFUSE TV details
-├── hub/                         # STREAMING4FREE hub (Kotlin, Leanback, Media3, Gradle wrapper)
-│   ├── src/main/kotlin/…        # menu and pages, player, search, playlists, favorites
-│   ├── src/main/assets/catalog.json  # checked channels, written by tools/probe_streams.py
-│   └── make_art.py              # hub banner and icon, same look as the two launchers
-├── tools/
-│   ├── probe_streams.py         # probes the public playlists, writes the catalog and docs/SOURCES.md
-│   └── tv.sh                    # build, install over Wi-Fi ADB, status
-├── docs/SOURCES.md              # what works from the TV's network, and what does not
-├── iptv/                       # Stable Python IPTV4FREE toolkit, tests, config and docs
-├── iptv-tv-preview/            # Unmerged Kodi interface, Android launcher and preview binaries
-├── THIRD_PARTY_NOTICES.md
-└── LICENSE
-```
-
-Refresh the checked channels from the network the TV uses with `python3 tools/probe_streams.py` (about 2,000 streams, a few minutes), then rebuild the hub.
-
-The launcher artwork can be regenerated with `python3 make_art.py` (in the root or in `cinefuse/`) after installing **Pillow** on macOS.
-
-
-
-### IPTV and STREAMING build verification
-
-The consolidated entry point builds the three STREAMING4FREE Android applications, packages the Kodi IPTV add-on, and builds the IPTV4FREE preview Android launcher:
-
-```bash
-# Install Python 3.11+, pytest, Pillow, Gradle 8.9, JDK 17 and
-# the Android SDK platforms/build-tools 35 and 36 first.
 python3 -m pip install -e "./iptv[dev]" pillow
 bash tools/build-all.sh check
 bash tools/build-all.sh build
 ```
 
-The IPTV launcher is rebuilt with a local debug signing key unless configured otherwise. An app previously signed by the original IPTV4FREE certificate **cannot be upgraded in place** with that differently signed APK. The Kodi add-on and launchers remain separate TV installations; sharing a repository does not merge their user interfaces into one APK.
+The consolidated build has additional prerequisites (including Gradle 8.9 and Android SDK API 35); consult the relevant build scripts and guides. A locally rebuilt Android launcher may use a **different signing certificate** from the distributed APK and therefore may not update it in place.
 
-## Compatibility & limitations
+## Remote-first controls
 
-| Area | Current status |
+| Where | Action | Result |
+|---|---|---|
+| **IPTV4FREE / Kodi** | Arrows and OK | Browse groups and channels; open the selected channel. |
+| **IPTV4FREE / Kodi** | MENU or long OK (where supported) | Channel actions, favourites and programme access. |
+| **IPTV4FREE / Kodi** | Back | Return from a programme to the lineup or from the lineup to Kodi/TV. |
+| **STREAMING4FREE hub** | Long OK | Add/remove the selected item from favourites. |
+| **STREAMING4FREE hub** | OK during playback | Show quality, seeking, audio and subtitle controls. |
+| **WATCHED / CINEFUSE TV** | Back; Play/Pause | Navigate the WebView or control supported HTML5 playback. |
+| **CINEFUSE TV** | Long OK | Toggle the pointer for elements that arrows cannot reach. |
+
+For embedded videos inside third-party iframes, WebView media keys may not work; actual controls depend on the website.
+
+## Architecture and project structure
+
+```text
+IPTVnSTREAMING4FREE/
+├── iptv/                    # Stable Python IPTV toolkit, configuration and tests
+├── iptv-tv-preview/         # Kodi TV UI, branding, screenshots and Android TV launcher
+│   ├── kodi-addon/          # IPTV4FREE Kodi interface
+│   ├── dist/                # Preserved preview ZIP and APK
+│   └── docs/                # Installation, screenshots and test evidence
+├── hub/                     # STREAMING4FREE native Android TV app (Kotlin / Media3)
+├── cinefuse/                # CINEFUSE TV WebView launcher
+├── src/ and res/            # WATCHED Android TV launcher
+├── tools/                   # Stream probes, TV deployment and consolidated builds
+├── docs/SOURCES.md          # Public-stream probe results
+├── THIRD_PARTY_NOTICES.md
+└── LICENSE
+```
+
+**IPTV path:** M3U/XMLTV sources → Python validation and lineup generation → authorised ADB deployment → Kodi + PVR IPTV Simple Client → IPTV4FREE interface (and optional Android TV shortcut).
+
+**Streaming path:** Public-channel catalogues / official apps → native hub with Media3 playback; WATCHED and CINEFUSE remain separate WebView launchers. **One repository does not mean one combined APK.**
+
+## Compatibility and verification
+
+| Component | Documented status |
 |---|---|
-| **Minimum Android version** | Android 5.0 / API 21; requires Android System WebView. |
-| **Verified test device** | One Android 12 TV with WebView 156. |
-| **Tested on that device** | TV launch, remote navigation, fullscreen, media keys, audio/subtitle selection, public HLS test streams at 1080p, and a Widevine L3 demo. |
-| **Not verified** | Playback through the actual watched.cx website player; Linux builds; other TV models. |
-| **CINEFUSE TV, tested** | On the same TV: launch, redirects, search, movie page, playback of one film, resume, media keys, ±10 s seek, VF/VOSTFR switch, player settings, fullscreen, Back, Home and reopening. |
-| **CINEFUSE TV, not verified** | Login, series and episodes, subtitles, quality above 448p, live channels, watch parties. See [`cinefuse/README.md`](cinefuse/README.md). |
-| **Device-specific limits** | The tested WebView did not decode AC-3/E-AC-3 audio and did not provide Widevine L1. |
-| **Hub, tested** | On an Android TV 12 emulator (1080p): menu, rows, playback of a live channel, controls, Play/Pause, Back to the hub, favorites, history kept after a reinstall, playlists, groups, error message on a refused stream (about 4 s), YouTube hand-off and return, search, Portuguese. On the TCL Android 12 TV (32-bit Realtek): cold start 1.1 s, 37 MB of memory, a 720p live channel decoded by the hardware decoder (`OMX.realtek.video.decoder`, 25 frames/s), Play/Pause, Back to the hub, an official app opened from the hub. |
-| **Hub, limits** | RTP 1, RTP 2, SIC and most French national channels refuse a plain player (browser headers or geo-blocking): use their official apps. The hub does not read other apps' content, progress or favorites; Android gives no access to them. |
+| **IPTV4FREE Kodi UI** | Exercised with Kodi 21.3 on macOS and an Android 12 TCL TV, including live-TV browsing, programme information, favourites, search and remote navigation. Exact results: [TV UI report](iptv-tv-preview/docs/IPTV4FREE-TV-UI.md). |
+| **IPTV4FREE Android launcher** | TV tile and Kodi add-on startup tested on the TCL setup; local configuration and special display permission required. Exact scope: [launcher report](iptv-tv-preview/docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md). |
+| **IPTV Python toolkit** | Automated playlist-processing tests and documented deployment safeguards. See [technical reference](iptv/docs/TECHNICAL-GUIDE.md). |
+| **STREAMING4FREE hub** | Tested on an Android 12 emulator and a TCL Android 12 TV; a public 720p live channel decoded using the device's hardware decoder in the recorded test. |
+| **WATCHED / CINEFUSE** | Android TV WebView behaviour varies with device codecs, websites, DRM, authentication and geoblocking. Some website-specific features are not verified. |
 
-The WebView enables JavaScript, DOM storage, and third-party cookies to support web playback. It blocks external application-link schemes such as `intent:` and `market:`; ordinary HTTP(S) links remain within the WebView.
+Playback depends on the source, device and service restrictions. The project does not bypass DRM, distribute premium subscriptions, or guarantee that third-party websites or streams remain available.
 
-## Content, affiliation & licensing
+## Content and licensing
 
-**IPTVnSTREAMING4FREE is an independent, open-source collection of IPTV management tools and Android TV applications.** It is **not affiliated with watched.cx or cinefuse.cc**, does not host or supply media, and does not assess the licensing or availability of content on those websites. Use third-party services in accordance with applicable laws and rights-holder terms.
+**IPTVnSTREAMING4FREE** is an independent open-source project, not affiliated with Kodi, watched.cx or cinefuse.cc. It does not host or distribute TV streams, premium channels or movies. Add and use only sources and services you are authorised to access.
 
-The project's own code and artwork are released under the **MIT License**. See [LICENSE](LICENSE) and [Third-party notices](THIRD_PARTY_NOTICES.md).
+Original project code and artwork are provided under the **[MIT License](LICENSE)**. See [third-party notices](THIRD_PARTY_NOTICES.md).
 
 ---
 
 <div align="center">
-  <sub>Built for Android TV · Small codebase · Launchers without Gradle</sub>
+  <strong>IPTV4FREE first. STREAMING4FREE alongside it.</strong><br>
+  <sub>Built for Kodi and Android TV · Developed for the remote · Open source</sub>
 </div>
