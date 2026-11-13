@@ -1,0 +1,49 @@
+# One-time preservation of every known IPTV4FREE Git branch before source deletion.
+name: Preserve all IPTV4FREE branches
+on:
+  push:
+    branches: [archive/iptv-source-transfer-20261113]
+    paths: ['.github/workflows/archive-iptv-source.yml']
+permissions:
+  contents: write
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Copy each IPTV4FREE branch and all reachable Git objects into archive refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git remote add iptv-source https://github.com/searadacunha/IPTV4FREE.git
+          git fetch --prune --no-tags iptv-source '+refs/heads/*:refs/remotes/iptv-source/*'
+          declare -A EXPECTED=(
+            [main]=01b860c3b02990703956c24cffeeda00a8be68d0
+            [meganexus]=bf36778c3fcf253aa7fa4679ea9fbeb8c4d44974
+            [fix/lineup-and-parser-bugs]=b6ae645de2fe01b21a4177fe9213758bf592f2f5
+            [fix/readme-launcher-download-link]=6669bebe572e7e39d92138dc66cb6dfee3b86cdc
+            [feat/iptv4free-tv-ui]=dad35d2d12fafda1875ff1afa931bc47f3813a85
+            [feat/iptv4free-playback-stability]=cf9a9dcae1ac42deb9cc6bb265d8151ecaf8ecf3
+          )
+          for name in "${!EXPECTED[@]}"; do
+            actual="$(git rev-parse "refs/remotes/iptv-source/$name")"
+            if [[ "$actual" != "${EXPECTED[$name]}" ]]; then
+              echo "Source branch $name changed from the audited commit; recheck before archiving" >&2
+              exit 1
+            fi
+          done
+          for name in "${!EXPECTED[@]}"; do
+            sha="${EXPECTED[$name]}"
+            ref="refs/heads/source-archive/iptv4free/$name"
+            git push origin "$sha:$ref"
+            remote="$(git ls-remote origin "$ref" | cut -f1)"
+            [[ "$remote" == "$sha" ]] || { echo "Archive verification failed for $name" >&2; exit 1; }
+            echo "Archived $name at $sha as $ref"
+          done
+          git fetch --no-tags iptv-source '+refs/tags/*:refs/tags/source-archive/iptv4free/*' || true
+          while IFS= read -r tagref; do
+            git push origin "$tagref:$tagref"
+          done < <(git for-each-ref --format='%(refname)' refs/tags/source-archive/iptv4free)
+          echo "All six source branches have been preserved."
