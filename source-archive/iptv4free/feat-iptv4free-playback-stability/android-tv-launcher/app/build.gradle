@@ -1,0 +1,34 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.iptv4free.launcher'
+    compileSdk 35
+
+    signingConfigs {
+        debug {
+            // Same key for every GitHub build (repository secrets), so an update installs over the
+            // previous APK. Without it (local build, fork), Android's per-machine debug key is used.
+            def keystore = System.getenv('IPTV4FREE_KEYSTORE')
+            if (keystore) {
+                storeFile file(keystore)
+                storePassword System.getenv('IPTV4FREE_KEYSTORE_PASSWORD')
+                keyAlias 'iptv4free'
+                keyPassword System.getenv('IPTV4FREE_KEYSTORE_PASSWORD')
+            }
+        }
+    }
+
+    defaultConfig {
+        applicationId 'com.iptv4free.launcher'
+        minSdk 23
+        targetSdk 32
+        versionCode 3
+        versionName '0.1.2'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
