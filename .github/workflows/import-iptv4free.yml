@@ -1,0 +1,49 @@
+# One-time migration workflow, scoped to the consolidation branch.
+# Remove after the two source trees have been imported and reviewed.
+name: Import IPTV4FREE sources
+on:
+  push:
+    branches:
+      - consolidate/iptv-streaming-20261113
+    paths:
+      - .github/workflows/import-iptv4free.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Import stable IPTV toolkit and unmerged TV-interface preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -e iptv || -e iptv-tv-preview ]]; then
+            echo "An IPTV import directory already exists; refusing to overwrite it."
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add iptv-source https://github.com/searadacunha/IPTV4FREE.git
+          git fetch --no-tags iptv-source \
+            refs/heads/main:refs/remotes/iptv-source/main \
+            refs/heads/feat/iptv4free-tv-ui:refs/remotes/iptv-source/tv-ui
+
+          [[ "$(git rev-parse refs/remotes/iptv-source/main)" == "01b860c3b02990703956c24cffeeda00a8be68d0" ]] || { echo "IPTV main advanced: re-audit before importing"; exit 1; }
+          [[ "$(git rev-parse refs/remotes/iptv-source/tv-ui)" == "dad35d2d12fafda1875ff1afa931bc47f3813a85" ]] || { echo "IPTV TV UI branch advanced: re-audit before importing"; exit 1; }
+
+          git subtree add --prefix=iptv refs/remotes/iptv-source/main -m "Import IPTV4FREE stable toolkit with source history"
+          git subtree add --prefix=iptv-tv-preview refs/remotes/iptv-source/tv-ui -m "Preserve IPTV4FREE Kodi and Android TV preview branch with source history"
+
+          test -f iptv/pyproject.toml
+          test -f iptv/src/iptv4free/cli.py
+          test -f iptv-tv-preview/kodi-addon/script.iptv4free/addon.xml
+          test -f iptv-tv-preview/android-tv-launcher/app/src/main/AndroidManifest.xml
+          git status --porcelain
+          git push origin HEAD:refs/heads/consolidate/iptv-streaming-20261113
