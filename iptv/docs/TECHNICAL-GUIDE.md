@@ -95,8 +95,8 @@ previous one stored, so a failed step never leaves the TV half-updated.
 ## Quick start
 
 ```bash
-git clone https://github.com/searadacunha/IPTV4FREE.git
-cd IPTV4FREE
+git clone https://github.com/searadacunha/STREAMING4FREE-TV.git
+cd STREAMING4FREE-TV/iptv
 python3 -m venv .venv && . .venv/bin/activate
 pip install -e .
 
