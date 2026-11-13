@@ -220,7 +220,17 @@ The launcher artwork can be regenerated with `python3 make_art.py` (in the root 
 
 ### IPTV and STREAMING build verification
 
-For STREAMING4FREE Android apps, run `tools/tv.sh build`. For IPTV4FREE, run `(cd iptv && python -m pytest -q)` after installing `./iptv[dev]`. For the preview Kodi package, run `python3 iptv-tv-preview/scripts/build_addon.py`; its output is the Kodi ZIP, not a full Android player. The imported preview launcher has its own Gradle project at `iptv-tv-preview/android-tv-launcher/` and may need signing and device-specific setup.
+The consolidated entry point builds the three STREAMING4FREE Android applications, packages the Kodi IPTV add-on, and builds the IPTV4FREE preview Android launcher:
+
+```bash
+# Install Python 3.11+, pytest, Pillow, Gradle 8.9, JDK 17 and
+# the Android SDK platforms/build-tools 35 and 36 first.
+python3 -m pip install -e "./iptv[dev]" pillow
+bash tools/build-all.sh check
+bash tools/build-all.sh build
+```
+
+The IPTV launcher is rebuilt with a local debug signing key unless configured otherwise. An app previously signed by the original IPTV4FREE certificate **cannot be upgraded in place** with that differently signed APK. The Kodi add-on and launchers remain separate TV installations; sharing a repository does not merge their user interfaces into one APK.
 
 ## Compatibility & limitations
 
