@@ -1,0 +1,73 @@
+name: Kodi TV add-on ZIP
+
+on:
+  push:
+    paths:
+      - "kodi-addon/**"
+      - "assets/branding/**"
+      - "scripts/prepare_branding.py"
+      - "scripts/build_addon.py"
+      - "scripts/serve_addon.py"
+      - "tests/test_tv_ui.py"
+      - ".github/workflows/kodi-ui.yml"
+  pull_request:
+    paths:
+      - "kodi-addon/**"
+      - "assets/branding/**"
+      - "scripts/prepare_branding.py"
+      - "scripts/build_addon.py"
+      - "scripts/serve_addon.py"
+      - "tests/test_tv_ui.py"
+      - ".github/workflows/kodi-ui.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test and build the reproducible Kodi ZIP
+        run: |
+          python -m pip install pytest pillow
+          python -m pytest -q tests/test_tv_ui.py
+          python scripts/build_addon.py
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          from zipfile import ZipFile
+          zips = sorted(Path("dist").glob("script.iptv4free-*.zip"))
+          assert len(zips) == 1, zips
+          with ZipFile(zips[0]) as z:
+              assert z.testzip() is None
+              names = set(z.namelist())
+              for need in ("addon.xml", "icon.png", "default.py", "resources/lib/core.py",
+                           "resources/skins/Default/1080i/IPTV4FREE.xml",
+                           "resources/skins/Default/media/iptv4free-logo.png"):
+                  assert f"script.iptv4free/{need}" in names, need
+              logo = z.read("script.iptv4free/resources/skins/Default/media/iptv4free-logo.png")
+              assert logo == Path("assets/branding/IPTV4FREE-original.png").read_bytes()
+          print(zips[0], hashlib.sha256(zips[0].read_bytes()).hexdigest())
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IPTV4FREE-Kodi-Addon
+          path: dist/script.iptv4free-*.zip
+          retention-days: 14
+
+      - name: Publish the ZIP on the branch if the committed one is stale
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/iptv4free-tv-ui'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f dist/script.iptv4free-*.zip
+          if git diff --cached --quiet; then
+            echo "ZIP is already current"
+          else
+            git commit -m "build(tv): publish installable IPTV4FREE Kodi ZIP"
+            git push origin HEAD:refs/heads/feat/iptv4free-tv-ui
+          fi

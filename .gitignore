@@ -1,3 +1,6 @@
 build/
 __pycache__/
 .DS_Store
+tools/.cache/
+.gradle/
+local.properties

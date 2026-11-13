@@ -1,0 +1,77 @@
+name: Build Android TV release APKs
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  release-build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Prepare Android SDK and JDK 17
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          export JAVA_HOME="${JAVA_HOME_17_X64}"
+          export PATH="$JAVA_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+          java -version
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+          test -f "$ANDROID_HOME/platforms/android-36/android.jar"
+      - name: Build and verify WATCHED and CINEFUSE TV release APKs
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          export JAVA_HOME="${JAVA_HOME_17_X64}"
+          export PATH="$JAVA_HOME/bin:$PATH"
+          unset DEBUG
+          ./build.sh
+          ( cd cinefuse && ./build.sh )
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose build/watched-1.0.apk
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose cinefuse/build/cinefuse-tv-1.0.apk
+          sha256sum build/watched-1.0.apk cinefuse/build/cinefuse-tv-1.0.apk
+      - name: Build and test the STREAMING4FREE hub
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          export JAVA_HOME="${JAVA_HOME_17_X64}"
+          ( cd hub && ./gradlew --no-daemon testDebugUnitTest assembleRelease )
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify hub/build/outputs/apk/release/streaming4free-hub-release.apk
+          python3 tools/probe_streams.py --help > /dev/null  # runs the probe's own self-check
+          python3 - <<'PY'
+          import json, re
+          from pathlib import Path
+          rows = json.loads(Path("hub/src/main/assets/catalog.json").read_text())["rows"]
+          titles = set(re.findall(r'"(\w+/\w+)" to R\.string', Path("hub/src/main/kotlin/com/local/streaming4free/MainActivity.kt").read_text()))
+          missing = {f"{r['cat']}/{r['row']}" for r in rows} - titles
+          assert rows and not missing, f"catalog rows without a title: {missing}"
+          assert all(i["u"].startswith(("http://", "https://")) for r in rows for i in r["items"])
+          print("catalog OK:", sum(len(r["items"]) for r in rows), "channels")
+          PY
+      - name: Check checked-in release code blocks external intent URLs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          for path in (Path("src/com/local/watchedtv/MainActivity.java"),
+                       Path("cinefuse/src/com/local/cinefusetv/MainActivity.java")):
+              source = path.read_text()
+              assert "ApplicationInfo.FLAG_DEBUGGABLE" in source, path
+              assert "testUrl(getIntent())" in source, path  # start URL: debug builds only, also after a failed restore
+              assert "Uri u = testUrl(i);" in source, path
+              assert "return debuggable ? i.getData() : null;" in source, path
+              print(f"PASS source checks: {path}")
+          PY

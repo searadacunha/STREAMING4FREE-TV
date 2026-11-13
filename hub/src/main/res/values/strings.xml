@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">STREAMING4FREE</string>
+
+    <string name="cat_home">Accueil</string>
+    <string name="cat_movies">Films</string>
+    <string name="cat_series">Séries</string>
+    <string name="cat_live">TV en direct</string>
+    <string name="cat_sport">Sport</string>
+    <string name="cat_docs">Documentaires</string>
+    <string name="cat_youtube" translatable="false">YouTube</string>
+    <string name="cat_iptv" translatable="false">IPTV</string>
+    <string name="cat_favorites">Favoris</string>
+    <string name="cat_continue">Continuer à regarder</string>
+    <string name="cat_settings">Paramètres</string>
+
+    <string name="terms_free">Gratuit</string>
+    <string name="terms_account">Gratuit avec compte</string>
+    <string name="terms_freemium">Gratuit + payant</string>
+    <string name="terms_france">Bloqué hors de France</string>
+    <string name="terms_paid">Abonnement</string>
+    <string name="terms_site">Site web</string>
+
+    <string name="app_cinefuse">films et séries</string>
+    <string name="app_watched">films et séries</string>
+    <string name="app_plex">films et séries avec pub</string>
+    <string name="app_rakuten">films gratuits avec pub</string>
+    <string name="app_arte">docs, films, culture</string>
+    <string name="app_viki">séries asiatiques</string>
+    <string name="app_crunchyroll">animés, essai puis abonnement</string>
+    <string name="app_rtp">RTP en direct et replay</string>
+    <string name="app_tvi">TVI en direct et replay</string>
+    <string name="app_opto">SIC en direct et replay</string>
+    <string name="app_rtve">TV espagnole</string>
+    <string name="app_redbull">sports extrêmes</string>
+    <string name="app_smarttube">YouTube sans pub</string>
+    <string name="app_youtube">YouTube officiel</string>
+    <string name="app_ytmusic">musique</string>
+    <string name="app_iptv4free">chaînes IPTV</string>
+    <string name="app_kodi">lecteur multimédia</string>
+    <string name="app_tivimate">lecteur IPTV</string>
+    <string name="app_france">chaînes françaises</string>
+    <string name="app_paid">sport</string>
+
+    <string name="row_continue">Continuer à regarder</string>
+    <string name="row_favorites">Favoris</string>
+    <string name="row_apps">Applis</string>
+    <string name="row_free_apps">Applis gratuites à installer</string>
+    <string name="row_youtube_live">En direct sur YouTube</string>
+    <string name="row_live_pt">Chaînes portugaises</string>
+    <string name="row_live_fra">Chaînes en français</string>
+    <string name="row_live_por">En portugais (Brésil, Afrique, Macao)</string>
+    <string name="row_live_kids">Enfants</string>
+    <string name="row_live_music">Musique</string>
+    <string name="row_live_news">Infos du monde</string>
+    <string name="row_live_other">Religion et institutions</string>
+    <string name="row_sport_por">Sport en portugais</string>
+    <string name="row_sport_fra">Sport en français</string>
+    <string name="row_sport_int">Sport, autres langues</string>
+    <string name="row_docs_por">Documentaires en portugais</string>
+    <string name="row_docs_fra">Documentaires en français</string>
+    <string name="row_docs_int">Documentaires, autres langues</string>
+    <string name="row_movies_por">Chaînes de films en portugais</string>
+    <string name="row_movies_fra">Chaînes de films en français</string>
+    <string name="row_movies_int">Chaînes de films, autres langues</string>
+    <string name="row_series_por">Chaînes de séries en portugais</string>
+    <string name="row_series_fra">Chaînes de séries en français</string>
+    <string name="row_series_int">Chaînes de séries, autres langues</string>
+
+    <string name="to_install">À installer</string>
+    <string name="channels_count">%d chaînes</string>
+    <string name="dead">Indisponible aujourd\'hui</string>
+    <string name="fav_added">Ajouté aux favoris</string>
+    <string name="fav_removed">Retiré des favoris</string>
+    <string name="no_store">Play Store introuvable sur cette TV</string>
+    <string name="not_installed">Pas installée sur cette TV</string>
+    <string name="no_youtube">Installez SmartTube ou YouTube</string>
+    <string name="hint_favorites">Aucun favori : appui long sur OK sur une chaîne ou une appli</string>
+    <string name="hint_history">Rien pour l\'instant</string>
+    <string name="loading">Chargement…</string>
+    <string name="list_offline">Liste indisponible : pas de connexion</string>
+
+    <string name="opening">Ouverture de %s…</string>
+    <string name="reconnecting">Connexion perdue, nouvel essai %1$d sur %2$d…</string>
+    <string name="play_error">%1$s : source indisponible (%2$s).\nOK : réessayer · Retour : revenir</string>
+
+    <string name="current">actuel</string>
+    <string name="set_lang">Langue</string>
+    <string name="lang_auto">Langue de la TV</string>
+    <string name="lang_fr" translatable="false">Français</string>
+    <string name="lang_pt" translatable="false">Português</string>
+    <string name="set_quality">Qualité maximale</string>
+    <string name="q_auto">Automatique</string>
+    <string name="q_1080" translatable="false">1080p</string>
+    <string name="q_720" translatable="false">720p</string>
+    <string name="q_480">480p (connexion lente)</string>
+    <string name="set_data">Données</string>
+    <string name="refresh">Actualiser les listes IPTV</string>
+    <string name="refresh_value">sinon toutes les 12 h</string>
+    <string name="refresh_done">%1$d listes sur %2$d actualisées</string>
+    <string name="clear_history">Effacer l\'historique</string>
+    <string name="cleared">Historique effacé</string>
+    <string name="set_help">Aide</string>
+    <string name="help_fav">Appui long sur OK : ajouter aux favoris</string>
+    <string name="help_back">Retour : revenir au HUB</string>
+    <string name="catalog_info">%d chaînes vérifiées</string>
+    <string name="version">Version</string>
+    <string name="set_unavailable">Pas gratuit ou bloqué ici</string>
+    <string name="un_rtp">RTP 1, RTP 2, SIC, TVI en direct</string>
+    <string name="un_rtp_v">dans RTP Play, OPTO, TVI Player</string>
+    <string name="un_fr">TF1, France 2, M6 en direct</string>
+    <string name="un_fr_v">bloqués hors de France</string>
+    <string name="un_paid">Sport TV, DAZN, Eleven</string>
+    <string name="un_paid_v">abonnement payant</string>
+
+    <string name="search_youtube">« %s » sur YouTube</string>
+    <string name="search_apps">Applis</string>
+    <string name="search_catalog">Chaînes vérifiées</string>
+</resources>

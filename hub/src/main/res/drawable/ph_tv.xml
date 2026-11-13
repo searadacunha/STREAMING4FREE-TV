@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- placeholder of a channel without logo: a screen with a play sign, card-sized (16:9) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="176dp" android:height="99dp" android:viewportWidth="176" android:viewportHeight="99">
+    <path android:fillColor="#FF111827" android:pathData="M0,0h176v99h-176z" />
+    <path android:strokeColor="#FF1E78FF" android:strokeWidth="3"
+        android:pathData="M70,27h36a2,2 0,0 1,2 2v24a2,2 0,0 1,-2 2h-36a2,2 0,0 1,-2 -2v-24a2,2 0,0 1,2 -2z M80,64h16" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M84,34l11,7l-11,7z" />
+</vector>

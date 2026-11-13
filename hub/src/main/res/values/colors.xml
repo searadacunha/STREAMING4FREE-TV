@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- same black and electric blue as the WATCHED and CINEFUSE TV tiles -->
+    <color name="background">#FF0A0E18</color>
+    <color name="brand">#FF0E1424</color>
+    <color name="accent">#FF1E78FF</color>
+    <color name="card">#FF1B2333</color>
+    <color name="card_image">#FF111827</color>
+</resources>
