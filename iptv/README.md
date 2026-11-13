@@ -1,3 +1,5 @@
+> **Moved into IPTVnSTREAMING4FREE.** This is the stable IPTV4FREE toolkit under `iptv/`. The separate Kodi/Android UI preview is preserved under [`iptv-tv-preview/`](../iptv-tv-preview/). Install from the [consolidated repository](../), not from the old standalone IPTV4FREE repository.
+
 <div align="center">
   <img src="assets/branding/IPTV4FREE-original.png" alt="IPTV4FREE — official blue-and-white globe logo" width="620" />
   <h1>IPTV4FREE</h1>
@@ -6,7 +8,7 @@
   Validate streams, curate channels, deploy safely, and enjoy a dedicated TV interface.</p>
 
   <p>
-    <a href="https://github.com/searadacunha/IPTV4FREE/actions/workflows/tests.yml"><img src="https://github.com/searadacunha/IPTV4FREE/actions/workflows/tests.yml/badge.svg" alt="Tests" /></a>
+    <a href="https://github.com/searadacunha/STREAMING4FREE-TV/actions/workflows/iptv4free-tests.yml"><img src="https://github.com/searadacunha/STREAMING4FREE-TV/actions/workflows/iptv4free-tests.yml/badge.svg" alt="Tests" /></a>
     <img src="https://img.shields.io/badge/Python-3.11%2B-2563eb" alt="Python 3.11+" />
     <img src="https://img.shields.io/badge/Kodi-PVR-172b50" alt="Kodi PVR" />
     <img src="https://img.shields.io/badge/Android-TV-172b50" alt="Android TV" />
@@ -38,7 +40,7 @@
   </tr>
 </table>
 
-<sub>Real screenshots from Kodi 21.3 on macOS using fictional test channels. The TV interface and Android launcher are currently developed in <a href="https://github.com/searadacunha/IPTV4FREE/pull/3">PR #3</a>, not yet merged into the main branch.</sub>
+<sub>Real screenshots from Kodi 21.3 on macOS using fictional test channels. The TV interface and Android launcher are currently developed in <a href="../iptv-tv-preview/">PR #3</a>, not yet merged into the main branch.</sub>
 
 ## Built around what matters
 
@@ -52,22 +54,22 @@
 
 ## Install the TV interface
 
-The following packages are available in the [development branch / PR #3](https://github.com/searadacunha/IPTV4FREE/pull/3). They are **preview builds**, not yet part of `main`.
+The following packages are available in the [development branch / PR #3](../iptv-tv-preview/). They are **preview builds**, not yet part of `main`.
 
 | Package | What it does | Download |
 | :--- | :--- | :--- |
-| **IPTV4FREE Kodi add-on 0.3.1** | Branded live TV interface inside an existing Kodi installation. | [Download ZIP](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.3.1.zip) |
-| **IPTV4FREE Android TV launcher 0.2.0** | Adds an IPTV4FREE tile to the Android TV home screen and opens the Kodi add-on behind an IPTV4FREE splash, so Kodi's own screens never show. Needs a one-time `adb shell appops set com.iptv4free.launcher SYSTEM_ALERT_WINDOW allow`. | [Download APK](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk) |
+| **IPTV4FREE Kodi add-on 0.3.1** | Branded live TV interface inside an existing Kodi installation. | [Download ZIP](../iptv-tv-preview/dist/script.iptv4free-0.3.1.zip) |
+| **IPTV4FREE Android TV launcher 0.2.0** | Adds an IPTV4FREE tile to the Android TV home screen and opens the Kodi add-on behind an IPTV4FREE splash, so Kodi's own screens never show. Needs a one-time `adb shell appops set com.iptv4free.launcher SYSTEM_ALERT_WINDOW allow`. | [Download APK](../iptv-tv-preview/dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk) |
 
-The Kodi ZIP is served locally for installation using the included range-aware server (`python3 scripts/serve_addon.py` from the development branch). **Do not use the standard Python HTTP server** for this Kodi version. For precise installation, requirements, testing evidence and rollback, see the [Kodi interface guide](https://github.com/searadacunha/IPTV4FREE/blob/feat/iptv4free-tv-ui/docs/IPTV4FREE-TV-UI.md) and [Android launcher guide](https://github.com/searadacunha/IPTV4FREE/blob/feat/iptv4free-tv-ui/docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md).
+The Kodi ZIP is served locally for installation using the included range-aware server (`python3 scripts/serve_addon.py` from `iptv-tv-preview/`). **Do not use the standard Python HTTP server** for this Kodi version. For precise installation, requirements, testing evidence and rollback, see the [Kodi interface guide](../iptv-tv-preview/docs/IPTV4FREE-TV-UI.md) and [Android launcher guide](../iptv-tv-preview/docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md).
 
 ## Quick start
 
 Run the playlist-management toolkit on macOS or Linux. The computer and Android TV must be reachable on the same network via ADB.
 
 ```bash
-git clone https://github.com/searadacunha/IPTV4FREE.git
-cd IPTV4FREE
+git clone https://github.com/searadacunha/STREAMING4FREE-TV.git
+cd STREAMING4FREE-TV/iptv
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
@@ -109,13 +111,13 @@ flowchart LR
 
 - [Technical reference](docs/TECHNICAL-GUIDE.md) — configuration, deployment, channel management, architecture, benchmarks, troubleshooting and limitations.
 - [Example configuration](config/example.toml) — M3U sources, countries, favourites, EPG and safety limits.
-- [TV interface & install guide](https://github.com/searadacunha/IPTV4FREE/blob/feat/iptv4free-tv-ui/docs/IPTV4FREE-TV-UI.md) — Kodi interface, remote navigation and validation on the test TV.
-- [Android TV launcher guide](https://github.com/searadacunha/IPTV4FREE/blob/feat/iptv4free-tv-ui/docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md) — APK installation, shortcut behaviour and security.
+- [TV interface & install guide](../iptv-tv-preview/docs/IPTV4FREE-TV-UI.md) — Kodi interface, remote navigation and validation on the test TV.
+- [Android TV launcher guide](../iptv-tv-preview/docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md) — APK installation, shortcut behaviour and security.
 - [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 ## Verified scope
 
-The playlist automation pipeline has automated tests and documented measurements in the [technical reference](docs/TECHNICAL-GUIDE.md). The optional Kodi UI has also been evaluated on Kodi 21.3 and a resource-constrained Android TV; see [PR #3](https://github.com/searadacunha/IPTV4FREE/pull/3) for the exact test setup and open issues. Stream availability, guide coverage and device compatibility vary by provider and hardware.
+The playlist automation pipeline has automated tests and documented measurements in the [technical reference](docs/TECHNICAL-GUIDE.md). The optional Kodi UI has also been evaluated on Kodi 21.3 and a resource-constrained Android TV; see [PR #3](../iptv-tv-preview/) for the exact test setup and open issues. Stream availability, guide coverage and device compatibility vary by provider and hardware.
 
 ---
 
