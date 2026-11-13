@@ -10,7 +10,7 @@ Ce projet se trouve dans `android-tv-launcher/` avec le package Android distinct
 
 1. Vérifier que Kodi et le module **IPTV4FREE 0.3.1** fonctionnent déjà sur la TV.
 2. Dans Kodi, Paramètres > Services > Contrôle, activer le contrôle par des applications **sur ce système** (JSON-RPC TCP 9090). Ne pas activer le contrôle par d'autres appareils du réseau si ce n'est pas nécessaire.
-3. Télécharger l'APK Android TV compilé : [IPTV4FREE-AndroidTV-Launcher-0.2.0.apk](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk). Le lien n'est fonctionnel qu'après réussite de GitHub Actions et publication effective du fichier.
+3. Télécharger l'APK Android TV compilé : [IPTV4FREE-AndroidTV-Launcher-0.2.0.apk](../dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk). Le lien n'est fonctionnel qu'après réussite de GitHub Actions et publication effective du fichier.
 4. Installer cet APK sur la TV avec ADB autorisé, par exemple `adb install -r IPTV4FREE-AndroidTV-Launcher-0.2.0.apk`, ou avec un gestionnaire de fichiers Android TV.
 5. Autoriser une fois IPTV4FREE à s'afficher par-dessus les autres applications, sans quoi Kodi reste visible pendant son démarrage :
    `adb shell appops set com.iptv4free.launcher SYSTEM_ALERT_WINDOW allow`
