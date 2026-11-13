@@ -76,7 +76,12 @@ jobs:
           gradle-version: '8.9'
       - name: Set up Android SDK 35
         run: |
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          test -n "$SDKMANAGER"
+          "$SDKMANAGER" --install "platforms;android-35" "build-tools;35.0.0"
+          test -f "$SDK_ROOT/platforms/android-35/android.jar"
       - name: Build IPTV4FREE Android launcher from imported source
         working-directory: iptv-tv-preview
         run: |
