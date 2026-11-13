@@ -1,5 +1,6 @@
 <div align="center">
 
+<img src="iptv-tv-preview/assets/branding/IPTV4FREE-original.png" width="320" alt="IPTV4FREE official branding and Kodi TV interface" />
 <img src="hub/src/main/res/drawable-xhdpi/banner.png" width="320" alt="STREAMING4FREE hub tile for the Android TV home screen" />
 <img src="res/drawable-xhdpi/banner.png" width="320" alt="WATCHED tile for the Android TV home screen" />
 <img src="cinefuse/res/drawable-xhdpi/banner.png" width="320" alt="CINEFUSE TV tile for the Android TV home screen" />
@@ -58,6 +59,10 @@ iptv4free --help
 ```
 
 The [branded Kodi interface and Android TV launcher](iptv-tv-preview/) are preserved from the original **unmerged development branch**. Source files, build scripts, graphics, and the previously produced [Kodi ZIP](iptv-tv-preview/dist/script.iptv4free-0.3.1.zip) and [APK](iptv-tv-preview/dist/IPTV4FREE-AndroidTV-Launcher-0.2.0.apk) are available here. Rebuilding the Android launcher may require a new signing key; a newly signed APK may not install over the existing app without uninstalling it first.
+
+<p align="center">
+  <img src="iptv-tv-preview/docs/images/iptv4free-kodi21-accueil.jpg" width="720" alt="IPTV4FREE Kodi 21 home interface preview" />
+</p>
 
 For IPTV configuration and deployment, use [the stable toolkit guide](iptv/README.md). For Kodi UI and launcher installation, consult [the preview guide](iptv-tv-preview/docs/IPTV4FREE-TV-UI.md) and [the launcher guide](iptv-tv-preview/docs/IPTV4FREE-ANDROID-TV-LAUNCHER.md). These two imported snapshots are intentionally not claimed to be a unified, tested IPTV release yet.
 
