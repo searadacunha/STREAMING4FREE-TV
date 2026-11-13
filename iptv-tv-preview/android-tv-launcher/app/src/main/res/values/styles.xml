@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android draws this background as soon as the tile is pressed, before any code runs. -->
+    <style name="IPTV4FREE.Splash" parent="@android:style/Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@drawable/iptv4free_splash</item>
+    </style>
+</resources>

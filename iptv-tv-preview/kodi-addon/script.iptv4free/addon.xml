@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon id="script.iptv4free" name="IPTV4FREE" version="0.3.1" provider-name="searadacunha">
+ <requires><import addon="xbmc.python" version="3.0.0" /></requires>
+ <extension point="xbmc.python.script" library="default.py"><provides>executable video</provides></extension>
+ <extension point="xbmc.addon.metadata">
+  <summary lang="en_GB">IPTV4FREE: remote-friendly live TV home for Kodi.</summary>
+  <summary lang="fr_FR">IPTV4FREE : la télé en direct, pensée pour la télécommande.</summary>
+  <description lang="en_GB">Full-screen 1080p home for the channels already configured in Kodi PVR IPTV Simple Client: country and category groups, now and next, per-channel guide, Kodi TV guide, favourites, search, channel logos and live preview. No streams are provided.</description>
+  <description lang="fr_FR">Accueil plein écran 1080p pour les chaînes déjà configurées dans Kodi PVR IPTV Simple Client : groupes par pays et catégorie, programme en cours et suivant, programme de chaque chaîne, guide TV Kodi, favoris, recherche, logos et aperçu en direct. Aucun flux n'est fourni.</description>
+  <disclaimer lang="fr_FR">IPTV4FREE ne fournit aucune chaîne : il affiche celles de votre configuration Kodi.</disclaimer>
+  <license>MIT</license>
+  <platform>all</platform>
+  <source>https://github.com/searadacunha/IPTV4FREE</source>
+  <assets><icon>icon.png</icon></assets>
+ </extension>
+</addon>

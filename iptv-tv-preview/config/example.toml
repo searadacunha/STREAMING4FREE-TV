@@ -1,0 +1,73 @@
+# IPTV4FREE configuration. Copy to ./iptv4free.toml and edit.
+# Relative paths are relative to this file. Values shown are the defaults unless noted.
+
+[tv]
+# ADB address of the TV (host:port for network debugging, or a USB serial).
+# The environment variable IPTV4FREE_TV overrides it.
+address = "192.0.2.10:5555"
+adb = "adb"                               # path to adb; IPTV4FREE_ADB overrides it
+remote_dir = "/sdcard/Download/iptv4free" # where playlists are stored on the TV
+kodi_package = "org.xbmc.kodi"
+jsonrpc_port = 9090                       # Kodi JSON-RPC (TCP) on the TV
+forward_port = 19090                      # local port used for `adb forward`
+adb_timeout = 30                          # seconds per adb command
+
+[paths]
+state_dir = "~/.local/state/iptv4free"    # scan history, snapshots, backups, logs
+output_dir = "build"                      # generated playlists
+
+[scan]
+timeout = 8           # seconds per HTTP request while probing a stream
+workers = 32          # concurrent probes
+max_failed_scans = 3  # a stream is dropped after this many failed scans in a row
+epg_max_age_hours = 12
+# user_agent = "..."  # sent when a playlist entry sets none
+
+[safety]
+max_changes = 500     # channel additions + removals allowed per deployment
+min_keep_ratio = 0.5  # refuse a lineup that would lose more than half its channels
+backups = 5           # previous TV playlists kept for rollback
+restart_kodi = "auto" # auto: only if Kodi runs and nothing is playing | always | never
+
+[labels]
+favorites = "Favorites"
+all = "All"
+other = "Other"
+
+# Optional: how source categories (iptv-org group-title) are grouped for
+# lineups with by_category = true. Order here is display order.
+# [categories]
+# "News" = ["News", "Business", "Weather"]
+# "Sports" = ["Sports"]
+
+# One [[lineup]] per IPTV Simple Client instance in Kodi. Earlier lineups have
+# priority: a stream listed in two lineups appears only in the first one.
+
+[[lineup]]
+id = "france"
+name = "France"
+sources = ["https://iptv-org.github.io/iptv/countries/fr.m3u"]
+epg = "https://xmltvfr.fr/xmltv/xmltv_tnt.xml.gz"
+first_number = 1
+favorites = ["TF1", "France 2", "France 3", "France 4", "France 5", "M6", "TMC", "TFX",
+             "6ter", "LCI", "BFM TV", "CNews", "Franceinfo", "France 24", "L'Equipe",
+             "Gulli", "RMC Decouverte"]
+# Guide ids whose names differ from the playlist names.
+epg_aliases = { "TFX" = "NT1.fr", "RMC Story" = "Numero23.fr", "L'Equipe" = "LEquipe21.fr", "LCP" = "LaChaineParlementaire.fr" }
+
+[[lineup]]
+id = "portugal"
+name = "Portugal"
+sources = ["https://iptv-org.github.io/iptv/countries/pt.m3u"]
+epg = "https://epgshare01.online/epgshare01/epg_ripper_PT1.xml.gz"
+first_number = 500
+favorites = ["RTP 1", "RTP 2", "SIC", "SIC Noticias", "TVI", "CNN Portugal", "Porto Canal",
+             "RTP Memoria"]
+
+[[lineup]]
+id = "world"
+name = "World"
+sources = ["https://iptv-org.github.io/iptv/index.m3u"]
+first_number = 1000
+by_category = true
+exclude_categories = ["Shop"]

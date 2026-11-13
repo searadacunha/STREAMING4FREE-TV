@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- IPTV4FREE 1920x1080 home. Kodi ignores fonts shipped by a script: names below are Estuary's,
+     any other skin falls back to its font13. Colours: electric blue FF1030F0, white, black. -->
+<window>
+ <defaultcontrol always="true">9000</defaultcontrol><!-- the channel list is empty until loaded; default.py then focuses it -->
+ <backgroundcolor>FF000000</backgroundcolor>
+ <controls>
+  <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture>iptv4free-backdrop.png</texture></control>
+
+  <!-- Rail: official logo + sections -->
+  <control type="image"><left>0</left><top>0</top><width>330</width><height>1080</height><texture colordiffuse="B3000000">iptv4free-pixel.png</texture></control>
+  <control type="image"><left>15</left><top>18</top><width>300</width><height>200</height><aspectratio>keep</aspectratio><texture>iptv4free-logo.png</texture></control>
+  <control type="grouplist" id="9000">
+   <left>24</left><top>262</top><width>282</width><height>640</height><itemgap>6</itemgap><orientation>vertical</orientation><onright>300</onright>
+   <control type="button" id="100"><width>282</width><height>68</height><font>font13</font><textoffsetx>26</textoffsetx><textcolor>FFA9B3C9</textcolor><focusedcolor>FFFFFFFF</focusedcolor><texturefocus colordiffuse="FF1030F0">iptv4free-pixel.png</texturefocus><texturenofocus /><label>EN DIRECT</label></control>
+   <control type="button" id="101"><width>282</width><height>68</height><font>font13</font><textoffsetx>26</textoffsetx><textcolor>FFA9B3C9</textcolor><focusedcolor>FFFFFFFF</focusedcolor><texturefocus colordiffuse="FF1030F0">iptv4free-pixel.png</texturefocus><texturenofocus /><label>GUIDE TV</label></control>
+   <control type="button" id="102"><width>282</width><height>68</height><font>font13</font><textoffsetx>26</textoffsetx><textcolor>FFA9B3C9</textcolor><focusedcolor>FFFFFFFF</focusedcolor><texturefocus colordiffuse="FF1030F0">iptv4free-pixel.png</texturefocus><texturenofocus /><label>FAVORIS</label></control>
+   <control type="button" id="103"><width>282</width><height>68</height><font>font13</font><textoffsetx>26</textoffsetx><textcolor>FFA9B3C9</textcolor><focusedcolor>FFFFFFFF</focusedcolor><texturefocus colordiffuse="FF1030F0">iptv4free-pixel.png</texturefocus><texturenofocus /><label>RECHERCHE</label></control>
+   <control type="button" id="104"><width>282</width><height>68</height><font>font13</font><textoffsetx>26</textoffsetx><textcolor>FFA9B3C9</textcolor><focusedcolor>FFFFFFFF</focusedcolor><texturefocus colordiffuse="FF1030F0">iptv4free-pixel.png</texturefocus><texturenofocus /><label>GROUPES</label></control>
+   <control type="button" id="105"><width>282</width><height>68</height><font>font13</font><textoffsetx>26</textoffsetx><textcolor>FFA9B3C9</textcolor><focusedcolor>FFFFFFFF</focusedcolor><texturefocus colordiffuse="FF1030F0">iptv4free-pixel.png</texturefocus><texturenofocus /><label>PARAMÈTRES</label></control>
+   <control type="button" id="106"><width>282</width><height>68</height><font>font13</font><textoffsetx>26</textoffsetx><textcolor>FFA9B3C9</textcolor><focusedcolor>FFFFFFFF</focusedcolor><texturefocus colordiffuse="FF1030F0">iptv4free-pixel.png</texturefocus><texturenofocus /><label>QUITTER</label></control>
+  </control>
+  <control type="label"><left>24</left><top>918</top><width>290</width><height>90</height><font>font12</font><textcolor>FFFFFFFF</textcolor><wrapmultiline>true</wrapmultiline><label>$INFO[Window.Property(Status)]</label></control>
+  <control type="label"><left>24</left><top>1010</top><width>290</width><height>40</height><font>font12</font><textcolor>FF7A90FF</textcolor><label>Chargement…</label><visible>String.IsEqual(Window.Property(Busy),true)</visible></control>
+
+  <!-- Groups: country · category from IPTV Simple Client -->
+  <control type="label"><left>352</left><top>72</top><width>300</width><height>40</height><font>font12</font><textcolor>FF7A90FF</textcolor><label>GROUPES</label></control>
+  <control type="list" id="300">
+   <left>350</left><top>130</top><width>310</width><height>858</height><orientation>vertical</orientation><scrolltime>120</scrolltime><onleft>9000</onleft><onright>500</onright>
+   <itemlayout width="310" height="78">
+    <control type="image"><left>0</left><top>3</top><width>306</width><height>72</height><texture colordiffuse="990D111C">iptv4free-pixel.png</texture></control>
+    <control type="image"><left>0</left><top>3</top><width>6</width><height>72</height><texture colordiffuse="FF1030F0">iptv4free-pixel.png</texture><visible>String.IsEqual(ListItem.Property(active),true)</visible></control>
+    <control type="label"><left>22</left><top>8</top><width>272</width><height>26</height><font>font10</font><textcolor>FF7A90FF</textcolor><label>$INFO[ListItem.Label2]</label></control>
+    <control type="label"><left>22</left><top>32</top><width>272</width><height>40</height><font>font13</font><textcolor>FFE6EAF5</textcolor><label>$INFO[ListItem.Label]</label><visible>!String.IsEmpty(ListItem.Label2)</visible></control>
+    <control type="label"><left>22</left><top>18</top><width>272</width><height>40</height><font>font13</font><textcolor>FFE6EAF5</textcolor><label>$INFO[ListItem.Label]</label><visible>String.IsEmpty(ListItem.Label2)</visible></control>
+   </itemlayout>
+   <focusedlayout width="310" height="78">
+    <control type="image"><left>0</left><top>3</top><width>306</width><height>72</height><texture colordiffuse="FF1A2448">iptv4free-pixel.png</texture></control>
+    <control type="image"><left>0</left><top>3</top><width>306</width><height>72</height><texture colordiffuse="FF1030F0">iptv4free-pixel.png</texture><visible>Control.HasFocus(300)</visible></control>
+    <control type="image"><left>0</left><top>3</top><width>6</width><height>72</height><texture colordiffuse="FFFFFFFF">iptv4free-pixel.png</texture><visible>String.IsEqual(ListItem.Property(active),true)</visible></control>
+    <control type="label"><left>22</left><top>8</top><width>272</width><height>26</height><font>font10</font><textcolor>FFDDE3FF</textcolor><label>$INFO[ListItem.Label2]</label></control>
+    <control type="label"><left>22</left><top>32</top><width>272</width><height>40</height><font>font13</font><textcolor>FFFFFFFF</textcolor><label>$INFO[ListItem.Label]</label><visible>!String.IsEmpty(ListItem.Label2)</visible></control>
+    <control type="label"><left>22</left><top>18</top><width>272</width><height>40</height><font>font13</font><textcolor>FFFFFFFF</textcolor><label>$INFO[ListItem.Label]</label><visible>String.IsEmpty(ListItem.Label2)</visible></control>
+   </focusedlayout>
+  </control>
+
+  <!-- Channels -->
+  <control type="label"><left>690</left><top>60</top><width>380</width><height>52</height><font>font30_title</font><textcolor>FFFFFFFF</textcolor><scroll>true</scroll><label>$INFO[Window.Property(Title)]</label></control>
+  <control type="label"><left>1070</left><top>72</top><width>200</width><height>40</height><font>font12</font><textcolor>FFA9B3C9</textcolor><align>right</align><label>$INFO[Window.Property(Count)]</label></control>
+  <control type="label"><left>700</left><top>420</top><width>560</width><height>220</height><font>font13</font><textcolor>FFA9B3C9</textcolor><wrapmultiline>true</wrapmultiline><label>$INFO[Window.Property(Empty)]</label></control>
+  <control type="button" id="599"><left>0</left><top>0</top><width>1</width><height>1</height><texturefocus /><texturenofocus /><visible>false</visible></control>
+  <control type="list" id="500">
+   <left>690</left><top>130</top><width>580</width><height>870</height><orientation>vertical</orientation><scrolltime>120</scrolltime><onleft>300</onleft><onright>SendClick(599)</onright><ondown>noop</ondown>
+   <itemlayout width="580" height="96">
+    <control type="image"><left>0</left><top>3</top><width>576</width><height>90</height><texture colordiffuse="990D111C">iptv4free-pixel.png</texture></control>
+    <control type="image"><left>0</left><top>3</top><width>6</width><height>90</height><texture colordiffuse="FFFFFFFF">iptv4free-pixel.png</texture><visible>String.IsEqual(ListItem.Property(playing),true)</visible></control>
+    <control type="label"><left>8</left><top>28</top><width>62</width><height>36</height><font>font13</font><textcolor>FF7A90FF</textcolor><align>right</align><label>$INFO[ListItem.Property(number)]</label></control>
+    <control type="image"><left>84</left><top>14</top><width>100</width><height>64</height><aspectratio>keep</aspectratio><texture background="true" fallback="iptv4free-nologo.png">$INFO[ListItem.Art(thumb)]</texture></control>
+    <control type="label"><left>200</left><top>10</top><width>270</width><height>38</height><font>font13</font><textcolor>FFE6EAF5</textcolor><label>$INFO[ListItem.Label]</label></control>
+    <control type="label"><left>470</left><top>14</top><width>96</width><height>30</height><font>font10</font><textcolor>FF7A90FF</textcolor><align>right</align><label>FAVORI</label><visible>String.IsEqual(ListItem.Property(favorite),true)</visible></control>
+    <control type="label"><left>200</left><top>48</top><width>366</width><height>30</height><font>font12</font><textcolor>FF8E98B0</textcolor><label>$INFO[ListItem.Label2]</label></control>
+    <control type="progress"><left>200</left><top>82</top><width>366</width><height>4</height><texturebg colordiffuse="33FFFFFF">iptv4free-pixel.png</texturebg><midtexture colordiffuse="FF3B5BFF">iptv4free-pixel.png</midtexture><info>ListItem.Property(progress)</info><visible>!String.IsEmpty(ListItem.Property(now_time))</visible></control>
+   </itemlayout>
+   <focusedlayout width="580" height="96">
+    <control type="image"><left>0</left><top>3</top><width>576</width><height>90</height><texture colordiffuse="FF1A2448">iptv4free-pixel.png</texture></control>
+    <control type="image"><left>0</left><top>3</top><width>576</width><height>90</height><texture colordiffuse="FF1030F0">iptv4free-pixel.png</texture><visible>Control.HasFocus(500)</visible></control>
+    <control type="image"><left>0</left><top>3</top><width>6</width><height>90</height><texture colordiffuse="FFFFFFFF">iptv4free-pixel.png</texture><visible>String.IsEqual(ListItem.Property(playing),true)</visible></control>
+    <control type="label"><left>8</left><top>28</top><width>62</width><height>36</height><font>font13</font><textcolor>FFFFFFFF</textcolor><align>right</align><label>$INFO[ListItem.Property(number)]</label></control>
+    <control type="image"><left>84</left><top>14</top><width>100</width><height>64</height><aspectratio>keep</aspectratio><texture background="true" fallback="iptv4free-nologo.png">$INFO[ListItem.Art(thumb)]</texture></control>
+    <control type="label"><left>200</left><top>10</top><width>270</width><height>38</height><font>font13</font><textcolor>FFFFFFFF</textcolor><label>$INFO[ListItem.Label]</label><scroll>true</scroll></control>
+    <control type="label"><left>470</left><top>14</top><width>96</width><height>30</height><font>font10</font><textcolor>FFFFFFFF</textcolor><align>right</align><label>FAVORI</label><visible>String.IsEqual(ListItem.Property(favorite),true)</visible></control>
+    <control type="label"><left>200</left><top>48</top><width>366</width><height>30</height><font>font12</font><textcolor>FFDDE3FF</textcolor><label>$INFO[ListItem.Label2]</label><scroll>true</scroll></control>
+    <control type="progress"><left>200</left><top>82</top><width>366</width><height>4</height><texturebg colordiffuse="55FFFFFF">iptv4free-pixel.png</texturebg><midtexture colordiffuse="FFFFFFFF">iptv4free-pixel.png</midtexture><info>ListItem.Property(progress)</info><visible>!String.IsEmpty(ListItem.Property(now_time))</visible></control>
+   </focusedlayout>
+  </control>
+
+  <!-- Now / next panel with live preview -->
+  <control type="label"><left>1300</left><top>30</top><width>580</width><height>64</height><font>font45_title</font><textcolor>FFFFFFFF</textcolor><align>right</align><label>$INFO[System.Time]</label></control>
+  <control type="label"><left>1300</left><top>92</top><width>580</width><height>34</height><font>font12</font><textcolor>FFA9B3C9</textcolor><align>right</align><label>$INFO[System.Date]</label></control>
+  <control type="image"><left>1300</left><top>140</top><width>580</width><height>326</height><texture colordiffuse="FF05070D">iptv4free-pixel.png</texture></control>
+  <control type="image"><left>1440</left><top>203</top><width>300</width><height>200</height><aspectratio>keep</aspectratio><texture fallback="iptv4free-nologo.png" background="true">$INFO[Container(500).ListItem.Art(thumb)]</texture><visible>!Player.HasVideo</visible></control>
+  <control type="videowindow"><left>1300</left><top>140</top><width>580</width><height>326</height><visible>Player.HasVideo</visible></control>
+  <control type="group">
+   <visible>Player.HasVideo</visible>
+   <control type="image"><left>1300</left><top>426</top><width>580</width><height>40</height><texture colordiffuse="B3000000">iptv4free-pixel.png</texture></control>
+   <control type="label"><left>1316</left><top>428</top><width>550</width><height>36</height><font>font12</font><textcolor>FFFFFFFF</textcolor><label>EN LECTURE · $INFO[VideoPlayer.ChannelName]</label></control>
+  </control>
+  <control type="label"><left>1300</left><top>482</top><width>580</width><height>52</height><font>font36_title</font><textcolor>FFFFFFFF</textcolor><label>$INFO[Container(500).ListItem.Label]</label></control>
+  <control type="label"><left>1300</left><top>536</top><width>580</width><height>32</height><font>font12</font><textcolor>FFA9B3C9</textcolor><label>$INFO[Container(500).ListItem.Property(number),CHAÎNE ,]</label></control>
+  <control type="label"><left>1300</left><top>580</top><width>280</width><height>28</height><font>font10</font><textcolor>FF7A90FF</textcolor><label>EN COURS</label><visible>!String.IsEmpty(Container(500).ListItem.Property(id))</visible></control>
+  <control type="label"><left>1580</left><top>578</top><width>300</width><height>30</height><font>font12</font><textcolor>FFA9B3C9</textcolor><align>right</align><label>$INFO[Container(500).ListItem.Property(now_time)]</label></control>
+  <control type="label"><left>1300</left><top>606</top><width>580</width><height>78</height><font>font14</font><textcolor>FFFFFFFF</textcolor><wrapmultiline>true</wrapmultiline><label>$INFO[Container(500).ListItem.Label2]</label></control>
+  <control type="progress"><left>1300</left><top>690</top><width>580</width><height>6</height><texturebg colordiffuse="33FFFFFF">iptv4free-pixel.png</texturebg><midtexture colordiffuse="FF3B5BFF">iptv4free-pixel.png</midtexture><info>Container(500).ListItem.Property(progress)</info><visible>!String.IsEmpty(Container(500).ListItem.Property(now_time))</visible></control>
+  <control type="label"><left>1300</left><top>714</top><width>280</width><height>28</height><font>font10</font><textcolor>FF7A90FF</textcolor><label>À SUIVRE</label><visible>!String.IsEmpty(Container(500).ListItem.Property(next))</visible></control>
+  <control type="label"><left>1580</left><top>712</top><width>300</width><height>30</height><font>font12</font><textcolor>FFA9B3C9</textcolor><align>right</align><label>$INFO[Container(500).ListItem.Property(next_time)]</label></control>
+  <control type="label"><left>1300</left><top>740</top><width>580</width><height>40</height><font>font13</font><textcolor>FFA9B3C9</textcolor><label>$INFO[Container(500).ListItem.Property(next)]</label></control>
+  <control type="label"><left>1300</left><top>796</top><width>580</width><height>28</height><font>font10</font><textcolor>FF7A90FF</textcolor><label>PROGRAMME</label><visible>!String.IsEmpty(Container(500).ListItem.Property(id))</visible></control>
+  <control type="label"><left>1300</left><top>830</top><width>580</width><height>36</height><font>font12</font><textcolor>FF8E98B0</textcolor><label>→  Programme complet de la chaîne</label><visible>!String.IsEmpty(Container(500).ListItem.Property(id)) + !String.IsEqual(Window.Property(GuideFor),Container(500).ListItem.Property(id))</visible></control>
+  <control type="list" id="600">
+   <left>1300</left><top>826</top><width>580</width><height>180</height><orientation>vertical</orientation><scrolltime>120</scrolltime><onleft>500</onleft>
+   <visible>String.IsEqual(Window.Property(GuideFor),Container(500).ListItem.Property(id))</visible>
+   <itemlayout width="580" height="45">
+    <control type="label"><left>8</left><top>4</top><width>170</width><height>36</height><font>font12</font><textcolor>FF7A90FF</textcolor><label>$INFO[ListItem.Label]</label></control>
+    <control type="label"><left>186</left><top>4</top><width>386</width><height>36</height><font>font12</font><textcolor>FFE6EAF5</textcolor><label>$INFO[ListItem.Label2]</label></control>
+   </itemlayout>
+   <focusedlayout width="580" height="45">
+    <control type="image"><left>0</left><top>1</top><width>580</width><height>43</height><texture colordiffuse="FF1030F0">iptv4free-pixel.png</texture><visible>Control.HasFocus(600)</visible></control>
+    <control type="label"><left>8</left><top>4</top><width>170</width><height>36</height><font>font12</font><textcolor>FFFFFFFF</textcolor><label>$INFO[ListItem.Label]</label></control>
+    <control type="label"><left>186</left><top>4</top><width>386</width><height>36</height><font>font12</font><textcolor>FFFFFFFF</textcolor><label>$INFO[ListItem.Label2]</label><scroll>true</scroll></control>
+   </focusedlayout>
+  </control>
+
+  <!-- Remote hints -->
+  <control type="label"><left>352</left><top>1018</top><width>1528</width><height>40</height><font>font12</font><textcolor>FF6B7590</textcolor><label>OK  Regarder        →  Programme        MENU ou appui long OK  Favori        RETOUR  Menu</label></control>
+
+  <!-- First load: the official logo full screen -->
+  <control type="group">
+   <visible>String.IsEqual(Window.Property(Loading),true)</visible>
+   <animation effect="fade" start="100" end="0" time="400">Hidden</animation>
+   <control type="image"><left>0</left><top>0</top><width>1920</width><height>1080</height><texture colordiffuse="FF000000">iptv4free-pixel.png</texture></control>
+   <control type="image"><left>420</left><top>120</top><width>1080</width><height>720</height><aspectratio>keep</aspectratio><texture>iptv4free-logo.png</texture></control>
+   <control type="label"><left>0</left><top>880</top><width>1920</width><height>50</height><font>font14</font><textcolor>FFA9B3C9</textcolor><align>center</align><label>Chargement des chaînes…</label></control>
+  </control>
+ </controls>
+</window>

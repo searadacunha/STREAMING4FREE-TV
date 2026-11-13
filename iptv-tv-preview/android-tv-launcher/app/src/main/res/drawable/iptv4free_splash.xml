@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Official logo, unmodified file, on black: tile start, launcher screen and the cover over Kodi.
+     Same place and size as the add-on's loading view (1080 x 720 at 420, 120 on a 1080p TV). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@android:color/black" />
+    <item
+        android:width="540dp"
+        android:height="360dp"
+        android:gravity="top|center_horizontal"
+        android:top="60dp">
+        <bitmap
+            android:filter="true"
+            android:src="@drawable/iptv4free_logo_original" />
+    </item>
+</layer-list>
