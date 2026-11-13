@@ -101,8 +101,8 @@ previous one stored, so a failed step never leaves the TV half-updated.
 ## Quick start
 
 ```bash
-git clone https://github.com/searadacunha/IPTV4FREE.git
-cd IPTV4FREE
+git clone https://github.com/searadacunha/STREAMING4FREE-TV.git
+cd STREAMING4FREE-TV/iptv-tv-preview
 python3 -m venv .venv && . .venv/bin/activate
 pip install -e .
 
@@ -434,7 +434,7 @@ to IPTV4FREE. It changes nothing in Kodi, IPTV Simple Client or MegaNexus.
 
 *Real Kodi 21.3 screen on a Mac, with a test playlist of fictional channels.*
 
-**Download:** [script.iptv4free-0.3.1.zip](https://github.com/searadacunha/IPTV4FREE/raw/refs/heads/feat/iptv4free-tv-ui/dist/script.iptv4free-0.3.1.zip)
+**Download:** [script.iptv4free-0.3.1.zip](../dist/script.iptv4free-0.3.1.zip)
 (`python3 scripts/build_addon.py` rebuilds the same file, byte for byte).
 
 Install on the TV:
