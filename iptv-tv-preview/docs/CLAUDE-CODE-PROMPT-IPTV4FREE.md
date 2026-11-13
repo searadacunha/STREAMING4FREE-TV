@@ -2,9 +2,9 @@
 
 **Mission** : terminer et livrer une interface Kodi/Android TV réellement utilisable appelée **IPTV4FREE**, en adoptant **exactement le logo fourni par l'utilisateur** (texte blanc métallisé « IPTV4 FREE », globe bleu électrique, anneau orbital et étoiles). Le visuel de référence a été transmis dans la conversation ChatGPT du 7 novembre 2026. Le logo est définitif : sa géométrie, ses inscriptions, ses effets, ses dégradés et ses couleurs ne doivent pas être modifiés.
 
-Dépôt : https://github.com/searadacunha/IPTV4FREE
+Dépôt : https://github.com/searadacunha/STREAMING4FREE-TV
 Branche existante : feat/iptv4free-tv-ui
-PR existante : https://github.com/searadacunha/IPTV4FREE/pull/3
+PR existante : ../../
 Source REA : https://github.com/morluto/rea
 
 ## 1. Première priorité : enregistrer le VRAI logo dans GitHub
