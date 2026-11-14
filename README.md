@@ -4,8 +4,6 @@
 
 # IPTVnSTREAMING4FREE
 
-<p align="center"><img src="assets/readme-hero.svg" width="100%" alt="IPTVnSTREAMING4FREE project illustration" /></p>
-
 **YOUR CHANNELS. YOUR SCREEN. YOUR CONTROL.**
 
 **A remote-first IPTV experience for Kodi and Android TV — with a complementary native streaming hub.**
