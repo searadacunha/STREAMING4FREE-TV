@@ -226,3 +226,13 @@ Original project code and artwork are provided under the **[MIT License](LICENSE
   <strong>IPTV4FREE first. STREAMING4FREE alongside it.</strong><br>
   <sub>Built for Kodi and Android TV · Developed for the remote · Open source</sub>
 </div>
+
+---
+
+## Development credits
+
+**Benjamin Da Cunha:** product direction, requirements and final decisions.
+
+**ChatGPT (OpenAI):** assistance with project architecture, consolidation of IPTV and streaming components, documentation and product presentation.
+
+These credits disclose AI assistance; they do not assign human authorship, independently verify research findings or imply that an AI tool is a GitHub account contributor.
