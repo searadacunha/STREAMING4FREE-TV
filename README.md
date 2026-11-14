@@ -229,7 +229,7 @@ Original project code and artwork are provided under the **[MIT License](LICENSE
 
 ---
 
-## Development credits
+## Contributors and AI assistance
 
 **Benjamin Da Cunha:** product direction, requirements and final decisions.
 
